@@ -2,7 +2,7 @@
 # missing
 # general
 # with covariates
-# Time-stamp: <liuminzhao 03/16/2013 10:18:58>
+# Time-stamp: <liuminzhao 03/16/2013 11:04:13>
 
 # simulate data
 # y | S = 1 ~ N(\delta + b0 + x*b1, sigma1)
@@ -39,7 +39,7 @@ y0 <- y[S == 0]
 summary(lm(y ~ x))
 plot(y ~ x)
 
-tau <- 0.5
+tau <- 0.9
 phi <- 0.5
 
 ## initial
