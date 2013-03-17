@@ -462,4 +462,87 @@ subject $i$)
   \eqref{eq:intg1} or equation \eqref{eq:intg2}.
 \end{enumerate}
 
+\section{Computation for Univariate Non-Missing Case with MLE}
+
+Suppose there is no missingness for the univariate response as $Y_1$,
+we can adopt maximum likelihood method to estimate quantile regression
+coefficients. In two-category example, what we are interested is
+quantile regression parameters $\gamma_0, \gamma_{1}$, such that:
+\begin{displaymath}
+  \pr (Y_{i1} \leq \gamma_0 + \gamma_1x_i) = \tau.
+\end{displaymath}
+Meanwhile,
+\begin{align*}
+  Y_{i1} | R = 1 & \sim N(\Delta_{i1} + \beta_0^{(1)} + \beta_1^{(1)}x_{i1}, \sigma^{(1)}) \\
+  Y_{i1} | R = 0 & \sim N(\Delta_{i1} - \beta_0^{(1)} - \beta_1^{(1)}x_{i1}, \sigma^{(0)}) \\
+  \pr (R = 1) & \sim Bern(\phi)
+\end{align*}
+where $\Delta_{i1}$ can be determined by $\gamma, \beta, \sigma, \tau,
+\phi, x_i$. The contributed likelihood for response $i$ is :
+\begin{equation}
+  \label{eq:emp}
+  L_i(Y_{i1}, R = r) = \phi^r(1-\phi)^{(1-r)}\pr \left( Y_{i1}|R = 1 \right)^r \pr \left( Y_{i1}|R = 0 \right)^{(1-r)}.
+\end{equation}
+One of the methods to get maximum likelihood estimates is by
+\textbf{Gradient Descent} algorithm. Denote $J(\bm \theta) = - \log L
+= - \log \sum_{i = 1}^n L_i$, where $\bm \theta = (\gamma_0, \gamma_1,
+\beta_0^{(1)}, \beta_1^{(1)}, \sigma^{(1)}, \sigma^{(0)}, \phi)$.
+Then to maximize likelihood is equivalent to minimize the target
+function $J(\bm \theta)$. Goal can be reached by the following algorithm:
+\begin{enumerate}
+\item Initialize $\bm \theta$
+\item \label{item:der} calculate $\partial J(\bm \theta) / \partial \theta_j$ for all $j$,
+\item update $\bm \theta$ by $\theta_j = \theta_j - \alpha \partial J(\bm \theta) / \partial \theta_j$ for all $j$
+\item evaluate new $J(\bm \theta)$
+\item if the amount of descent of $J ( \bm \theta)$ is great than certain
+  number, say $10^{-3}$, then go back to step \ref{item:der} and
+  repeat. Otherwise, algorithm converges.
+\end{enumerate}
+In previous algorithm, $\alpha$ controls the speed of convergence. If $\alpha$
+is too large, $J(\bm \theta)$ may be floating around the minimum and
+diverge. If $\alpha$ is too small, the convergence could be slow. But
+fixing at a small enough $\alpha$, convergence is ensured, at least to
+a local minimum.
+
+We can use numerical approximation to calculate $\partial J(\bm \theta)/\partial \theta_j$ in
+algorithm step \ref{item:der} by
+\begin{displaymath}
+  \frac{\partial J(\bm \theta)}{\partial \theta_1} \approx \frac{J(\theta_1 + \epsilon, \theta_2, \ldots) - J(\theta_1 - \epsilon, \theta_2 , \ldots)}{2\epsilon}, 
+\end{displaymath}
+for $j = 1$. We use a toy example to illustrate.
+\begin{emp}
+  We set the sample size $n = 200$, $\phi = 0.5$ and let $\beta_0^{(1)} = 1,
+  \beta_1^{(1)}= 2, \sigma^{(1)} = \sigma^{(0)} = 1$. Sample $x$ from
+  uniform $(0, 2)$. In MLE algorithm, for testing the algorithm
+  purpose, first we suppose $\sigma^{(r)}$ and $\phi$ are known and we
+  fixed them at true value, and the unknown parameters are $\gamma_0,\gamma_1,
+  \beta_0^{(1)} , \beta_1^{(1)}$.
+
+  For algorithm parameters, we set $\alpha = 0.001$ and the convergence
+  criteria is less than $10^{-3}$.
+\begin{verbatim}
+while (dif > 10^-3 & iter < 1000) {
+  pg0 <- PartialG0(gamma, beta)
+  pg1 <- PartialG1(gamma, beta)
+  pb0 <- PartialB0(gamma, beta)
+  pb1 <- PartialB1(gamma, beta)
+  gamma[1] <- gamma[1] - alpha * pg0
+  gamma[2] <- gamma[2] - alpha * pg1
+  beta[1] <- beta[1] - alpha * pb0
+  beta[2] <- beta[2] - alpha * pb1
+  delta <- unlist(sapply(as.list(x), function(x) SolveDelta(gamma, beta, sigma, tau, phi, x)))
+  ll <- LogLikelihood(y, S, x, delta, beta, sigma)
+  dif <- abs(ll - ll0)
+  ll0 <- ll
+  llsave <- append(llsave, ll)
+  iter <- iter + 1
+}
+\end{verbatim}
+
+  Quantile regressions for quantiles (0.1, 0.3, 0.5, 0.7, 0.9) are
+  estimated and quantile lines are plotted with $x, y$ scatter plot :
+
+  \includegraphics[scale = 0.8]{../image/mle1.png}
+\end{emp}
+
 \end{document}

@@ -3,7 +3,7 @@
 ## general
 ## with covariates
 ## MLE with gradient descent method
-## Time-stamp: <liuminzhao 03/16/2013 21:33:30>
+## Time-stamp: <liuminzhao 03/16/2013 23:45:56>
 
 ## simulate data
 ## y | S = 1 ~ N(\delta + b0 + x*b1, sigma1)
@@ -92,7 +92,8 @@ b11 <- 2
 b10 <- -2
 sigma1 <- 1
 sigma0 <- 1
-x <- runif(n)
+x <- runif(n, 0, 2)
+## x <- rnorm(n)
 y <- rep(0, n)
 for (i in 1:n){
   if (S[i] == 1) {
@@ -108,7 +109,7 @@ y0 <- y[S == 0]
 summary(lm(y ~ x))
 plot(y ~ x)
 
-tau <- 0.8
+tau <- 0.1
 phi <- 0.5
 beta <- c(1, 2) # beta^(1)
 gamma <- c(0, 0)
@@ -143,3 +144,17 @@ while (dif > 10^-3 & iter < 1000) {
 cat(gamma, beta, sigma, '\n')
 plot(ts(llsave))
 
+
+###############
+## save png 
+###############
+
+png('../image/mle1.png')
+plot(y ~x)
+abline(c(1.93, 2.038), col = 2)
+abline(c(0.91, 1.977), col = 3)
+abline(c(0.06, -0.012), col = 4)
+abline(c(-0.733, -2.06), col = 5)
+abline(c(-1.79, -2.081), col = 6)
+legend('topleft', c('0.1', '0.3', '0.5', '0.7', '0.9'), col = 6:2, lty = rep(1, 5))
+dev.off()
