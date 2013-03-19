@@ -488,38 +488,45 @@ One of the methods to get maximum likelihood estimates is by
 = - \log \sum_{i = 1}^n L_i$, where $\bm \theta = (\gamma_0, \gamma_1,
 \beta_0^{(1)}, \beta_1^{(1)}, \sigma^{(1)}, \sigma^{(0)}, \phi)$.
 Then to maximize likelihood is equivalent to minimize the target
-function $J(\bm \theta)$. Goal can be reached by the following algorithm:
+function $J(\bm \theta)$. Goal can be reached by the following
+algorithm:
 \begin{enumerate}
 \item Initialize $\bm \theta$
-\item \label{item:der} calculate $\partial J(\bm \theta) / \partial \theta_j$ for all $j$,
-\item update $\bm \theta$ by $\theta_j = \theta_j - \alpha \partial J(\bm \theta) / \partial \theta_j$ for all $j$
+\item \label{item:der} calculate $\partial J(\bm \theta) / \partial
+  \theta_j$ for all $j$,
+\item update $\bm \theta$ by $\theta_j = \theta_j - \alpha \partial
+  J(\bm \theta) / \partial \theta_j$ for all $j$
 \item evaluate new $J(\bm \theta)$
-\item if the amount of descent of $J ( \bm \theta)$ is great than certain
-  number, say $10^{-3}$, then go back to step \ref{item:der} and
-  repeat. Otherwise, algorithm converges.
+\item if the amount of descent of $J ( \bm \theta)$ is great than
+  certain number, say $10^{-3}$, then go back to step \ref{item:der}
+  and repeat. Otherwise, algorithm converges.
 \end{enumerate}
-In previous algorithm, $\alpha$ controls the speed of convergence. If $\alpha$
-is too large, $J(\bm \theta)$ may be floating around the minimum and
-diverge. If $\alpha$ is too small, the convergence could be slow. But
-fixing at a small enough $\alpha$, convergence is ensured, at least to
-a local minimum.
+In previous algorithm, $\alpha$ controls the speed of convergence. If
+$\alpha$ is too large, $J(\bm \theta)$ may be floating around the
+minimum and diverge. If $\alpha$ is too small, the convergence could
+be slow. But fixing at a small enough $\alpha$, convergence is
+ensured, at least to a local minimum.
 
-We can use numerical approximation to calculate $\partial J(\bm \theta)/\partial \theta_j$ in
-algorithm step \ref{item:der} by
+We can use numerical approximation to calculate $\partial J(\bm
+\theta)/\partial \theta_j$ in algorithm step \ref{item:der} by
 \begin{displaymath}
   \frac{\partial J(\bm \theta)}{\partial \theta_1} \approx \frac{J(\theta_1 + \epsilon, \theta_2, \ldots) - J(\theta_1 - \epsilon, \theta_2 , \ldots)}{2\epsilon}, 
 \end{displaymath}
 for $j = 1$. We use a toy example to illustrate.
 \begin{emp}
-  We set the sample size $n = 200$, $\phi = 0.5$ and let $\beta_0^{(1)} = 1,
-  \beta_1^{(1)}= 2, \sigma^{(1)} = \sigma^{(0)} = 1$. Sample $x$ from
-  uniform $(0, 2)$. In MLE algorithm, for testing the algorithm
-  purpose, first we suppose $\sigma^{(r)}$ and $\phi$ are known and we
-  fixed them at true value, and the unknown parameters are $\gamma_0,\gamma_1,
-  \beta_0^{(1)} , \beta_1^{(1)}$.
+  We set the sample size $n = 200$, $\phi = 0.5$ and Let
+  \begin{align*}
+    Y | R = 1 & \sim N(1 + 2x , 1)\\
+    Y | R = 0 & \sim N( - 1 - 2x, 1) \\
+    \pr (R = 1) & = \phi = 0.5.
+  \end{align*}
+  Sample $x$ from uniform $(0, 2)$. In MLE algorithm, for testing the
+  algorithm purpose, first we suppose $\sigma^{(r)}$ and $\phi$ are
+  known and we fixed them at true value, and the unknown parameters
+  are $\gamma_0,\gamma_1, \beta_0^{(1)} , \beta_1^{(1)}$.
 
-  For algorithm parameters, we set $\alpha = 0.001$ and the convergence
-  criteria is less than $10^{-3}$.
+  For algorithm parameters, we set $\alpha = 0.001$ and the
+  convergence criteria is less than $10^{-3}$.
 \begin{verbatim}
 while (dif > 10^-3 & iter < 1000) {
   pg0 <- PartialG0(gamma, beta)
@@ -543,6 +550,20 @@ while (dif > 10^-3 & iter < 1000) {
   estimated and quantile lines are plotted with $x, y$ scatter plot :
 
   \includegraphics[scale = 0.8]{../image/mle1.png}
+
+  For model:
+  \begin{align*}
+    Y | R = 1 & \sim N(1 + 2x , 1)\\
+    Y | R = 0 & \sim N( - 1 - 2x, 2) \\
+    \pr (R = 1) & = \phi = 0.5.
+  \end{align*}
+
+  \includegraphics[scale = 0.8]{../image/mle2.png}
+
+  Furthermore, for categories more than two, it is also doable to use
+  MLE to estimate.
+
+
 \end{emp}
 
 \end{document}

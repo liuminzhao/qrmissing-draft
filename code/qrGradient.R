@@ -3,7 +3,7 @@
 ## general
 ## with covariates
 ## MLE with gradient descent method
-## Time-stamp: <liuminzhao 03/16/2013 23:45:56>
+## Time-stamp: <liuminzhao 03/19/2013 16:21:49>
 
 ## simulate data
 ## y | S = 1 ~ N(\delta + b0 + x*b1, sigma1)
@@ -28,8 +28,8 @@ LogLikelihood <- function(y, S, x, delta, beta, sigma){
   ll <- 0
   mu1 <- delta + beta[1] + beta[2] * x
   mu0 <- delta - beta[1] - beta[2] * x
-  ll1 <- dnorm(y, mean = mu1, sd = sigma1, log = T)
-  ll0 <- dnorm(y, mean = mu0, sd = sigma0, log = T)
+  ll1 <- dnorm(y, mean = mu1, sd = sigma[1], log = T)
+  ll0 <- dnorm(y, mean = mu0, sd = sigma[2], log = T)
   ll <- c(ll1[S == 1], ll0[S == 0])
   return(-sum(ll))
 }
@@ -78,6 +78,27 @@ PartialB1 <- function(gamma, beta){
   return((ll1 - ll2) / 2/ epsilon)
 }
 
+PartialS0 <- function(gamma, beta, sigma){
+  epsilon <- 0.001
+  sigma1 <- c(sigma[1] + epsilon, sigma[2])
+  sigma2 <- c(sigma[1] - epsilon, sigma[2])
+  delta1 <- unlist(sapply(as.list(x), function(x) SolveDelta(gamma, beta, sigma1, tau, phi, x)))
+  delta2 <- unlist(sapply(as.list(x), function(x) SolveDelta(gamma, beta, sigma2, tau, phi, x)))
+  ll1 <- LogLikelihood(y, S, x, delta1, beta, sigma1)
+  ll2 <- LogLikelihood(y, S, x, delta2, beta, sigma2)
+  return((ll1 - ll2) / 2/ epsilon)
+}
+
+PartialS1 <- function(gamma, beta, sigma){
+  epsilon <- 0.001
+  sigma1 <- c(sigma[1], sigma[2] + epsilon)
+  sigma2 <- c(sigma[1], sigma[2] - epsilon)
+  delta1 <- unlist(sapply(as.list(x), function(x) SolveDelta(gamma, beta, sigma1, tau, phi, x)))
+  delta2 <- unlist(sapply(as.list(x), function(x) SolveDelta(gamma, beta, sigma2, tau, phi, x)))
+  ll1 <- LogLikelihood(y, S, x, delta1, beta, sigma1)
+  ll2 <- LogLikelihood(y, S, x, delta2, beta, sigma2)
+  return((ll1 - ll2) / 2/ epsilon)
+}
 
 ###############
 ## Test 
@@ -87,11 +108,12 @@ n <- 200
 p <- 0.5
 S <- rbinom(n, 1, p)
 b01 <- 1
-b00 <- -1
+b00 <- -2
 b11 <- 2
-b10 <- -2
+b10 <- -4
 sigma1 <- 1
-sigma0 <- 1
+sigma0 <- 2
+## sigma0 <- 1
 x <- runif(n, 0, 2)
 ## x <- rnorm(n)
 y <- rep(0, n)
@@ -109,40 +131,64 @@ y0 <- y[S == 0]
 summary(lm(y ~ x))
 plot(y ~ x)
 
-tau <- 0.1
-phi <- 0.5
-beta <- c(1, 2) # beta^(1)
-gamma <- c(0, 0)
-sigma <- c(sigma1, sigma0)
-delta <- rep(0, n)
-ll0 <- LogLikelihood(y, S, x, delta, beta, sigma)
-dif <- 1
-alpha <- 0.001
-iter <- 0
-llsave <- ll0
-
-
+gammasave <- matrix(0, 5, 2)
+i <- 1
+for (tau in c(0.1, 0.3, 0.5, 0.7, 0.9)) {
+  phi <- 0.5
+  beta <- c(0, 0) # beta^(1)
+  gamma <- c(0, 0)
+  ## sigma <- c(sigma1, sigma0)
+  sigma <- c(1, 1)
+  delta <- rep(0, n)
+  ll0 <- LogLikelihood(y, S, x, delta, beta, sigma)
+  dif <- 1
+  alpha <- 0.003
+  iter <- 0
+  llsave <- ll0
+  gamma0save <- gamma1save <- beta0save <- beta1save <- sigma1save <- sigma0save <- 0
 ###############
-## BEGIN GRADIENT DESCENT 
+  ## BEGIN GRADIENT DESCENT 
 ###############
-while (dif > 10^-3 & iter < 1000) {
-  pg0 <- PartialG0(gamma, beta)
-  pg1 <- PartialG1(gamma, beta)
-  pb0 <- PartialB0(gamma, beta)
-  pb1 <- PartialB1(gamma, beta)
-  gamma[1] <- gamma[1] - alpha * pg0
-  gamma[2] <- gamma[2] - alpha * pg1
-  beta[1] <- beta[1] - alpha * pb0
-  beta[2] <- beta[2] - alpha * pb1
-  delta <- unlist(sapply(as.list(x), function(x) SolveDelta(gamma, beta, sigma, tau, phi, x)))
-  ll <- LogLikelihood(y, S, x, delta, beta, sigma)
-  dif <- abs(ll - ll0)
-  ll0 <- ll
-  llsave <- append(llsave, ll)
-  iter <- iter + 1
+  while (dif > 10^-5 & iter < 1000) {
+    pg0 <- PartialG0(gamma, beta)
+    pg1 <- PartialG1(gamma, beta)
+    pb0 <- PartialB0(gamma, beta)
+    pb1 <- PartialB1(gamma, beta)
+    ps0 <- PartialS0(gamma, beta, sigma)
+    ps1 <- PartialS1(gamma, beta, sigma)
+    gamma[1] <- gamma[1] - alpha * pg0
+    gamma[2] <- gamma[2] - alpha * pg1
+    beta[1] <- beta[1] - alpha * pb0
+    beta[2] <- beta[2] - alpha * pb1
+    sigma[1] <- max(sigma[1] - alpha * ps0, 0.01)
+    sigma[2] <- max(sigma[2] - alpha * ps1, 0.01)
+    delta <- unlist(sapply(as.list(x), function(x) SolveDelta(gamma, beta, sigma, tau, phi, x)))
+    ll <- LogLikelihood(y, S, x, delta, beta, sigma)
+    dif <- abs(ll - ll0)
+    ll0 <- ll
+    llsave <- append(llsave, ll)
+    gamma0save <- append(gamma0save, gamma[1])
+    gamma1save <- append(gamma1save, gamma[2])
+    beta0save <- append(beta0save, beta[1])
+    beta1save <- append(beta1save, beta[2])
+    sigma0save <- append(sigma0save, sigma[1])
+    sigma1save <- append(sigma1save, sigma[2])
+    iter <- iter + 1
+  }
+  gammasave[i, ] <- gamma
+  i <- i + 1
 }
-cat(gamma, beta, sigma, '\n')
+  
+cat(gamma, beta, sigma, iter, '\n')
+par(mfrow = c(4, 2))
 plot(ts(llsave))
+plot(ts(gamma0save))
+plot(ts(gamma1save))
+plot(ts(beta0save))
+plot(ts(beta1save))
+plot(ts(sigma0save))
+plot(ts(sigma1save))
+
 
 
 ###############
@@ -150,11 +196,21 @@ plot(ts(llsave))
 ###############
 
 png('../image/mle1.png')
-plot(y ~x)
+plot(y ~ x)
 abline(c(1.93, 2.038), col = 2)
 abline(c(0.91, 1.977), col = 3)
 abline(c(0.06, -0.012), col = 4)
 abline(c(-0.733, -2.06), col = 5)
 abline(c(-1.79, -2.081), col = 6)
+legend('topleft', c('0.1', '0.3', '0.5', '0.7', '0.9'), col = 6:2, lty = rep(1, 5))
+dev.off()
+
+png('../image/mle2.png')
+plot(y ~ x)
+abline(c(2.187, 1.665), col = 2)
+abline(c(1.23, 1.556), col = 3)
+abline(c(0.5315, 0.4264), col = 4)
+abline(c(-0.7985, -1.869), col = 5)
+abline(c(-2.492, -2.274), col = 6)
 legend('topleft', c('0.1', '0.3', '0.5', '0.7', '0.9'), col = 6:2, lty = rep(1, 5))
 dev.off()
