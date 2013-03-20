@@ -3,7 +3,7 @@
 ## general
 ## with covariates
 ## MLE with gradient descent method
-## Time-stamp: <liuminzhao 03/19/2013 20:16:15>
+## Time-stamp: <liuminzhao 03/19/2013 23:34:54>
 
 ## simulate data
 ## y | S = 1 ~ N(\delta + b0 + x*b1, sigma1)
@@ -21,7 +21,7 @@ TargetEqn <- function(delta, gamma, beta, sigma, tau, p, x){
 }
 
 SolveDelta <- function(gamma, beta, sigma, tau, p, x){
-  return(uniroot.all(TargetEqn, c(-30, 30), tol = 0.0001, gamma = gamma, beta = beta, sigma = sigma, tau = tau, p = p, x = x))
+  return(uniroot.all(TargetEqn, c(-30, 30), tol = 0.0001, gamma = gamma, beta = beta, sigma = sigma, tau = tau, p = p, x = x)[1])
 }
 
 LogLikelihood <- function(y, S, x, delta, beta, sigma){
@@ -34,7 +34,7 @@ LogLikelihood <- function(y, S, x, delta, beta, sigma){
   return(-sum(ll))
 }
 
-PartialG0 <- function(gamma, beta){
+PartialG0 <- function(gamma, beta, sigma, tau, phi, x){
   epsilon <- 0.01
   gamma1 <- c(gamma[1] + epsilon, gamma[2])
   gamma2 <- c(gamma[1] - epsilon, gamma[2])
@@ -45,7 +45,7 @@ PartialG0 <- function(gamma, beta){
   return((ll1 - ll2) / 2/ epsilon)
 }
 
-PartialG1 <- function(gamma, beta){
+PartialG1 <- function(gamma, beta, sigma, tau, phi, x){
   epsilon <- 0.01
   gamma1 <- c(gamma[1], gamma[2] + epsilon)
   gamma2 <- c(gamma[1], gamma[2] - epsilon)
@@ -56,7 +56,7 @@ PartialG1 <- function(gamma, beta){
   return((ll1 - ll2) / 2/ epsilon)
 }
 
-PartialB0 <- function(gamma, beta){
+PartialB0 <- function(gamma, beta, sigma, tau, phi, x){
   epsilon <- 0.01
   beta1 <- c(beta[1] + epsilon, beta[2])
   beta2 <- c(beta[1] - epsilon, beta[2])
@@ -67,7 +67,7 @@ PartialB0 <- function(gamma, beta){
   return((ll1 - ll2) / 2/ epsilon)
 }
 
-PartialB1 <- function(gamma, beta){
+PartialB1 <- function(gamma, beta, sigma, tau, phi, x){
   epsilon <- 0.01
   beta1 <- c(beta[1], beta[2] + epsilon)
   beta2 <- c(beta[1], beta[2] - epsilon)
@@ -78,7 +78,7 @@ PartialB1 <- function(gamma, beta){
   return((ll1 - ll2) / 2/ epsilon)
 }
 
-PartialS0 <- function(gamma, beta, sigma){
+PartialS0 <- function(gamma, beta, sigma, tau, phi, x){
   epsilon <- 0.001
   sigma1 <- c(sigma[1] + epsilon, sigma[2])
   sigma2 <- c(sigma[1] - epsilon, sigma[2])
@@ -89,7 +89,7 @@ PartialS0 <- function(gamma, beta, sigma){
   return((ll1 - ll2) / 2/ epsilon)
 }
 
-PartialS1 <- function(gamma, beta, sigma){
+PartialS1 <- function(gamma, beta, sigma, tau, phi, x){
   epsilon <- 0.001
   sigma1 <- c(sigma[1], sigma[2] + epsilon)
   sigma2 <- c(sigma[1], sigma[2] - epsilon)
@@ -116,12 +116,12 @@ QRGradientUni <- function(y, S, x, tau){
   ## BEGIN GRADIENT DESCENT 
 ###############
   while (dif > 10^-5 & iter < 1000) {
-    pg0 <- PartialG0(gamma, beta)
-    pg1 <- PartialG1(gamma, beta)
-    pb0 <- PartialB0(gamma, beta)
-    pb1 <- PartialB1(gamma, beta)
-    ps0 <- PartialS0(gamma, beta, sigma)
-    ps1 <- PartialS1(gamma, beta, sigma)
+    pg0 <- PartialG0(gamma, beta, sigma, tau, phi, x)
+    pg1 <- PartialG1(gamma, beta, sigma, tau, phi, x)
+    pb0 <- PartialB0(gamma, beta, sigma, tau, phi, x)
+    pb1 <- PartialB1(gamma, beta, sigma, tau, phi, x)
+    ps0 <- PartialS0(gamma, beta, sigma, tau, phi, x)
+    ps1 <- PartialS1(gamma, beta, sigma, tau, phi, x)
     gamma[1] <- gamma[1] - alpha * pg0
     gamma[2] <- gamma[2] - alpha * pg1
     beta[1] <- beta[1] - alpha * pb0
@@ -141,6 +141,6 @@ QRGradientUni <- function(y, S, x, tau){
     sigma1save <- append(sigma1save, sigma[2])
     iter <- iter + 1
   }
-  return(list(gamma = gamma))
+  return(list(gamma = gamma, beta = beta, sigma = sigma))
 }
   
