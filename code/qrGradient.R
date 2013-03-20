@@ -3,7 +3,7 @@
 ## general
 ## with covariates
 ## MLE with gradient descent method
-## Time-stamp: <liuminzhao 03/19/2013 16:21:49>
+## Time-stamp: <liuminzhao 03/19/2013 20:16:15>
 
 ## simulate data
 ## y | S = 1 ~ N(\delta + b0 + x*b1, sigma1)
@@ -100,44 +100,10 @@ PartialS1 <- function(gamma, beta, sigma){
   return((ll1 - ll2) / 2/ epsilon)
 }
 
-###############
-## Test 
-###############
-
-n <- 200
-p <- 0.5
-S <- rbinom(n, 1, p)
-b01 <- 1
-b00 <- -2
-b11 <- 2
-b10 <- -4
-sigma1 <- 1
-sigma0 <- 2
-## sigma0 <- 1
-x <- runif(n, 0, 2)
-## x <- rnorm(n)
-y <- rep(0, n)
-for (i in 1:n){
-  if (S[i] == 1) {
-    y[i] <- rnorm(1, b01 + x[i] * b11, sigma1)
-  } else {
-    y[i] <- rnorm(1, b00 + x[i] * b10, sigma0)
-  }
-}
-y1 <- y[S == 1]
-y0 <- y[S == 0]
-
-## mean regression of y on x
-summary(lm(y ~ x))
-plot(y ~ x)
-
-gammasave <- matrix(0, 5, 2)
-i <- 1
-for (tau in c(0.1, 0.3, 0.5, 0.7, 0.9)) {
+QRGradientUni <- function(y, S, x, tau){
   phi <- 0.5
   beta <- c(0, 0) # beta^(1)
   gamma <- c(0, 0)
-  ## sigma <- c(sigma1, sigma0)
   sigma <- c(1, 1)
   delta <- rep(0, n)
   ll0 <- LogLikelihood(y, S, x, delta, beta, sigma)
@@ -175,42 +141,6 @@ for (tau in c(0.1, 0.3, 0.5, 0.7, 0.9)) {
     sigma1save <- append(sigma1save, sigma[2])
     iter <- iter + 1
   }
-  gammasave[i, ] <- gamma
-  i <- i + 1
+  return(list(gamma = gamma))
 }
   
-cat(gamma, beta, sigma, iter, '\n')
-par(mfrow = c(4, 2))
-plot(ts(llsave))
-plot(ts(gamma0save))
-plot(ts(gamma1save))
-plot(ts(beta0save))
-plot(ts(beta1save))
-plot(ts(sigma0save))
-plot(ts(sigma1save))
-
-
-
-###############
-## save png 
-###############
-
-png('../image/mle1.png')
-plot(y ~ x)
-abline(c(1.93, 2.038), col = 2)
-abline(c(0.91, 1.977), col = 3)
-abline(c(0.06, -0.012), col = 4)
-abline(c(-0.733, -2.06), col = 5)
-abline(c(-1.79, -2.081), col = 6)
-legend('topleft', c('0.1', '0.3', '0.5', '0.7', '0.9'), col = 6:2, lty = rep(1, 5))
-dev.off()
-
-png('../image/mle2.png')
-plot(y ~ x)
-abline(c(2.187, 1.665), col = 2)
-abline(c(1.23, 1.556), col = 3)
-abline(c(0.5315, 0.4264), col = 4)
-abline(c(-0.7985, -1.869), col = 5)
-abline(c(-2.492, -2.274), col = 6)
-legend('topleft', c('0.1', '0.3', '0.5', '0.7', '0.9'), col = 6:2, lty = rep(1, 5))
-dev.off()
