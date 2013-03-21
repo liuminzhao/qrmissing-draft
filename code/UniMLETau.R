@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 03/21/2013 16:44:03>
+## Time-stamp: <liuminzhao 03/21/2013 17:44:38>
 ## Univariate
 ## Using tau instead of sigma
 ## MLE with gradient descent
@@ -24,7 +24,7 @@ LogLikelihood <- function(y, S, x, delta, beta, prec){
 }
 
 PartialG0 <- function(gamma, beta, prec, tau, phi, y, S, x){
-  epsilon <- 0.01
+  epsilon <- 0.003
   gamma1 <- c(gamma[1] + epsilon, gamma[2])
   gamma2 <- c(gamma[1] - epsilon, gamma[2])
   delta1 <- unlist(sapply(as.list(x), function(x) SolveDelta(gamma1, beta, prec, tau, phi, x)))
@@ -35,7 +35,7 @@ PartialG0 <- function(gamma, beta, prec, tau, phi, y, S, x){
 }
 
 PartialG1 <- function(gamma, beta, prec, tau, phi, y, S, x){
-  epsilon <- 0.01
+  epsilon <- 0.003
   gamma1 <- c(gamma[1], gamma[2] + epsilon)
   gamma2 <- c(gamma[1], gamma[2] - epsilon)
   delta1 <- unlist(sapply(as.list(x), function(x) SolveDelta(gamma1, beta, prec, tau, phi, x)))
@@ -46,7 +46,7 @@ PartialG1 <- function(gamma, beta, prec, tau, phi, y, S, x){
 }
 
 PartialB0 <- function(gamma, beta, prec, tau, phi, y, S, x){
-  epsilon <- 0.01
+  epsilon <- 0.003
   beta1 <- c(beta[1] + epsilon, beta[2])
   beta2 <- c(beta[1] - epsilon, beta[2])
   delta1 <- unlist(sapply(as.list(x), function(x) SolveDelta(gamma, beta1, prec, tau, phi, x)))
@@ -57,7 +57,7 @@ PartialB0 <- function(gamma, beta, prec, tau, phi, y, S, x){
 }
 
 PartialB1 <- function(gamma, beta, prec, tau, phi, y, S, x){
-  epsilon <- 0.01
+  epsilon <- 0.003
   beta1 <- c(beta[1], beta[2] + epsilon)
   beta2 <- c(beta[1], beta[2] - epsilon)
   delta1 <- unlist(sapply(as.list(x), function(x) SolveDelta(gamma, beta1, prec, tau, phi, x)))
@@ -101,7 +101,7 @@ PartialPhi <- function(gamma, beta, prec, tau, phi, y, S, x){
   return((ll1 - ll2) / 2/ epsilon)
 }
 
-QRGradient <- function(y, S, x, tau, niter = 300){
+QRGradient <- function(y, S, x, tau, niter = 500){
 
   phi <- 0.7
   n <- length(y)
@@ -111,16 +111,15 @@ QRGradient <- function(y, S, x, tau, niter = 300){
   delta <- rep(0, n)
   ll0 <- LogLikelihood(y, S, x, delta, beta, prec)
   dif <- 1
-  alpha <- c(0.0001, 0.0003, 0.0004, 0.0003, 0.0001)[floor(tau*5) + 1]
+  alpha <- c(0.0001, 0.0002, 0.0002, 0.0003, 0.0001)[floor(tau*5) + 1]
   iter <- 0
   llsave <- ll0
   gamma0save <- gamma1save <- beta0save <- beta1save <- prec1save <- prec0save <- phisave <- 0
 
   ## progress bar
   pb <- txtProgressBar(min = 0, max = niter, style = 3)
-###############
+
   ## BEGIN GRADIENT DESCENT 
-###############
   while (dif > 10^-5 & iter < niter) {
     pg0 <- PartialG0(gamma, beta, prec, tau, phi, y, S, x)
     pg1 <- PartialG1(gamma, beta, prec, tau, phi, y, S, x)
@@ -158,8 +157,10 @@ QRGradient <- function(y, S, x, tau, niter = 300){
 }
 
 myplot <- function(mod){
-  par(mfrow = c(4, 2))
   plot(y ~ x)
   abline(mod$gamma, main = mod$tau)
-  plot(ts(mod$paramsave[, 7]))
+  for (i in 1:7){
+    plot(ts(mod$paramsave[, i]))
+  }
+  plot(ts(mod$llsave[100:mod$iter]))
 }
