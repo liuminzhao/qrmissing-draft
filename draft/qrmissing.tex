@@ -231,7 +231,32 @@ $\bm \xi = (\bm \xi_m, \xi_s)$ = ($\gamma_{01}, \gamma_{11},
     & \quad + (1-\pi) \int \Phi \left( \frac{\gamma_{02} + x_i\gamma_{12} - \Delta_{i2} - \beta_{02}^{(0)} - x_i\beta_{12}^{(0)} - y_{i1}\beta_{22}^{(0)}}{\lambda\sigma_{2|1}^{(1)}} \right) dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(0)}, \sigma_{11}^{(0)}). \\
   \end{align}
   Still we use the constraints in \eqref{eq:c0} to
-  \eqref{eq:cs}. $\Delta_{i2}$ can be solved through the above
+  \eqref{eq:cs}.
+By the computation in section \ref{sec:computation}, the above integral can be simplified to 
+
+\begin{align*}
+\int \Phi \left( \frac{\gamma_{02} + x_i\gamma_{12} - \Delta_{i2} + \beta_{02}^{(0)} + x_i\beta_{12}^{(0)} + y_{i1}\beta_{22}^{(0)}}{\sigma_{2|1}^{(1)}} \right) dF_{i1}^{(1)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(1)}, \sigma_{11}^{(1)}) \\
+= \int \Phi \left( \frac{y_{i1} - (\Delta_{i2} - \gamma_{02} - x \gamma_{12} - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)}}{\sigma_{2|1}/\beta_{22}^{(0)}} \right) dF_{i1}^{(1)}(y_{i1}; \Delta_{i1}+\beta_{01}^{(1)} + x\beta_{11}^{(1)}, \sigma_{11}^{(1)}) \\
+ = 
+\begin{cases}
+1 - \Phi \left( \frac{(\Delta_{i2} - \gamma_{02} - x \gamma_{12} - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)} - (\Delta_{i1}+\beta_{01}^{(1)} + x\beta_{11}^{(1)}) }{\sigma_{11}^{(1)}} / \sqrt{\frac{\sigma_{2|1}^2}{\beta_{22}^{(0)2} \sigma_{11}^{(1)2}} +1} \right) & \beta_{22}^{(0)} > 0\\
+\Phi \left( \frac{(\Delta_{i2} - \gamma_{02} - x \gamma_{12} - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)} - (\Delta_{i1}+\beta_{01}^{(1)} + x\beta_{11}^{(1)}) }{\sigma_{11}^{(1)}} / \sqrt{\frac{\sigma_{2|1}^2}{\beta_{22}^{(0)2} \sigma_{11}^{(1)2}} +1} \right)& \beta_{22}^{(0)} < 0 
+\end{cases}
+\end{align*}
+
+and 
+
+\begin{align*}
+\int \Phi \left( \frac{\gamma_{02} + x_i\gamma_{12} - \Delta_{i2} - \beta_{02}^{(0)} - x_i\beta_{12}^{(0)} - y_{i1}\beta_{22}^{(0)}}{\sigma_{2|1}^{(0)}} \right) dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(0)}, \sigma_{11}^{(0)}) \\
+= \int \Phi \left( \frac{y_{i1} - ( \gamma_{02} + x \gamma_{12} - \Delta_{i2} - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)}}{\lambda\sigma_{2|1}/(-\beta_{22}^{(0)})} \right) dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}-\beta_{01}^{(1)} - x\beta_{11}^{(1)}, \sigma_{11}^{(0)}) \\
+ = 
+\begin{cases}
+\Phi \left( \frac{( \gamma_{02} + x \gamma_{12} - \Delta_{i2}  - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)} - (\Delta_{i1} - \beta_{01}^{(1)} - x\beta_{11}^{(1)}) }{\sigma_{11}^{(0)}} / \sqrt{\frac{\lambda^{2}\sigma_{2|1}^2}{\beta_{22}^{(0)2} \sigma_{11}^{(0)2}} +1} \right) & \beta_{22}^{(0)} > 0\\
+1 - \Phi \left( \frac{( \gamma_{02} +  x \gamma_{12} - \Delta_{i2}  - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)} - (\Delta_{i1} - \beta_{01}^{(1)} - x\beta_{11}^{(1)}) }{\sigma_{11}^{(0)}} / \sqrt{\frac{\lambda^2\sigma_{2|1}^2}{\beta_{22}^{(0)2} \sigma_{11}^{(0)2}} +1} \right)& \beta_{22}^{(0)} < 0 
+\end{cases}
+\end{align*}
+
+ $\Delta_{i2}$ can be solved through the above
   equation, but with some difficulties:
   \begin{itemize}
   \item newton-Raphson method.
@@ -358,6 +383,7 @@ While $\bm \xi_{s2} = (0, 0, 0, \tau_2^{(\geq 2)})$ and $\bm \xi_{s3} = (0, 0, 0
 correlation within subject
 
 \section{Computation}
+\label{sec:computation}
 \begin{itemize}
 \item Denote
   \begin{displaymath}
