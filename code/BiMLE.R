@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 03/25/2013 20:19:58>
+## Time-stamp: <liuminzhao 03/26/2013 16:56:27>
 ## MLE with Bivariate Case
 ## ONE COVARIATE
 ## FIX SENSITIVITY PARAMETER (MAR OR MNAR)
@@ -258,7 +258,7 @@ BiQRGradient <- function(y, R, x, tau, niter = 1000){
   delta2 <- rep(0, n)
   ll0 <- NegLogLikelihood(y, R, x, delta1, beta1, prec1, delta2, beta2, prec2, lambda)
 
-  paramsave <- c(gamma1, gamma2, beta1, beta2, prec1, prec2, lambda, ll0)
+  paramsave <- c(gamma1, gamma2, beta1, beta2, prec1, prec2, lambda, phi, ll0)
   
   dif <- 1
   alpha <- 0.0003
@@ -314,7 +314,7 @@ BiQRGradient <- function(y, R, x, tau, niter = 1000){
     ll0 <- ll
 
     ## SAVE
-    paramsave <- rbind(paramsave, c(gamma1, gamma2, beta1, beta2, prec1, prec2, lambda, ll))
+    paramsave <- rbind(paramsave, c(gamma1, gamma2, beta1, beta2, prec1, prec2, lambda, phi, ll))
     
     iter <- iter + 1
 
@@ -322,17 +322,20 @@ BiQRGradient <- function(y, R, x, tau, niter = 1000){
     setTxtProgressBar(pb, iter)
   }
 
-  param <- list(gamma1 = gamma1, gamma2 = gamma2, beta1 = beta1, beta2 = beta2, prec1 = prec1, prec2 = prec2, lambda = lambda, phi = phi, iter = iter, tau = tau, paramsave = paramsave)
+  param <- list(gamma1 = gamma1, gamma2 = gamma2, beta1 = beta1, beta2 = beta2, prec1 = prec1, prec2 = prec2, lambda = lambda, phi = phi, iter = iter, tau = tau)
 
-  return(param)
+  colnames(paramsave) <- c('gamma01', 'gamma11', 'gamma02', 'gamma12', 'beta01', 'beta11', 'beta02', 'beta12', 'beta22', 'prec11', 'prec01', 'prec2', 'lambda', 'phi', 'll')
+  
+  return(list(param = param, paramsave = paramsave))
   
 }
 
 myplot <- function(mod){
   plot(y[,1] ~x)
-  abline(mod$gamma1)
+  abline(mod$param$gamma1)
   plot(y[,2] ~x)
-  abline(mod$gamma2)
-  apply(mod$paramsave, 2, function(x) plot(ts(x)))
+  abline(mod$param$gamma2)
+  for (i in 1:dim(mod$paramsave)[2])
+    plot(ts(mod$paramsave[, i]), main = colnames(mod$paramsave)[i])
 }
 
