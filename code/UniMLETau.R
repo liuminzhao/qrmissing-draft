@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 03/21/2013 17:44:38>
+## Time-stamp: <liuminzhao 03/26/2013 18:57:43>
 ## Univariate
 ## Using tau instead of sigma
 ## MLE with gradient descent
@@ -151,16 +151,17 @@ QRGradient <- function(y, S, x, tau, niter = 500){
     setTxtProgressBar(pb, iter)
   }
 
-  paramsave <- cbind(gamma0save, gamma1save, beta0save, beta1save, prec0save, prec1save, phisave)
+  paramsave <- cbind(gamma0save, gamma1save, beta0save, beta1save, prec0save, prec1save, phisave,  llsave)
+
+  param <- list(gamma = gamma, beta = beta, prec = prec, phi = phi, llsave = llsave, iter = iter, tau = tau)
   
-  return(list(gamma = gamma, beta = beta, prec = prec, phi = phi, llsave = llsave, iter = iter, paramsave = paramsave, tau = tau))
+  return(list(param = param, paramsave = paramsave))
+  
 }
 
 myplot <- function(mod){
   plot(y ~ x)
   abline(mod$gamma, main = mod$tau)
-  for (i in 1:7){
-    plot(ts(mod$paramsave[, i]))
-  }
-  plot(ts(mod$llsave[100:mod$iter]))
+  for (i in 1:dim(mod$paramsave)[2])
+    plot(ts(mod$paramsave[, i]), main = colnames(mod$paramsave)[i])
 }
