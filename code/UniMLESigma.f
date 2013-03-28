@@ -1,6 +1,6 @@
 c===========================================================
 c$$$  
-C$$$  Time-stamp: <liuminzhao 03/27/2013 19:55:07>
+C$$$  Time-stamp: <liuminzhao 03/27/2013 22:27:24>
 c$$$  Univariate MLE using sigma
 c$$$  
 c===========================================================
@@ -141,7 +141,7 @@ C     TEMP
       real*8 ll1, ll2
       integer i, j
 
-      epsilon = 0.001
+      epsilon = 0.0003
       
       do i = 1, 7
          do j = 1, 7
@@ -171,18 +171,18 @@ CCCCCCCCCCCCCCCCCCCC
 C      MAIN FUNCTION
 CCCCCCCCCCCCCCCCCCCC
 
-      SUBROUTINE QRGradientf(y, S, x, tau, n, niter, param)
+      SUBROUTINE QRGradientf(y, S, x, tau, n, niter, param, paramsave)
 
       implicit none
 
       integer n, niter
       integer S(n)
-      real*8 param(7), y(n), x(n), tau, delta(n)
+      real*8 param(7), y(n), x(n), tau, delta(n), paramsave(8, niter)
 
 C     TEMP
-      integer i, iter
+      integer i, iter, j
       real*8 dif, nll0, nll, pp(7)
-      real*8 alpha
+      real*8 alpha(7)
 
 C     INITIAL
       param(1) = 0
@@ -192,16 +192,29 @@ C     INITIAL
       param(5) = 1
       param(6) = 1
       param(7) = 0.5
+      
+      do i = 1, 7
+         alpha(i) = 0.0003
+      end do
+      alpha(7) = 0.0001
 
-      alpha = 0.0001
       dif = 1
-      iter = 0
+      iter = 1
       nll0 = 0
+
+      do i = 1, niter
+         do j = 1, 8
+            paramsave(j, i) = 0
+         end do
+      end do
 
       do while (dif > 0.00001 .and. iter .le. niter)
          call Partialf(param, tau, x, y, S, n, pp)
          do i = 1, 7
-            param(i) = param(i) - alpha * pp(i)
+            param(i) = param(i) - alpha(i) * pp(i)
+c$$$            if (alpha(i)*pp(i) .le. 0.0001) then
+c$$$               alpha(i) = 0.d0
+c$$$            end if
          end do
          param(5) = max(param(5), 0.01)
          param(6) = max(param(6), 0.01)
@@ -212,6 +225,11 @@ C     INITIAL
          call NegLogLikelihoodf(y, S, x, delta, param, n, nll)
          dif = abs(nll - nll0)
          nll0 = nll
+         do i = 1, 7
+            paramsave(i, iter) = param(i)
+         end do
+         paramsave(8, iter) = nll
+
          iter = iter + 1
       end do
 
