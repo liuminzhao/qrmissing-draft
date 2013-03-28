@@ -1,6 +1,6 @@
 c===========================================================
 c$$$  
-C$$$  Time-stamp: <liuminzhao 03/27/2013 22:27:24>
+C$$$  Time-stamp: <liuminzhao 03/28/2013 10:45:53>
 c$$$  Univariate MLE using sigma
 c$$$  
 c===========================================================
@@ -177,7 +177,7 @@ CCCCCCCCCCCCCCCCCCCC
 
       integer n, niter
       integer S(n)
-      real*8 param(7), y(n), x(n), tau, delta(n), paramsave(8, niter)
+      real*8 param(7), y(n), x(n), tau, delta(n), paramsave(niter, 8)
 
 C     TEMP
       integer i, iter, j
@@ -204,7 +204,7 @@ C     INITIAL
 
       do i = 1, niter
          do j = 1, 8
-            paramsave(j, i) = 0
+            paramsave(i, j) = 0
          end do
       end do
 
@@ -226,9 +226,9 @@ c$$$            end if
          dif = abs(nll - nll0)
          nll0 = nll
          do i = 1, 7
-            paramsave(i, iter) = param(i)
+            paramsave(iter, i) = param(i)
          end do
-         paramsave(8, iter) = nll
+         paramsave(iter, 8) = nll
 
          iter = iter + 1
       end do
