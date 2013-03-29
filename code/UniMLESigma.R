@@ -1,7 +1,6 @@
-## Time-stamp: <liuminzhao 03/28/2013 10:50:54>
+## Time-stamp: <liuminzhao 03/29/2013 01:03:31>
 ## WRAP UP UniMLESigma.f
 
-rm(list = ls())
 dyn.load('UniMLESigma.so')
 QRGradient <- function(y, S, x, tau, niter = 1000){
   n <- length(y)
