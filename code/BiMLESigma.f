@@ -1,6 +1,6 @@
 c===========================================================
 c$$$  
-C$$$  Time-stamp: <liuminzhao 03/29/2013 09:44:20>
+C$$$  Time-stamp: <liuminzhao 03/29/2013 15:37:19>
 c$$$  Bivariate MLE using sigma
 c$$$  
 c===========================================================
@@ -302,7 +302,7 @@ CCCCCCCCCCCCCCCCCCCC
       iter = 1
       nll0 = 0
 
-      do i = 1, niter
+      do i = 1, niter 
          do j = 1, 15
             paramsave(i, j) = 0
          end do

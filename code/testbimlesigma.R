@@ -42,8 +42,51 @@ mod5 <- BiQRGradient(y, R, x, tau = 0.5)
 print(mod5$param)
 plot(y[,1] ~ x)
 abline(mod5$param[1:2])
+
+mod7 <- BiQRGradient(y, R, x, tau = 0.7)
+abline(mod7$param[1:2])
+print(mod7$param)
+
+mod9 <- BiQRGradient(y, R, x, tau = 0.9)
+abline(mod9$param[1:2])
+print(mod9$param)
+
+mod3 <- BiQRGradient(y, R, x, tau = 0.3)
+abline(mod3$param[1:2])
+print(mod3$param)
+
+mod1 <- BiQRGradient(y, R, x, tau = 0.1)
+abline(mod1$param[1:2])
+print(mod1$param)
+
 plot(y[,2][R==1] ~ x[R==1])
 abline(mod5$param[7:8])
+abline(mod9$param[7:8])
+abline(mod7$param[7:8])
+abline(mod3$param[7:8])
+abline(mod1$param[7:8])
+
 
 mod5N <- BiQRGradient(y, R, x, tau = 0.5, niter = 1000, sp = c(1,0,0,1))
 print(mod5N$param)
+
+mod7N <- BiQRGradient(y, R, x, tau = 0.7, niter = 1000, sp = c(1,0,0,1))
+print(mod7N$param)
+
+mod9N <- BiQRGradient(y, R, x, tau = 0.9, niter = 1000, sp = c(1,0,0,1))
+print(mod9N$param)
+
+mod3N <- BiQRGradient(y, R, x, tau = 0.3, niter = 1000, sp = c(1,0,0,1))
+print(mod3N$param)
+
+mod1N <- BiQRGradient(y, R, x, tau = 0.1, niter = 1000, sp = c(1,0,0,1))
+print(mod1N$param)
+
+
+plot(y[,2][R==1] ~ x[R==1])
+abline(mod5N$param[7:8])
+abline(mod9N$param[7:8])
+abline(mod7N$param[7:8])
+abline(mod3N$param[7:8])
+abline(mod1N$param[7:8])
+
