@@ -1,6 +1,6 @@
 c===========================================================
 c$$$  
-C$$$  Time-stamp: <liuminzhao 03/29/2013 01:10:24>
+C$$$  Time-stamp: <liuminzhao 03/29/2013 09:44:20>
 c$$$  Bivariate MLE using sigma
 c$$$  
 c===========================================================
@@ -291,20 +291,6 @@ CCCCCCCCCCCCCCCCCCCC
       integer i, iter, j
       real*8 dif, nll0, nll, pp(14), alpha(14)
 
-      param(1) = 0 
-      param(2) = 0 
-      param(3) = 0 
-      param(4) = 0 
-      param(5) = 1 
-      param(6) = 1 
-      param(7) = 0 
-      param(8) = 0 
-      param(9) = 0 
-      param(10)= 0 
-      param(11)= 0 
-      param(12)= 1 
-      param(13)= 1
-      param(14)= 0.5 
       
       do i = 1, 14
          pp(i) = 0

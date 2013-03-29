@@ -38,8 +38,12 @@ plot(y[,2] ~ x)
 
 ## options(warn = 2)
 
-mod <- BiQRGradient(y, R, x, tau = 0.5)
+mod5 <- BiQRGradient(y, R, x, tau = 0.5)
+print(mod5$param)
 plot(y[,1] ~ x)
-abline(mod$param[1:2])
-plot(y[,2] ~ x)
-abline(mod$param[7:8])
+abline(mod5$param[1:2])
+plot(y[,2][R==1] ~ x[R==1])
+abline(mod5$param[7:8])
+
+mod5N <- BiQRGradient(y, R, x, tau = 0.5, niter = 1000, sp = c(1,0,0,1))
+print(mod5N$param)
