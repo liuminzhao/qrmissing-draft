@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 04/01/2013 10:00:50>
+## Time-stamp: <liuminzhao 04/01/2013 10:06:30>
 ## Simulation on quantreg function for bivariate case to compare
 ## MAR and MNAR
 rm(list = ls())
@@ -79,7 +79,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
   mod1 <- as.vector(rq(y[,1]~x, tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
   mod2 <- as.vector(rq(y[,2][R==1]~x[R==1], tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
-  ans <- c(mod1, mo2)
+  ans <- c(mod1, mod2)
 }
 
 save(result, file = "simquantreg.RData")
@@ -90,7 +90,7 @@ mse = rep(0, 20)
 for (i in 1:20){
   mse[i] = mean((result[,i] - trueq[i])^2)
 }
-mse
+print(mse)
 
 ###############
 ## TRUE VALUE  for MNAR
@@ -142,4 +142,4 @@ mse = rep(0, 20)
 for (i in 1:20){
   mse[i] = mean((result[,i] - trueq[i])^2)
 }
-mse
+print(mse)
