@@ -13,7 +13,7 @@
 \usepackage{ulem}
 \geometry{verbose,letterpaper,tmargin=1in,bmargin=.75in,lmargin=.75in,rmargin=1in}
 
-\title{Bayesian Quantile Regression with Monotone Dropout}
+\title{Quantile Regression with Monotone Dropout Missingness}
 \date{\today}
 \author{}
 
@@ -35,37 +35,53 @@
 
 \maketitle{}
 
-\section{Mixture of bivariate normals with missingness at $Y_2$}
+\section{Introduction}
+The structure of this article is as below: first, we introduce our
+quantile regression methods to deal with monotone dropout in bivariate
+normal mixed model in section \ref{sec:bi}. Then in section
+\ref{sec:tri}, we generalize our method to trivariate case. Section
+\ref{sec:general} describes our proposed method in generalized cases.
+Computation details are presented in section
+\ref{sec:computation}. And we also include a simulation study to
+demonstrate the performance of our algorithm in section
+\ref{sec:simulation}.
+
+\section{Bivariate Normal Mixed Model with Monotone Dropout}
+\label{sec:bi}
+
+In this section, we first introduce the bivariate scenario with monotone dropout, then describe our proposed quantile regression model in section \ref{sec:model}. And we will give more details on deploying MAR and MNAR and computation in section \ref{sec:sa} and section \ref{sec:computation}.
 
 Let $\bm{Y} = (Y_{1}, Y_{2})^{T}$ and $R = I\{Y_2 \text{ observed}\}$. Suppose we
 are interested in the $\tau$-th marginalized quantile regression
 coefficients $\bm \gamma = (\bm \gamma^{\tau}_1, \bm \gamma^{\tau}_2)$, where
 \begin{align*}
   \bm \gamma_1^{\tau} & = (\gamma_{01}^{\tau}, \gamma^{\tau}_{11}), \\
-  \bm \gamma_{2}^{\tau} & = (\gamma_{02}^{\tau}, \gamma^{\tau}_{12}).
+  \bm \gamma_{2}^{\tau} & = (\gamma_{02}^{\tau}, \gamma^{\tau}_{12}),
 \end{align*}
-Such that
+such that
 \begin{align}
   \label{eq:quan1}
   \pr (Y_{i1} \leq \gamma^{\tau}_{01} + x_i \gamma^{\tau}_{11} | x_i ) & = \tau ,\\
   \label{eq:quan2}
   \pr (Y_{i2} \leq \gamma^{\tau}_{02} + x_i \gamma^{\tau}_{12} | x_i ) & = \tau .
 \end{align}
-Here we assume covariate $x_i$ are constant across treatments or time
-points, while the quantile regression coefficients $\bm \gamma^{\tau}$
+Here we assume there is only one single covariate $x_i$ for each subject $i$, which is constant across treatments or time points, while the quantile regression coefficients $\bm \gamma^{\tau}$
 are time varying.
- 
-Assume $\bm Y$ follows bivariate normal distribution:
+
+\subsection{Model Setting}
+\label{sec:model}
+To adopt mixed model to deal with missingness, we assume $\bm Y$
+follows bivariate normal distribution:
 \begin{align*}
-  \bm{Y}|R = r &\sim N(\bm{\mu}^{(r)}, \Sigma^{(r)}), r = 0, 1,\\
-  R & \sim Ber(\phi).
+  \bm{Y}|R = r &\sim \textrm{N}(\bm{\mu}^{(r)}, \Sigma^{(r)}), r = 0, 1,\\
+  R & \sim \textrm{Ber}(\phi).
 \end{align*}
-Reparametrize the above distribution as
+Reparametrize the above model as
 \begin{align}
   \label{eq:model1}
-  Y_{i1}|R = r, x_i &\sim N(\Delta_{i1} + \beta_{01}^{(r)} + x_i\beta_{11}^{(r)}, \sigma_{11}^{(r)}),\\
+  Y_{i1}|R = r, x_i &\sim \textrm{N}(\Delta_{i1} + \beta_{01}^{(r)} + x_i\beta_{11}^{(r)}, \sigma_{11}^{(r)}),\\
   \label{eq:model2}
-  Y_{i2}|R = r, x_i, y_{i1} & \sim N(\Delta_{i2} + \beta_{02}^{(r)} +
+  Y_{i2}|R = r, x_i, y_{i1} & \sim \textrm{N}(\Delta_{i2} + \beta_{02}^{(r)} +
   x_i\beta_{12}^{(r)} + y_{i1}\beta_{22}^{(r)}, \sigma_{2|1}^{(r)}).
 \end{align}
 where the quantity $\Delta_{it}, t = 1, 2$ is determined by other
@@ -77,17 +93,19 @@ parameters in the model and can be solved from
   \tau & = \sum_{r = 0}^{1} \pr (Y_{i2} \leq \gamma^{\tau}_{02} + x_i \gamma^{\tau}_{12} | x_i , R =
   r) \pr (R = r).
 \end{align}
-Specific derivation can be found in remark \ref{sec:delta}. So far we
-consider $\pr (R = 1|x_i) = \pr (R = 1) = \pi = 1 - \pr (R = 0)$,
-which means missingness does not depend on covariates (could be a
-further topic in future research).
+Specific derivation can be found in section \ref{sec:computation}.
+
+In this section we consider $\pr (R = 1|x_i) = \pr (R = 1) = \pi = 1 -
+\pr (R = 0)$, which means missingness does not depend on covariates
+(missingness depending on covariates could be a further topic in
+future research).
 
 Meanwhile, for identifiability issue in equation (\ref{eq:model1}) and
 (\ref{eq:model2}) , we put constraints on the $\beta$ parameters:
 \begin{align}
-\label{eq:beta01}
+  \label{eq:beta01}
   \beta_{01}^{(1)} + \beta_{01}^{(0)} & = 0 ,\\
-\label{eq:beta11}
+  \label{eq:beta11}
   \beta_{11}^{(1)} + \beta_{11}^{(0)} & = 0, \\
   \label{eq:beta02}
   \beta_{02}^{(1)} + \beta_{02}^{(0)} & = 0, \\
@@ -97,44 +115,9 @@ Meanwhile, for identifiability issue in equation (\ref{eq:model1}) and
   \beta_{22}^{(1)} + \beta_{22}^{(0)} & = 0.
 \end{align}
 
-\begin{rmk}[$\Delta$ Expression]\label{sec:delta}
-  Expand equation (\ref{eq:const1}) with equation (\ref{eq:quan1}) and
-  (\ref{eq:model1}), we have
-  \begin{align}
-    \tau & = \pr (R = 1 | x_i) \pr (y_{i1} \leq \gamma^{\tau}_{01} + x_i \gamma^{\tau}_{11} | x_i , R = 1) + \pr(R = 0 | x_i) \pr (Y_{i1} \leq \gamma^{\tau}_{01} + x_i \gamma^{\tau}_{11} | x_i , R = 0)  \\
-\label{eq:delta10}
-    & = \pi F_{i1}^{(1)} (\gamma^{\tau}_{01} + x_i \gamma^{\tau}_{11}; \Delta_{i1},
-    \beta_{01}^{(1)}, \beta_{11}^{(1)}, x_i, \sigma_{11}^{(1)}) +
-    (1-\pi)F_{i1}^{(0)} (\gamma^{\tau}_{01} + x_i \gamma^{\tau}_{11};
-    \Delta_{i1}, \beta_{01}^{(0)}, \beta_{11}^{(0)}, x_i, \sigma_{11}^{(0)}).
-  \end{align}
-  Thus,
-  \begin{equation}
-    \label{eq:delta1}
-    \Delta_{i1} = h_{i1}(\gamma^{\tau}_{01} , \gamma^{\tau}_{11}, x_{i}, \beta_{01}^{(r)}, \beta_{11}^{(r)}, x_i, \sigma_{11}^{(r)}, \pi, \tau ), r = 0, 1.
-  \end{equation}
-
-  Similarly, expand equation (\ref{eq:const2}) with equation
-  (\ref{eq:quan2}) and (\ref{eq:model2}) to get
-  \begin{align}
-    \tau & = \pr (R = 1) \pr (Y_{i2} \leq \gamma^{\tau}_{02} + x_i
-    \gamma^{\tau}_{12} | x_i , R = 1) + \pr (R = 0) \pr (Y_{i2} \leq
-    \gamma^{\tau}_{02} + x_i
-    \gamma^{\tau}_{12} | x_i , R = 0)  \\
-    & = \pi \int \pr (y_{i2} \leq \gamma^{\tau}_{02} + x_i \gamma^{\tau}_{12} | x_i , y_{i1}, R = 1) dF_{i1}^{(1)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(1)}, \sigma_{11}^{(1)})  \\
-    & \quad + (1-\pi) \int \pr (y_{i2} \leq \gamma^{\tau}_{02} + x_i \gamma^{\tau}_{12} | x_i , y_{i1}, R = 0) dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(0)}, \sigma_{11}^{(0)})  \\
-\label{eq:delta20}
-    & = \pi \int F_{i2|1}^{(1)} (\gamma^{\tau}_{02} + x_i \gamma^{\tau}_{12} ; \Delta_{i2}, \beta_{*2}^{(1)}, \sigma_{2|1}^{(1)}, x_i , y_{i1}) dF_{i1}^{(1)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(1)}, \sigma_{11}^{(1)})  \\
-    & \quad + (1-\pi) \int F_{i2|1}^{(0)} (\gamma^{\tau}_{02} + x_i \gamma^{\tau}_{12} ; \Delta_{i2},\beta_{*2}^{(0)}, \sigma_{2|1}^{(0)},  x_i , y_{i1}) dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(0)}, \sigma_{11}^{(0)}).  \\
-  \end{align}
-  Hence,
-  \begin{equation}
-    \label{eq:delta2}
-    \Delta_{i2} = h_{i2}(\gamma^{\tau}_{02} , \gamma^{\tau}_{12}, x_{i},y_{i1},  \beta_{*1}^{(r)}, \beta_{*2}^{(r)},  \sigma_{11}^{(r)}, \sigma_{2|1}^{(r)}, \pi, \tau, \Delta_{i1}), r = 0, 1.
-  \end{equation}
-\end{rmk}
-
 \subsection{Sensitivity Analysis}
+\label{sec:sa}
+
 For identifiability issue in equation (\ref{eq:model2}), we put
 constraints (\ref{eq:beta02} - \ref{eq:beta22}), thus we denote
 \begin{align}
@@ -149,12 +132,15 @@ constraints (\ref{eq:beta02} - \ref{eq:beta22}), thus we denote
 \end{align}
 And when $R = 0$, $Y_{i2}|R = 0$ is not observed, $\bm \xi_s =
 (\beta_{02}^{(0)}, \beta_{12}^{(0)}, \beta_{22}^{(0)}, \lambda)$ could
-be a group of sensitivity parameters. When $\bm \xi_s = (0, 0, 0, 1)$
-yields $p(Y_{i2}|y_{i1}, x_i, R = 1) = p(Y_{i2}| y_{i1}, x_i, R = 0)$,
-where MAR condition satisfies.
+be a group of sensitivity parameters. We illustrate how to deploy MAR and MNAR assumption from both frequentist way and Bayesian framework.
 
-\subsubsection{Constructing Priors}
-We put priors on $(\bm \xi_s, \bm \xi_m)$ as :
+\begin{itemize}
+\item \textbf{Frequentist way: }
+
+When $\bm \xi_s = \bm \xi_{s0} = (0, 0, 0, 1)$, it yields $p(Y_{i2}|y_{i1}, x_i, R = 1) = p(Y_{i2}| y_{i1}, x_i, R = 0)$, where MAR condition satisfies. If $\bm \xi_s$ is fixed at $\bm \xi_s \neq \bm \xi_{s0}$, then $\pr (R | Y_{i1}, Y_{i2}) \neq \pr (R | Y_{i1})$, thus the missing mechanism is missing not at random. 
+\item \textbf{Bayesian Framework: } 
+
+We put priors on $(\bm \xi_s, \bm \xi_m)$ ($\bm \xi_m$ are identifiable parameters) as :
 \begin{displaymath}
   p(\bm \xi_s, \bm \xi_m) = p(\bm \xi_s) p(\bm \xi_m).
 \end{displaymath}
@@ -163,115 +149,234 @@ $\pr(\bm \xi_s = (0, 0, 0, 1)) = 1$. Sensitivity analysis can be
 executed through putting a set of priors on $\bm \xi_s$ to check the
 effect of priors on the posterior inference about quantile regression
 coefficients $\bm \gamma_{ij}^{\tau}$. For example, if MAR is assumed
-with uncertainty, priors can be assigned as $E(\bm \xi_s) = (0, 0, 0,
-1)$ with $Var(\bm \xi_s) \neq \bm 0$. If we assume MNAR with no
-uncertainty, we can put priors satisfying $E(\bm \xi_s) =
-\Delta_{\xi}$, where $\Delta_{\xi} \neq (0, 0, 0, 1)$ and $Var(\bm
+with uncertainty, priors can be assigned as $\textrm{E}(\bm \xi_s) = (0, 0, 0,
+1)$ with $\textrm{Var}(\bm \xi_s) \neq \bm 0$. If we assume MNAR with no
+uncertainty, we can put priors satisfying $\textrm{E}(\bm \xi_s) =
+\Delta_{\xi}$, where $\Delta_{\xi} \neq (0, 0, 0, 1)$ and $\textrm{Var}(\bm
 \xi_s) = \bm 0$. If MNAR is assumed with uncertainty, then priors
-could be $E(\bm \xi_s) = \Delta_{\xi}$, where $\Delta_{\xi} \neq (0,
-0, 0, 1)$ and $Var(\bm \xi_s) \neq \bm 0$.
+ could be $\textrm{E}(\bm \xi_s) = \Delta_{\xi}$, where $\Delta_{\xi} \neq (0,
+0, 0, 1)$ and $\textrm{Var}(\bm \xi_s) \neq \bm 0$.
+\end{itemize}
 
 \subsection{Computation}
-\subsubsection{Likelihood}
-Denote the parameters $\bm \xi = (\bm \xi_m, \bm \xi_s)$, where $\bm
-\xi_m = ( \gamma_{*i}^{\tau}, \beta_{*1}^{(1)}, \sigma_{11}^{(r)},
-\sigma_{2|1}^{(1)}, \phi) , t= 1, 2 , r = 0, 1$ are the identifiable
-parameters and $\bm \xi_s = (\beta_{02}^{(0)}, \beta_{12}^{(0)},
-\beta_{22}^{(0)}, \lambda)$ are sensitivity parameters.
+\label{sec:computation}
+In  section \ref{sec:deltacal} , we give details on how to calculate $\Delta_{it}$ in model (\ref{eq:model1}, \ref{eq:model2}) for $t = 1, 2$ . Then we illustrate how to get maximum likelihood estimator using gradient descent algorithm in section \ref{sec:mle}. Last, we present the Bayesian sampling procedure in section  
+\ref{sec:bayesian}. 
 
-The likelihood for observation $\bm Y_i = (Y_{i1}, Y_{i2})$ of subject
-$i$ with missing indicator $R$ is
+\subsubsection{$\Delta$ Calculation}
+\label{sec:deltacal}
+
+First we illustrate how to calculate $\Delta_{i1}, \Delta_{i2}$ given all the
+other parameters $\bm \xi = (\bm \xi_m, \xi_s)$ = ($\gamma_{01},
+\gamma_{11}, \gamma_{02}, \gamma_{12}, R, x_i, \beta_{01}^{(1)},
+\beta_{11}^{(1)}, \beta_{02}^{(0)}, \beta_{12}^{(0)},
+\beta_{22}^{(0)}, \sigma_{11}^{(1)}, \sigma_{11}^{(0)},
+\sigma_{2|1}^{(1)}, \lambda, \phi$).
+
+\begin{itemize}
+\item \textbf{$\Delta_{i1}: $} Expand equation (\ref{eq:const1}) with
+  constraints (\ref{eq:beta01}, \ref{eq:beta11}):
+  \begin{align}
+    \tau & = \pr (R = 1 | x_i) \pr (y_{i1} \leq \gamma^{\tau}_{01} + x_i \gamma^{\tau}_{11} | x_i , R = 1) + \pr(R = 0 | x_i) \pr (Y_{i1} \leq \gamma^{\tau}_{01} + x_i \gamma^{\tau}_{11} | x_i , R = 0) \nonumber \\
+    & = \pi F_{i1}^{(1)} (\gamma^{\tau}_{01} + x_i \gamma^{\tau}_{11}; \Delta_{i1},
+    \beta_{01}^{(1)}, \beta_{11}^{(1)}, x_i, \sigma_{11}^{(1)}) +
+    (1-\pi)F_{i1}^{(0)} (\gamma^{\tau}_{01} + x_i \gamma^{\tau}_{11};
+    \Delta_{i1}, \beta_{01}^{(0)}, \beta_{11}^{(0)}, x_i, \sigma_{11}^{(0)}) , \nonumber \\
+    \label{eq:solve1}
+    & = \pi \Phi \left( \frac{\gamma_{01}+ x_i\gamma_{11} - \Delta_{i1} - \beta_{01}^{(1)} -
+        x_i\beta_{11}^{(1)}}{\sigma_{11}^{(1)}} \right) + (1-\pi) \Phi
+    \left( \frac{\gamma_{01} + x_i\gamma_{11} - \Delta_{i1} +
+        \beta_{01}^{(1)} + x_i\beta_{11}^{(1)}}{\sigma_{11}^{(0)}} \right),
+  \end{align}
+  where $\Phi$ is the standard normal CDF. Because equation
+  (\ref{eq:solve1}) is continuous and monotone on $\Delta_{i1}$, it
+  can be solved by standard numerical root-find method without much
+  difficulty, for example, the bisection method.
+
+\item \textbf{$\Delta_{i2}: $} First we introduce a lemma:
+  \begin{lem}
+    An integral of a non-standard normal CDF over a non-standard
+    normal distribution can be simplified to a closed form in terms of
+    another normal CDF:
+    \begin{equation}
+      \label{eq:lem}
+      \int \Phi \left( \frac{x-b}{a} \right) d\Phi(x; \mu, \sigma)  = 
+      \begin{cases}
+        1- \Phi \left( \frac{b-\mu}{\sigma} \big / \sqrt{\frac{a^2}{\sigma^2}+1} \right) & a > 0, \\
+        \Phi \left( \frac{b-\mu}{\sigma} \big / \sqrt{\frac{a^2}{\sigma^2}+1} \right) &
+        a < 0 ,
+      \end{cases}
+    \end{equation}
+    where $\Phi(x; \mu, \sigma)$ stands for a CDF of normal distribution with
+    mean $\mu$ and standard deviation $\sigma$.
+  \end{lem}
+  Proof of lemma can be seen in appendix (TODO).
+
+  Hence, expand equation (\ref{eq:const2}) with constraints
+  (\ref{eq:beta02} to \ref{eq:beta22}) similarly to get
+  \begin{align}
+    \tau & = \pr (R = 1) \pr (Y_{i2} \leq \gamma^{\tau}_{02} + x_i
+    \gamma^{\tau}_{12} | x_i , R = 1) + \pr (R = 0) \pr (Y_{i2} \leq
+    \gamma^{\tau}_{02} + x_i
+    \gamma^{\tau}_{12} | x_i , R = 0)  \nonumber\\
+    & = \pi \int \pr (y_{i2} \leq \gamma^{\tau}_{02} + x_i \gamma^{\tau}_{12} | x_i , y_{i1}, R = 1) dF_{i1}^{(1)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(1)}, \sigma_{11}^{(1)})  \nonumber\\
+    & \quad + (1-\pi) \int \pr (y_{i2} \leq \gamma^{\tau}_{02} + x_i \gamma^{\tau}_{12} | x_i , y_{i1}, R = 0) dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(0)}, \sigma_{11}^{(0)}) \nonumber \\
+    & = \pi \int F_{i2|1}^{(1)} (\gamma^{\tau}_{02} + x_i \gamma^{\tau}_{12} ; \Delta_{i2}, \beta_{*2}^{(1)}, \sigma_{2|1}^{(1)}, x_i , y_{i1}) dF_{i1}^{(1)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(1)}, \sigma_{11}^{(1)})  \nonumber\\
+    & \quad + (1-\pi) \int F_{i2|1}^{(0)} (\gamma^{\tau}_{02} + x_i \gamma^{\tau}_{12} ; \Delta_{i2},\beta_{*2}^{(0)}, \sigma_{2|1}^{(0)},  x_i , y_{i1}) dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(0)}, \sigma_{11}^{(0)}), \nonumber\\
+    & = \pi \int \Phi \left( \frac{\gamma_{02} + x_i\gamma_{12} - \Delta_{i2} + \beta_{02}^{(0)} + x_i\beta_{12}^{(0)} + y_{i1}\beta_{22}^{(0)}}{\sigma_{2|1}^{(1)}} \right) dF_{i1}^{(1)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(1)}, \sigma_{11}^{(1)}) \nonumber\\
+    \label{eq:solve2}
+    & \quad + (1-\pi) \int \Phi \left( \frac{\gamma_{02} + x_i\gamma_{12} - \Delta_{i2} -
+        \beta_{02}^{(0)} - x_i\beta_{12}^{(0)} -
+        y_{i1}\beta_{22}^{(0)}}{\lambda\sigma_{2|1}^{(1)}} \right)
+    dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(0)}, \sigma_{11}^{(0)}).
+  \end{align}
+  By notations in (\ref{eq:c0} to \ref{eq:cs}) and lemma
+  (\ref{eq:lem}), the integral on the right hand side of above
+  equation (\ref{eq:solve2}) can be simplified as
+  \begin{align*}
+    \int \Phi \left( \frac{\gamma_{02} + x_i\gamma_{12} - \Delta_{i2} + \beta_{02}^{(0)} + x_i\beta_{12}^{(0)} + y_{i1}\beta_{22}^{(0)}}{\sigma_{2|1}^{(1)}} \right) dF_{i1}^{(1)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(1)}, \sigma_{11}^{(1)}) \\
+    = \int \Phi \left( \frac{y_{i1} - (\Delta_{i2} - \gamma_{02} - x \gamma_{12} - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)}}{\sigma_{2|1}/\beta_{22}^{(0)}} \right) dF_{i1}^{(1)}(y_{i1}; \Delta_{i1}+\beta_{01}^{(1)} + x\beta_{11}^{(1)}, \sigma_{11}^{(1)}) \\
+    =
+    \begin{cases}
+      1 - \Phi \left( \frac{(\Delta_{i2} - \gamma_{02} - x \gamma_{12} - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)} - (\Delta_{i1}+\beta_{01}^{(1)} + x\beta_{11}^{(1)}) }{\sigma_{11}^{(1)}} \big / \sqrt{\frac{\sigma_{2|1}^2}{\beta_{22}^{(0)2} \sigma_{11}^{(1)2}} +1} \right) & \beta_{22}^{(0)} > 0\\
+      \Phi \left( \frac{(\Delta_{i2} - \gamma_{02} - x \gamma_{12} - \beta_{02}^{(0)} -
+          x\beta_{12}^{(0)})/\beta_{22}^{(0)} -
+          (\Delta_{i1}+\beta_{01}^{(1)} + x\beta_{11}^{(1)})
+        }{\sigma_{11}^{(1)}} \big /
+        \sqrt{\frac{\sigma_{2|1}^2}{\beta_{22}^{(0)2}
+            \sigma_{11}^{(1)2}} +1} \right)& \beta_{22}^{(0)} < 0
+    \end{cases}
+  \end{align*}
+
+  and
+
+\begin{align*}
+  \int \Phi \left( \frac{\gamma_{02} + x_i\gamma_{12} - \Delta_{i2} - \beta_{02}^{(0)} - x_i\beta_{12}^{(0)} - y_{i1}\beta_{22}^{(0)}}{\sigma_{2|1}^{(0)}} \right) dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(0)}, \sigma_{11}^{(0)}) \\
+  = \int \Phi \left( \frac{y_{i1} - ( \gamma_{02} + x \gamma_{12} - \Delta_{i2} - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)}}{\lambda\sigma_{2|1}/(-\beta_{22}^{(0)})} \right) dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}-\beta_{01}^{(1)} - x\beta_{11}^{(1)}, \sigma_{11}^{(0)}) \\
+  =
+  \begin{cases}
+    \Phi \left( \frac{( \gamma_{02} + x \gamma_{12} - \Delta_{i2}  - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)} - (\Delta_{i1} - \beta_{01}^{(1)} - x\beta_{11}^{(1)}) }{\sigma_{11}^{(0)}} \big / \sqrt{\frac{\lambda^{2}\sigma_{2|1}^2}{\beta_{22}^{(0)2} \sigma_{11}^{(0)2}} +1} \right) & \beta_{22}^{(0)} > 0\\
+    1 - \Phi \left( \frac{( \gamma_{02} + x \gamma_{12} - \Delta_{i2} - \beta_{02}^{(0)} -
+        x\beta_{12}^{(0)})/\beta_{22}^{(0)} - (\Delta_{i1} -
+        \beta_{01}^{(1)} - x\beta_{11}^{(1)}) }{\sigma_{11}^{(0)}}
+      \big / \sqrt{\frac{\lambda^2\sigma_{2|1}^2}{\beta_{22}^{(0)2}
+          \sigma_{11}^{(0)2}} +1} \right)& \beta_{22}^{(0)} < 0
+  \end{cases}
+\end{align*}
+Therefore, $\Delta_{i2}$ can be solved through simplified equation
+(\ref{eq:solve2}) for each subject $i$.
+\end{itemize}
+
+For computation of higher order $\Delta_{ij}$ for $j >= 3$, we propose two
+approaches: (for convenience, we use $\Delta_j$ to save typing for
+subject $i$)
+
+\begin{enumerate}
+\item \textbf{Assume first order relationship:} We assume
+  \begin{equation}
+    \pr (Y_j|S, x, Y_{j-1}, \ldots, Y_1) = \pr (Y_j|S, x, Y_{j-1})
+  \end{equation}
+  After obtaining $\Delta_{j-1}$
+  \begin{align*}
+    \pr (Y_j \leq  x\gamma | S = s) & =  \int\dots\int \pr (Y_j \leq x\gamma | S=s, x, Y_{j-1}, \ldots, Y_1) dF(Y_{j-1}|S=s, Y_{j-2}, \ldots, Y_1)\\
+    & \quad  \cdots dF(Y_2|S=s, Y_1) \\
+    & = \int \pr (Y_j \leq x\gamma | S=s, x, Y_{j-1}) dF(Y_{j-1}|S=s, Y_{j-2})
+  \end{align*}
+
+  Thus, only one integral is needed. Furthermore, by lemma
+  (\ref{eq:lem}), we can simplify above integral by closed form in
+  terms of normal CDF.
+
+\item \textbf{Recursive Computation: }
+
+  From equation (\ref{eq:lem}), we can find after integral, the kernel
+  part is still a normal cdf, but with other coefficients. So
+  recursive simplification can be applied. Here we take trivariate
+  case as an example:
+
+  For convenience, we only calculate $\pr (Y_3 \leq \bm x\gamma | S= 1)$, omit
+  superscript and denote $\beta_{ij}^{(1)} $ as $\beta_{ij}$ to save
+  typing.  The model we have is
+  \begin{align*}
+    Y_3 | S= 1 , Y_2, Y_1 & \sim \textrm{N}(\Delta_3 + \mu_3 + y_2\beta_{23} + y_1\beta_{13}, \tau_3), \\
+    Y_2 | S = 1, Y_{1}  & \sim \textrm{N}(\Delta_2 + \mu_2 + y_1\beta_{12}, \tau_2) ,               \\
+    Y_1 | S= 1 & \sim \textrm{N}(\Delta_1 + \mu_1, \sigma).
+  \end{align*}
+  Assume $\beta_{23}, \beta_{13}, \beta_{12} > 0 $, then
+  \begin{align*}
+    \pr (Y_3 \leq x\gamma |S = 1) & = \int \int \pr (Y_3 \leq x\gamma|S = 1, y_2, y_1) f(y_2|S=1, y_1) f(y_1|S=1) dy_2dy_1\\
+    & = \int \left[ \int \Phi \left( \frac{x\gamma - \Delta_3 - \mu_3 - y_2\beta_{23}- y_1\beta_{13}}{\tau_3} \right) f(y_2; \Delta_2+\mu_2+y_1\beta_{12}, \tau_2)dy_2 \right]\\
+    & \quad f(y_1|S=1) dy_1\\
+    & = \int \left[ \int \Phi \left( \frac{y_2 - (x\gamma - \Delta_3 - \mu_3 - y_1\beta_{13})/\beta_{23}}{-\tau_3/\beta_{23}} \right) f(y_2; \Delta_2+\mu_2+y_1\beta_{12}, \tau_2)dy_2 \right] \\
+    & \quad f(y_1|S=1) dy_1\\
+    \text{by \eqref{eq:intg2} } \quad & = \int \Phi \left( \frac{(x\gamma - \Delta_3 - \mu_3 - y_1\beta_{13})/\beta_{23} - \Delta_2 - \mu_2 - y_1\beta_{12}}{\tau_2 \sqrt{\tau_3^2/\beta_{23}^2/\tau_2^2 + 1}} \right)f(y_1; \Delta_1+ \mu_1, \sigma) dy_1\\
+    & = \int \Phi \left( \frac{y_1 - b^{*}}{a^{*}} \right) f(y_1; \mu^{*}, \sigma)
+    dy_1.
+  \end{align*}
+  where again the last equation has closed form from equation
+  \eqref{eq:lem}.
+\end{enumerate}
+
+
+\subsubsection{Maximum Likelihood Estimation}
+\label{sec:mle}
+Denote the parameters $\bm \xi = (\bm \xi_m, \bm \xi_s)$, where $\bm \xi_m = (
+\gamma_{0i}^{\tau}, \gamma_{1i}^{\tau}, \beta_{11}^{(1)},
+\beta_{11}^{(1)}, \sigma_{11}^{(1)},\sigma_{11}^{(0)}
+\sigma_{2|1}^{(1)}, \phi) , i= 1, 2 $ are the identifiable parameters and
+$\bm \xi_s = (\beta_{02}^{(0)}, \beta_{12}^{(0)}, \beta_{22}^{(0)}, \lambda)$ are
+sensitivity parameters.
+
+The contributed likelihood for observation $\bm Y_i = (Y_{i1}, Y_{i2})$
+of subject $i$ with missing indicator $R$ is
 \begin{align}
   \label{eq:like1}
   L_i(Y_{i1}, Y_{i2}, R = 1 | \bm \xi , x_i) & = \pr (R = 1 | \phi) \pr (Y_{i1} | R = 1,  \gamma_{*1}^{\tau}, \beta_{*1}^{(1)}, \sigma_{11}^{(1)}, x_i) \pr (Y_{i2} | R = 1, Y_{i1}, \gamma_{*2}^{\tau}, x_i, \beta_{*2}^{(0)}, \sigma_{2|1}^{(1)}) \\
   \label{eq:like0}
-  L_i(Y_{i1}, R = 0 | \bm \xi, x_i) & = \pr (R = 0 | \phi) \pr (Y_{i1}
-  | R = 0, x_i, \gamma_{*1}^{\tau}, \beta_{*1}^{(1)},
-  \sigma_{11}^{(0)})
+  L_i(Y_{i1}, R = 0 | \bm \xi, x_i) & = \pr (R = 0 | \phi) \pr (Y_{i1} | R =
+  0, x_i, \gamma_{*1}^{\tau}, \beta_{*1}^{(1)}, \sigma_{11}^{(0)})
 \end{align}
 
-We are going to put priors on the parameters $\bm \xi$ and make exact
-inference through posterior samples. First we illustrate how to
-calculate $\Delta_{i1}, \Delta_{i2}$ given all the other parameters
-$\bm \xi = (\bm \xi_m, \xi_s)$ = ($\gamma_{01}, \gamma_{11},
-\gamma_{02}, \gamma_{12}, R, x_i, \beta_{01}^{(1)}, \beta_{11}^{(1)},
-\beta_{02}^{(0)}, \beta_{12}^{(0)}, \beta_{22}^{(0)},
-\sigma_{11}^{(1)}, \sigma_{11}^{(0)}, \sigma_{2|1}^{(1)}, \lambda,
-\phi$). Omitting $\tau$ to save typing.
+One of the methods to get maximum likelihood estimates is by gradient
+descent algorithm. Denote $J(\bm \xi_m) = - \log L = - \log \sum_{i =
+  1}^n L_i$.  Then to maximize likelihood (\ref{eq:like1}) and
+(\ref{eq:like0}) is equivalent to minimize the target function $J(\bm
+\xi_m)$. Under MAR assumption, we fix $\bm \xi_s = (0, 0, 0, 1)$,
+while under MNAR assumption, one example of $\bm \xi_s $ is $ (1, 0,
+0, 1)$, assuming there is an intercept shift between the conditional
+distribution of $Y_{i2}| Y_{i1}, R$.
 
+Maximization can be reached by the following procedures:
 \begin{enumerate}
-\item [$\Delta_{i1}$: ] From remark \ref{sec:delta} and expand
-  equation \eqref{eq:delta10}, we have
-  \begin{align}\label{eq:solve1}
-    \tau & = \pi \Phi \left( \frac{\gamma_{01}+ x_i\gamma_{11} -
-        \Delta_{i1} - \beta_{01}^{(1)} -
-        x_i\beta_{11}^{(1)}}{\sigma_{11}^{(1)}} \right) + (1-\pi) \Phi
-    \left( \frac{\gamma_{01} + x_i\gamma_{11} - \Delta_{i1} +
-        \beta_{01}^{(1)} + x_i\beta_{11}^{(1)}}{\sigma_{11}^{(0)}}
-    \right).
-  \end{align}
-  where $\Phi$ is the cdf of standard normal distribution and we use
-  the constraints in equation \eqref{eq:beta01} and \eqref{eq:beta11}.
-  $\Delta_{i1}$ can be solved through equation \eqref{eq:solve1} by
-  all means:
-  \begin{itemize}
-  \item R: \textit{uniroot} function or other root function can help
-    to find the root, which probably would not be used since
-    ultimately the code would be realized through faster language like
-    fortran or C/C++. R is too slow to evaluate those likelihood in
-    this intensive computation job.
-  \item Fortran: looking for method to find the root or implement it
-    through Newton-Raphson method by our own.
-  \end{itemize}
-\item [$\Delta_{i2}$: ] Similarly follow remark \ref{sec:delta} and
-  expand equation \eqref{eq:delta20}:
-  \begin{align}
-    \tau & = \pi \int \Phi \left( \frac{\gamma_{02} + x_i\gamma_{12} - \Delta_{i2} + \beta_{02}^{(0)} + x_i\beta_{12}^{(0)} + y_{i1}\beta_{22}^{(0)}}{\sigma_{2|1}^{(1)}} \right) dF_{i1}^{(1)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(1)}, \sigma_{11}^{(1)}) \\
-    \label{eq:solve2}
-    & \quad + (1-\pi) \int \Phi \left( \frac{\gamma_{02} + x_i\gamma_{12} - \Delta_{i2} - \beta_{02}^{(0)} - x_i\beta_{12}^{(0)} - y_{i1}\beta_{22}^{(0)}}{\lambda\sigma_{2|1}^{(1)}} \right) dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(0)}, \sigma_{11}^{(0)}). \\
-  \end{align}
-  Still we use the constraints in \eqref{eq:c0} to
-  \eqref{eq:cs}.
-By the computation in section \ref{sec:computation}, the above integral can be simplified to 
-
-\begin{align*}
-\int \Phi \left( \frac{\gamma_{02} + x_i\gamma_{12} - \Delta_{i2} + \beta_{02}^{(0)} + x_i\beta_{12}^{(0)} + y_{i1}\beta_{22}^{(0)}}{\sigma_{2|1}^{(1)}} \right) dF_{i1}^{(1)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(1)}, \sigma_{11}^{(1)}) \\
-= \int \Phi \left( \frac{y_{i1} - (\Delta_{i2} - \gamma_{02} - x \gamma_{12} - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)}}{\sigma_{2|1}/\beta_{22}^{(0)}} \right) dF_{i1}^{(1)}(y_{i1}; \Delta_{i1}+\beta_{01}^{(1)} + x\beta_{11}^{(1)}, \sigma_{11}^{(1)}) \\
- = 
-\begin{cases}
-1 - \Phi \left( \frac{(\Delta_{i2} - \gamma_{02} - x \gamma_{12} - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)} - (\Delta_{i1}+\beta_{01}^{(1)} + x\beta_{11}^{(1)}) }{\sigma_{11}^{(1)}} / \sqrt{\frac{\sigma_{2|1}^2}{\beta_{22}^{(0)2} \sigma_{11}^{(1)2}} +1} \right) & \beta_{22}^{(0)} > 0\\
-\Phi \left( \frac{(\Delta_{i2} - \gamma_{02} - x \gamma_{12} - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)} - (\Delta_{i1}+\beta_{01}^{(1)} + x\beta_{11}^{(1)}) }{\sigma_{11}^{(1)}} / \sqrt{\frac{\sigma_{2|1}^2}{\beta_{22}^{(0)2} \sigma_{11}^{(1)2}} +1} \right)& \beta_{22}^{(0)} < 0 
-\end{cases}
-\end{align*}
-
-and 
-
-\begin{align*}
-\int \Phi \left( \frac{\gamma_{02} + x_i\gamma_{12} - \Delta_{i2} - \beta_{02}^{(0)} - x_i\beta_{12}^{(0)} - y_{i1}\beta_{22}^{(0)}}{\sigma_{2|1}^{(0)}} \right) dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}, x_i, \beta_{*1}^{(0)}, \sigma_{11}^{(0)}) \\
-= \int \Phi \left( \frac{y_{i1} - ( \gamma_{02} + x \gamma_{12} - \Delta_{i2} - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)}}{\lambda\sigma_{2|1}/(-\beta_{22}^{(0)})} \right) dF_{i1}^{(0)}(y_{i1}; \Delta_{i1}-\beta_{01}^{(1)} - x\beta_{11}^{(1)}, \sigma_{11}^{(0)}) \\
- = 
-\begin{cases}
-\Phi \left( \frac{( \gamma_{02} + x \gamma_{12} - \Delta_{i2}  - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)} - (\Delta_{i1} - \beta_{01}^{(1)} - x\beta_{11}^{(1)}) }{\sigma_{11}^{(0)}} / \sqrt{\frac{\lambda^{2}\sigma_{2|1}^2}{\beta_{22}^{(0)2} \sigma_{11}^{(0)2}} +1} \right) & \beta_{22}^{(0)} > 0\\
-1 - \Phi \left( \frac{( \gamma_{02} +  x \gamma_{12} - \Delta_{i2}  - \beta_{02}^{(0)} - x\beta_{12}^{(0)})/\beta_{22}^{(0)} - (\Delta_{i1} - \beta_{01}^{(1)} - x\beta_{11}^{(1)}) }{\sigma_{11}^{(0)}} / \sqrt{\frac{\lambda^2\sigma_{2|1}^2}{\beta_{22}^{(0)2} \sigma_{11}^{(0)2}} +1} \right)& \beta_{22}^{(0)} < 0 
-\end{cases}
-\end{align*}
-
- $\Delta_{i2}$ can be solved through the above
-  equation, but with some difficulties:
-  \begin{itemize}
-  \item newton-Raphson method.
-  \item numerical integration is needed for newton-raphson method to
-    calculate the integral in above equation.
-  \item numerical method to get the first derivative when trying to
-    use newton-raphson method.
-  \end{itemize}
+\item Initialize $\bm \xi$
+\item \label{item:der} calculate $\partial J(\bm \xi) / \partial \xi_j$ for all $j$,
+\item update $\bm \xi$ by $\xi_j = \xi_j - \alpha \partial J(\bm \xi) / \partial \xi_j$ for all $j$
+\item evaluate new $J(\bm \xi)$
+\item if the amount of descent of $J ( \bm \xi)$ is great than certain
+  number, say $10^{-3}$, then go back to step \ref{item:der} and
+  repeat. Otherwise, algorithm converges.
 \end{enumerate}
+In previous algorithm, $\alpha$ controls the speed of convergence. If
+$\alpha$ is too large, $J(\bm \xi)$ may be floating around the minimum
+and diverge. If $\alpha$ is too small, the convergence could be
+slow. But fixing at a small enough $\alpha$, convergence is ensured,
+at least to a local minimum.
 
-After we found ways to calculate $\Delta_{i1}$ and $\Delta_{i2}$, we
-can use the \textbf{block Gibbs sampling} method to draw sample from
+We can use numerical approximation to calculate $\partial J(\bm \xi)/\partial
+\xi_j$ in algorithm step \ref{item:der} by
+\begin{displaymath}
+  \frac{\partial J(\bm \xi)}{\partial \xi_1} \approx \frac{J(\xi_1 + \epsilon, \xi_2, \ldots) - J(\xi_1 - \epsilon, \xi_2 , \ldots)}{2\epsilon}, 
+\end{displaymath}
+for $j = 1$.
+
+\subsubsection{Bayesian Framework}
+\label{sec:bayesian}
+Under Bayesian framework, we are going to put priors on the parameters
+$\bm \xi$ and make exact inference through posterior samples.
+
+We can use the block Gibbs sampling method to draw sample from
 posterior distribution. Denote all the parameters (including
-sensitivity parameters) to sample as : (omit the priors of them to
-save typing so far)
+sensitivity parameters) to sample as : (TODO: specifying priors)
 \begin{displaymath}
   \bm \xi = \left( (\gamma_{01}, \gamma_{11}),
     (\gamma_{02}, \gamma_{12}), (\beta_{01}^{(1)}, \beta_{11}^{(1)}),
@@ -283,38 +388,39 @@ Bracketed parameters are marked to sample as a block in block Gibbs
 sampling.  All the procedures require Metropolis-Hasting algorithm to
 update samples since the likelihood is extremely complicated.
 
-If MAR is assumed with no uncertainty, then $\beta_{02}^{(0)} =
-\beta_{12}^{(0)} = \beta_{22}^{(0)} = 0$ and $\lambda = 1$. Details
-for updating parameters:
+As mentioned in section \ref{sec:sa}, MAR or MNAR assumptions are
+adopted using different priors. For example, if MAR is assumed with no
+uncertainty, then $\beta_{02}^{(0)} = \beta_{12}^{(0)} =
+\beta_{22}^{(0)} = 0$ and $\lambda = 1$ with probability 1. Details
+for updating parameters are:
 
 \begin{itemize}
-\item ($\bm \gamma_{01}, \bm \gamma_{11}$): using Metropolis-Hasting
-  algorithm.
+\item ($\bm \gamma_{01}, \bm \gamma_{11}$): using Metropolis-Hasting algorithm.
   \begin{enumerate}
-  \item Draw ($\gamma_{01}^c, \gamma_{11}^c$) candidates from
-    candidate distribution
+  \item Draw ($\gamma_{01}^c, \gamma_{11}^c$) candidates from candidate
+    distribution
   \item Based on the new candidate parameter $\bm \xi^c$, calculate
     candidate $\Delta_{i1}^c$ from equation (\ref{eq:solve1}) for each
-    subject $i$ . If $R = 1$ for corresponding subject $i$, update
-    candidate $\Delta_{i2}^c$ as well. (For $R = 0$, only need to
-    update $\Delta_{i1}^c$).
-  \item Plug in $\Delta_{i1}^c$ or ($\Delta_{i1}^c, \Delta_{i2}^c$) in
-    likelihood (\ref{eq:like0}) or likelihood (\ref{eq:like1}) for $R
-    = 0$ or $R = 1$ to get candidate likelihood.
-  \item Obtain Metropolis-Hasting ratio and move the chain.
+    subject $i$ as we described in section \ref{sec:deltacal}. If $R =
+    1$ for corresponding subject $i$, update candidate $\Delta_{i2}^c$
+    as well. (For $R = 0$, only need to update $\Delta_{i1}^c$).
+  \item Plug in $\Delta_{i1}^c$ or ($\Delta_{i1}^c, \Delta_{i2}^c$) in likelihood
+    (\ref{eq:like0}) or likelihood (\ref{eq:like1}) for $R = 0$ or $R
+    = 1$ to get candidate likelihood.
+  \item Obtain Metropolis-Hasting ratio, move the chain and repeat.
   \end{enumerate}
-\item ($\gamma_{02}, \gamma_{12}$): similar algorithm but only update
-  $\Delta_{i2}$ for subjects with $R = 1$. .
-\item ($\beta_{01}^{(1)}, \beta_{11}^{(1)}$) : similar to
-  ($\gamma_{01}, \gamma_{11}$).
+\item ($\gamma_{02}, \gamma_{12}$): similar algorithm but only update $\Delta_{i2}$
+  for subjects with $R = 1$.
+\item ($\beta_{01}^{(1)}, \beta_{11}^{(1)}$) : similar to ($\gamma_{01}, \gamma_{11}$).
 \item For the rest of the parameters, algorithms for updating the
   samples are all similar to the first one.
 \end{itemize}
 
-\section{Trivariate normals under ignorability}
+\section{Trivariate Normal Mixed Model under Ignorability with Monotone Dropout}
+\label{sec:tri}
 Let $\bm Y_i = (Y_{i1}, Y_{i2}, Y_{i3}) $ and follow-up time $S = \{1,
-2, 3\}$. Covariates $x_i$ are constant and marginalized quantile
-regression coefficients are assumed to be time varying $\bm \gamma =
+2, 3\}$. Assuming covariates $x_i$ are constant and marginalized quantile
+regression coefficients to be time varying $\bm \gamma =
 (\bm \gamma_1^{\tau}, \bm \gamma_2^{\tau}, \bm \gamma_3^{\tau})$:
 \begin{align*}
   \bm \gamma_1^{\tau} & = (\gamma_{01}^{\tau}, \gamma^{\tau}_{11}), \\
@@ -324,9 +430,9 @@ regression coefficients are assumed to be time varying $\bm \gamma =
 Distribution of $Y_{i1}$ follows :
 \begin{align}
   \label{eq:tri1}
-  Y_{i1}| S = 1, x_i & \sim N(\Delta_{i1} + \beta_{01}^{(1)} + x_i\beta_{11}^{(1)}, \sigma^{(1)}), \\
-  Y_{i1}| S = 2, x_i & \sim N(\Delta_{i1} + \beta_{01}^{(2)} + x_i\beta_{11}^{(2)}, \sigma^{(2)}), \\
-  Y_{i1}| S = 3, x_i & \sim N(\Delta_{i1} + \beta_{01}^{(3)} + x_i\beta_{11}^{(3)}, \sigma^{(3)}). \\
+  Y_{i1}| S = 1, x_i & \sim \textrm{N}(\Delta_{i1} + \beta_{01}^{(1)} + x_i\beta_{11}^{(1)}, \sigma^{(1)}), \\
+  Y_{i1}| S = 2, x_i & \sim \textrm{N}(\Delta_{i1} + \beta_{01}^{(2)} + x_i\beta_{11}^{(2)}, \sigma^{(2)}), \\
+  Y_{i1}| S = 3, x_i & \sim \textrm{N}(\Delta_{i1} + \beta_{01}^{(3)} + x_i\beta_{11}^{(3)}, \sigma^{(3)}). \\
 \end{align}
 Note, for identifiability issue, we require constraints:
 \begin{align}
@@ -337,12 +443,12 @@ Note, for identifiability issue, we require constraints:
 Distribution of $Y_{i2} | Y_{i1}$:
 \begin{align}
   \label{eq:tri2}
-  * Y_{i2} | y_{i1} , S = 1, x_i & \sim N(\Delta_{i2} + \beta_{02}^{(1)} + x_i\beta_{12}^{(1)} + y_{i1}\beta_{22}^{(1)}, \tau_2^{(1)}),  \\
-  Y_{i2} | y_{i1} , S \geq 2, x_i & \sim N(\Delta_{i2} + \beta_{02}^{(\geq 2)} +
+  * Y_{i2} | y_{i1} , S = 1, x_i & \sim \textrm{N}(\Delta_{i2} + \beta_{02}^{(1)} + x_i\beta_{12}^{(1)} + y_{i1}\beta_{22}^{(1)}, \tau_2^{(1)}),  \\
+  Y_{i2} | y_{i1} , S \geq 2, x_i & \sim \textrm{N}(\Delta_{i2} + \beta_{02}^{(\geq 2)} +
   x_i\beta_{12}^{(\geq 2)} + y_{i1}\beta_{22}^{(\geq 2)}, \tau_2^{(\geq 2)}).
 \end{align}
 $*$ means the observation $Y_{i2}$ is not observed when the follow-up
-time is 1. Same reason due to identifiability issue, constraints are:
+time is 1. Due to the same reason of identifiability, we need to apply constraints as:
 \begin{align}
   \label{eq:constbi2}
   \beta_{02}^{(1)} + \beta_{02}^{(\geq 2)} & = 0 , \\
@@ -352,9 +458,9 @@ time is 1. Same reason due to identifiability issue, constraints are:
 Distribution of $Y_{i3} | Y_{i2}, Y_{i1}$:
 \begin{align}
   \label{eq:tri3}
-  * Y_{i3} | y_{i2}, y_{i1} , S = 1, x_i & \sim N(\Delta_{i3} + \beta_{03}^{(1)} + x_i\beta_{13}^{(1)} + y_{i1}\beta_{23}^{(1)} + y_{i2}\beta_{33}^{(1)}, \tau_3^{(1)}),  \\
-  * Y_{i3} | y_{i2}, y_{i1} , S = 2, x_i & \sim N(\Delta_{i3} + \beta_{03}^{(2)} + x_i\beta_{13}^{(2)} + y_{i1}\beta_{23}^{(2)} + y_{i2}\beta_{33}^{(2)}, \tau_3^{(2)}),  \\
-  Y_{i3} | y_{i2}, y_{i1} , S = 3, x_i & \sim N(\Delta_{i3} + \beta_{03}^{(3)} +
+  * Y_{i3} | y_{i2}, y_{i1} , S = 1, x_i & \sim \textrm{N}(\Delta_{i3} + \beta_{03}^{(1)} + x_i\beta_{13}^{(1)} + y_{i1}\beta_{23}^{(1)} + y_{i2}\beta_{33}^{(1)}, \tau_3^{(1)}),  \\
+  * Y_{i3} | y_{i2}, y_{i1} , S = 2, x_i & \sim \textrm{N}(\Delta_{i3} + \beta_{03}^{(2)} + x_i\beta_{13}^{(2)} + y_{i1}\beta_{23}^{(2)} + y_{i2}\beta_{33}^{(2)}, \tau_3^{(2)}),  \\
+  Y_{i3} | y_{i2}, y_{i1} , S = 3, x_i & \sim \textrm{N}(\Delta_{i3} + \beta_{03}^{(3)} +
   x_i\beta_{13}^{(3)} + y_{i1}\beta_{23}^{(3)} + y_{i2}\beta_{33}^{(3)}, \tau_3^{(3)}).
 \end{align}
 $*$ means the observation $Y_{i3}$ is not observed when the follow-up
@@ -373,23 +479,109 @@ Sensitivity parameters are :
 \end{align*}
 While $\bm \xi_{s2} = (0, 0, 0, \tau_2^{(\geq 2)})$ and $\bm \xi_{s3} = (0, 0, 0,
 0, 0, 0, 0, 0, \tau_3^{(3)}, \tau_3^{(3)})$ yield MAR.
-\section{Generalized multivariate quantile regression with monotone missingness }
-% \subsection{glm}
-% \subsection{pattern mixture}
-% \subsection{$\exp(\lambda)$}
+\section{TODO: Generalized multivariate quantile regression with monotone missingness }
+\label{sec:general}
 
+\begin{itemize}
+\item GLM: not only normal distribution, but all the exponential family as well
+\item Pattern mixture: group the patter
+\item $\exp(\lambda)$: consider MNAR for more general case, not only $\lambda\sigma_{2|1}^{(1)}$
+\end{itemize}
+
+\section{Simulation}
+\label{sec:simulation}
+We proposed a simulation study to test performance of our
+algorithm. The simulation study included 1000 data sets. Each dataset
+consists 200 bivariate observations $\bm Y_i = (Y_{i1}, Y_{i2})$ for
+$i = 1, \ldots, 200$. $Y_{i1}$ was always observed, while some of
+$Y_{i2}$ were missing with probability $0.5$. Covariates $x$ were
+sampled from uniform (0,2). We sampled $\bm Y_i$ from:
+\begin{align*}
+  \begin{pmatrix}
+    Y_{i1}\\
+    Y_{i2}
+  \end{pmatrix}
+  \Big |R = 1 & \sim N \left(
+    \begin{pmatrix}
+      1 + x\\
+      1 - x
+    \end{pmatrix},
+    \begin{pmatrix}
+      1& 0 \\
+      0 & 1
+    \end{pmatrix} \right), \\
+  Y_{i1} | R = 0 & \sim \textrm{N}(-1-x, 1) , \\
+  \pr (R = 1) & = 0.5.
+\end{align*}
+
+We conducted simulation study under two different assumptions: MAR and
+MNAR. Under MAR assumption, we fixed sensitivity parameter $\bm \xi_s$
+in section \ref{sec:sa} at $(0, 0, 0, 1)$, while under MNAR
+assumption, we fixed $\bm \xi_s = (1, 0, 0, 1)$, assuming there was an
+intercept shift between distribution of $Y_{i2}|Y_{i1}, R = 1$ and
+$Y_{i2}|Y_{i1}$, $R = 0$.
+
+For each dataset in both scenario, we fit quantile regression for
+quantiles $\tau = 0.1, 0.3, 0.5, 0.7, 0.9$.
+
+Algorithm were evaluated by mean squared error (MSE), which is defined
+as :
+\begin{equation}
+  \label{eq:eval}
+  \text{MSE} (\gamma_{ij}) = \frac{1}{1000} \sum_{k = 1}^{1000} \left( \hat{\gamma}_{ij}^{(k)}  - \gamma_{ij}\right)^2,
+\end{equation}
+where $\gamma_{ij}$ is the true value for quantile regression coefficient,
+$\hat{\gamma}_{ij}^{(k)}$ is the estimates in $k$-th simulated dataset
+($(\gamma_{01}, \gamma_{11})$ for $Y_{i1}$, $(\gamma_{02}, \gamma_{12})$ for
+$Y_{i2}$).
+
+Simulation results show estimates from our algorithm are close to the
+true value for all quantiles from 0.1 to 0.9. Table \ref{tab:sim}
+lists the MSE for coefficients estimates of quantile 0.1, 0.3, 0.5,
+0.7, 0.9 under MAR and MNAR assumptions. Even for extreme quantiles
+($\tau = 0.1$ and $\tau = 0.9$), our algorithm behave as good as for
+non-extreme quantile ($\tau = 0.3, 0.5, 0.7$) in terms of MSE.
+
+% Table generated by Excel2LaTeX from sheet 'Sheet1'
+\begin{table}
+  \renewcommand{\arraystretch}{1.3}
+  \centering
+  \caption{Simulation result: MSE for coefficients estimates of quantiles
+    0.1, 0.3, 0.5, 0.7, 0.9 under MAR and MNAR assumptions. $(\gamma_{01}, \gamma_{11})$ 
+    are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$ 
+    are ones for $Y_{i2}$.}
+  \vspace{10pt}
+  \begin{tabular}{rrrrrrrrrrrr}
+    \hline
+    & \multicolumn{ 5}{c}{MAR} &  & \multicolumn{ 5}{c}{MNAR} \\
+    \cline{2-6} \cline{8-12}
+    &  0.1 &  0.3 &  0.5 &  0.7 &   0.9 &  &   0.1 &   0.3 &   0.5 &   0.7 &   0.9 \\
+    \hline
+    $\gamma_{01}$ &  0.05 &0.04 &  0.03 &0.04 &0.05 &     &0.04 &0.04 &0.03 &0.04 &0.04 \\
+
+    $\gamma_{11}$ &  0.03 & 0.02 &0.58 &0.03 &0.03 &     &0.03 &0.02 &0.64 &0.03 &0.03 \\
+
+    $\gamma_{02}$ & 0.04 &  0.05 &0.04 &0.05 &0.05 &     &0.04 &0.05 &0.07 &0.05 &0.05 \\
+
+    $\gamma_{12}$ &  0.03 & 0.03 &0.03 &0.03 &0.03 &     &0.03 &0.03 &0.03 &0.03 &0.03 \\
+    \hline
+  \end{tabular}  \label{tab:sim}
+\end{table}
+
+\section{Discussion}
+\label{sec:discussion}
 \section{TODO}
 
 correlation within subject
 
-\section{Computation}
-\label{sec:computation}
+\appendix
+\section{Proof of Lemma (\ref{eq:lem})}
 \begin{itemize}
 \item Denote
   \begin{displaymath}
     I(a,b) = \int \Phi \left( \frac{x-b}{a} \right)\phi(x) dx 
   \end{displaymath}
-  where $\Phi$ is the standard normal cdf and $\phi$ is the pdf and $a > 0$.
+  where $\Phi$ is the standard normal cdf and $\phi$ is the standard normal pdf and $a > 0$.
   \begin{align*}
     \frac{\partial I(a,b)}{\partial b} & = - \frac{1}{a} \int \phi \left( \frac{x-b}{a} \right) \phi(x) dx \\
     & = - \frac{1}{\sqrt{2 \pi} \sqrt{a^2+1}} \exp \left( - \frac{b^2}{2(a^2+1)} \right)\\
@@ -438,158 +630,5 @@ correlation within subject
 
 \end{itemize}
 
-For computation of higher order $\Delta_{ij}$ for $j >= 3$, we propose two
-approaches: (for convenience, we use $\Delta_j$ to save typing for
-subject $i$)
-
-\begin{enumerate}
-\item \textbf{Assume first order relationship:} We assume
-  \begin{equation}
-    \pr (Y_j|S, x, Y_{j-1}, \ldots, Y_1) = \pr (Y_j|S, x, Y_{j-1})
-  \end{equation}
-  After obtaining $\Delta_{j-1}$
-  \begin{align*}
-    \pr (Y_j \leq  x\gamma | S = s) & =  \int\dots\int \pr (Y_j \leq x\gamma | S=s, x, Y_{j-1}, \ldots, Y_1) dF(Y_{j-1}|S=s, Y_{j-2}, \ldots, Y_1)\\
-    & \quad  \cdots dF(Y_2|S=s, Y_1) \\
-    & = \int \pr (Y_j \leq x\gamma | S=s, x, Y_{j-1}) dF(Y_{j-1}|S=s, Y_{j-2})
-  \end{align*}
-
-  Thus, only one integral is needed. Furthermore, by previous
-  computation for integral of a normal cdf over normal pdf, we can
-  simplify above by 'close' form.
-
-\item \textbf{Recursive Computation: }
-
-  From equation \eqref{eq:intg1} or \eqref{eq:intg2}, we can find
-  after integration, the kernel part is still a normal cdf, but with
-  other coefficients. So recursive simplification can be applied. Here
-  we take trivariate case as an example:
-
-  For convenience, we only calculate $\pr (Y_3 \leq x\gamma | S= 1)$, omit
-  superscript and denote $\beta_{ij}^{(1)} $ as $\beta_{ij}$ to save
-  typing.  The model we have is
-  \begin{align*}
-    Y_3 | S= 1 , Y_2, Y_1 & \sim N(\Delta_3 + \mu_3 + y_2\beta_{23} + y_1\beta_{13}, \tau_3) \\
-    Y_2 | S = 1, Y_{1}  & \sim N(\Delta_2 + \mu_2 + y_1\beta_{12}, \tau_2)                \\
-    Y_1 | S= 1 & \sim N(\Delta_1 + \mu_1, \sigma)
-  \end{align*}
-  Assume $\beta_{23}, \beta_{13}, \beta_{12} > 0 $, then
-  \begin{align*}
-    \pr (Y_3 \leq x\gamma |S = 1) & = \int \int \pr (Y_3 \leq x\gamma|S = 1, y_2, y_1) f(y_2|S=1, y_1) f(y_1|S=1) dy_2dy_1\\
-    & = \int \left[ \int \Phi \left( \frac{x\gamma - \Delta_3 - \mu_3 - y_2\beta_{23}- y_1\beta_{13}}{\tau_3} \right) f(y_2; \Delta_2+\mu_2+y_1\beta_{12}, \tau_2)dy_2 \right]\\
-    & \quad f(y_1|S=1) dy_1\\
-    & = \int \left[ \int \Phi \left( \frac{y_2 - (x\gamma - \Delta_3 - \mu_3 - y_1\beta_{13})/\beta_{23}}{-\tau_3/\beta_{23}} \right) f(y_2; \Delta_2+\mu_2+y_1\beta_{12}, \tau_2)dy_2 \right] \\
-    & \quad f(y_1|S=1) dy_1\\
-    \text{by \eqref{eq:intg2} } \quad & = \int \Phi \left( \frac{(x\gamma - \Delta_3 - \mu_3 - y_1\beta_{13})/\beta_{23} - \Delta_2 - \mu_2 - y_1\beta_{12}}{\tau_2 \sqrt{\tau_3^2/\beta_{23}^2/\tau_2^2 + 1}} \right)f(y_1; \Delta_1+ \mu_1, \sigma) dy_1\\
-    & = \int \Phi \left( \frac{y_1 - b^{*}}{a^{*}} \right) f(y_1; \mu^{*}, \sigma)
-    dy_1
-  \end{align*}
-  where again the last equation has closed form from equation
-  \eqref{eq:intg1} or equation \eqref{eq:intg2}.
-\end{enumerate}
-
-\section{Computation for Univariate Non-Missing Case with MLE}
-
-Suppose there is no missingness for the univariate response as $Y_1$,
-we can adopt maximum likelihood method to estimate quantile regression
-coefficients. In two-category example, what we are interested is
-quantile regression parameters $\gamma_0, \gamma_{1}$, such that:
-\begin{displaymath}
-  \pr (Y_{i1} \leq \gamma_0 + \gamma_1x_i) = \tau.
-\end{displaymath}
-Meanwhile,
-\begin{align*}
-  Y_{i1} | R = 1 & \sim N(\Delta_{i1} + \beta_0^{(1)} + \beta_1^{(1)}x_{i1}, \sigma^{(1)}) \\
-  Y_{i1} | R = 0 & \sim N(\Delta_{i1} - \beta_0^{(1)} - \beta_1^{(1)}x_{i1}, \sigma^{(0)}) \\
-  \pr (R = 1) & \sim Bern(\phi)
-\end{align*}
-where $\Delta_{i1}$ can be determined by $\gamma, \beta, \sigma, \tau,
-\phi, x_i$. The contributed likelihood for response $i$ is :
-\begin{equation}
-  \label{eq:emp}
-  L_i(Y_{i1}, R = r) = \phi^r(1-\phi)^{(1-r)}\pr \left( Y_{i1}|R = 1 \right)^r \pr \left( Y_{i1}|R = 0 \right)^{(1-r)}.
-\end{equation}
-One of the methods to get maximum likelihood estimates is by
-\textbf{Gradient Descent} algorithm. Denote $J(\bm \theta) = - \log L
-= - \log \sum_{i = 1}^n L_i$, where $\bm \theta = (\gamma_0, \gamma_1,
-\beta_0^{(1)}, \beta_1^{(1)}, \sigma^{(1)}, \sigma^{(0)}, \phi)$.
-Then to maximize likelihood is equivalent to minimize the target
-function $J(\bm \theta)$. Goal can be reached by the following
-algorithm:
-\begin{enumerate}
-\item Initialize $\bm \theta$
-\item \label{item:der} calculate $\partial J(\bm \theta) / \partial
-  \theta_j$ for all $j$,
-\item update $\bm \theta$ by $\theta_j = \theta_j - \alpha \partial
-  J(\bm \theta) / \partial \theta_j$ for all $j$
-\item evaluate new $J(\bm \theta)$
-\item if the amount of descent of $J ( \bm \theta)$ is great than
-  certain number, say $10^{-3}$, then go back to step \ref{item:der}
-  and repeat. Otherwise, algorithm converges.
-\end{enumerate}
-In previous algorithm, $\alpha$ controls the speed of convergence. If
-$\alpha$ is too large, $J(\bm \theta)$ may be floating around the
-minimum and diverge. If $\alpha$ is too small, the convergence could
-be slow. But fixing at a small enough $\alpha$, convergence is
-ensured, at least to a local minimum.
-
-We can use numerical approximation to calculate $\partial J(\bm
-\theta)/\partial \theta_j$ in algorithm step \ref{item:der} by
-\begin{displaymath}
-  \frac{\partial J(\bm \theta)}{\partial \theta_1} \approx \frac{J(\theta_1 + \epsilon, \theta_2, \ldots) - J(\theta_1 - \epsilon, \theta_2 , \ldots)}{2\epsilon}, 
-\end{displaymath}
-for $j = 1$. We use a toy example to illustrate.
-\begin{emp}
-  We set the sample size $n = 200$, $\phi = 0.5$ and Let
-  \begin{align*}
-    Y | R = 1 & \sim N(1 + 2x , 1)\\
-    Y | R = 0 & \sim N( - 1 - 2x, 1) \\
-    \pr (R = 1) & = \phi = 0.5.
-  \end{align*}
-  Sample $x$ from uniform $(0, 2)$. In MLE algorithm, for testing the
-  algorithm purpose, first we suppose $\sigma^{(r)}$ and $\phi$ are
-  known and we fixed them at true value, and the unknown parameters
-  are $\gamma_0,\gamma_1, \beta_0^{(1)} , \beta_1^{(1)}$.
-
-  For algorithm parameters, we set $\alpha = 0.001$ and the
-  convergence criteria is less than $10^{-3}$.
-\begin{verbatim}
-while (dif > 10^-3 & iter < 1000) {
-  pg0 <- PartialG0(gamma, beta)
-  pg1 <- PartialG1(gamma, beta)
-  pb0 <- PartialB0(gamma, beta)
-  pb1 <- PartialB1(gamma, beta)
-  gamma[1] <- gamma[1] - alpha * pg0
-  gamma[2] <- gamma[2] - alpha * pg1
-  beta[1] <- beta[1] - alpha * pb0
-  beta[2] <- beta[2] - alpha * pb1
-  delta <- unlist(sapply(as.list(x), function(x) SolveDelta(gamma, beta, sigma, tau, phi, x)))
-  ll <- LogLikelihood(y, S, x, delta, beta, sigma)
-  dif <- abs(ll - ll0)
-  ll0 <- ll
-  llsave <- append(llsave, ll)
-  iter <- iter + 1
-}
-\end{verbatim}
-
-  Quantile regressions for quantiles (0.1, 0.3, 0.5, 0.7, 0.9) are
-  estimated and quantile lines are plotted with $x, y$ scatter plot :
-
-  \includegraphics[scale = 0.8]{../image/mle1.png}
-
-  For model:
-  \begin{align*}
-    Y | R = 1 & \sim N(1 + 2x , 1)\\
-    Y | R = 0 & \sim N( - 1 - 2x, 2) \\
-    \pr (R = 1) & = \phi = 0.5.
-  \end{align*}
-
-  \includegraphics[scale = 0.8]{../image/mle2.png}
-
-  Furthermore, for categories more than two, it is also doable to use
-  MLE to estimate.
-
-
-\end{emp}
 
 \end{document}
