@@ -1,10 +1,11 @@
-## Time-stamp: <liuminzhao 04/01/2013 10:06:30>
+## Time-stamp: <liuminzhao 04/01/2013 10:19:24>
 ## Simulation on quantreg function for bivariate case to compare
 ## MAR and MNAR
 rm(list = ls())
 source('sendEmail.R')
 library(quantreg)
 library(doMC)
+library(xtable)
 registerDoMC()
 options(cores = 8)
 set.seed(1)
@@ -90,7 +91,14 @@ mse = rep(0, 20)
 for (i in 1:20){
   mse[i] = mean((result[,i] - trueq[i])^2)
 }
+
+mse1 <- mse[1:10]
+mse2 <- mse[11:20]
+mse <- rbind(matrix(mse1, 2, 5), matrix(mse2, 2, 5))
 print(mse)
+print(dput(mse))
+print(xtable(mse))
+
 
 ###############
 ## TRUE VALUE  for MNAR
@@ -142,4 +150,10 @@ mse = rep(0, 20)
 for (i in 1:20){
   mse[i] = mean((result[,i] - trueq[i])^2)
 }
+
+mse1 <- mse[1:10]
+mse2 <- mse[11:20]
+mse <- rbind(matrix(mse1, 2, 5), matrix(mse2, 2, 5))
 print(mse)
+print(dput(mse))
+print(xtable(mse))
