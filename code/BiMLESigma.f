@@ -1,6 +1,6 @@
 c===========================================================
 c$$$  
-C$$$  Time-stamp: <liuminzhao 03/29/2013 15:37:19>
+C$$$  Time-stamp: <liuminzhao 04/02/2013 21:56:21>
 c$$$  Bivariate MLE using sigma
 c$$$  
 c===========================================================
@@ -289,14 +289,20 @@ CCCCCCCCCCCCCCCCCCCC
       real*8 delta1(n), delta2(n)
 
       integer i, iter, j
-      real*8 dif, nll0, nll, pp(14), alpha(14)
+      real*8 dif, nll0, nll, pp(14), alpha(14), ppp(14)
+      real*8 alphamax, alphamin, etap, etam
+
 
       
       do i = 1, 14
          pp(i) = 0
-         alpha(i) = 0.0003
+         alpha(i) = 0.1
+         ppp(i) = 1
       end do
-      alpha(14) = 0.0001
+      alphamax = 1
+      alphamin = 0.000001
+      etap = 1.2
+      etam = 0.5
 
       dif = 1
       iter = 1
@@ -311,8 +317,23 @@ CCCCCCCCCCCCCCCCCCCC
       do while (dif > 0.00001 .and. iter .le. niter)
          call Partialf(param, tau, x, y, R, n, pp)
          do i = 1, 14
-            param(i) = param(i) - alpha(i) * pp(i)
+            if (pp(i) * ppp(i) > 0) then
+               alpha(i) = min(alpha(i)*etap, alphamax)
+               param(i) = param(i) - alpha(i)*pp(i)/abs(pp(i))
+            else if (pp(i)*ppp(i) < 0) then
+               alpha(i) = max(alpha(i)*etam, alphamin)
+               param(i) = param(i) - alpha(i)*pp(i)/abs(pp(i))
+               pp(i) = 0
+            else if (ppp(i)*pp(i) .eq. 0) then
+               if (pp(i) .eq. 0.d0) then
+                  param(i) = param(i) 
+               else
+                  param(i) = param(i) - alpha(i)*pp(i)/abs(pp(i))
+               end if
+            end if
+            ppp(i) = pp(i)
          end do
+
          param(5) = max(param(5), 0.01)
          param(6) = max(param(6), 0.01)
          param(12) = max(param(12), 0.01)
