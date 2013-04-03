@@ -1,6 +1,6 @@
 c===========================================================
 c$$$  
-C$$$  Time-stamp: <liuminzhao 03/28/2013 10:45:53>
+C$$$  Time-stamp: <liuminzhao 04/02/2013 20:31:36>
 c$$$  Univariate MLE using sigma
 c$$$  
 c===========================================================
@@ -181,8 +181,8 @@ CCCCCCCCCCCCCCCCCCCC
 
 C     TEMP
       integer i, iter, j
-      real*8 dif, nll0, nll, pp(7)
-      real*8 alpha(7)
+      real*8 dif, nll0, nll, pp(7), ppp(7)
+      real*8 alpha(7), alphamax, alphamin, etap, etam
 
 C     INITIAL
       param(1) = 0
@@ -194,9 +194,13 @@ C     INITIAL
       param(7) = 0.5
       
       do i = 1, 7
-         alpha(i) = 0.0003
+         alpha(i) = 0.1
+         ppp(i) = 1
       end do
-      alpha(7) = 0.0001
+      alphamax = 1
+      alphamin = 0.000001
+      etap = 1.2
+      etam = 0.5
 
       dif = 1
       iter = 1
@@ -211,10 +215,21 @@ C     INITIAL
       do while (dif > 0.00001 .and. iter .le. niter)
          call Partialf(param, tau, x, y, S, n, pp)
          do i = 1, 7
-            param(i) = param(i) - alpha(i) * pp(i)
-c$$$            if (alpha(i)*pp(i) .le. 0.0001) then
-c$$$               alpha(i) = 0.d0
-c$$$            end if
+            if (pp(i) * ppp(i) > 0) then
+               alpha(i) = min(alpha(i)*etap, alphamax)
+               param(i) = param(i) - alpha(i)*pp(i)/abs(pp(i))
+            else if (pp(i)*ppp(i) < 0) then
+               alpha(i) = max(alpha(i)*etam, alphamin)
+               param(i) = param(i) - alpha(i)*pp(i)/abs(pp(i))
+               pp(i) = 0
+            else if (ppp(i)*pp(i) .eq. 0) then
+               if (pp(i) .eq. 0.d0) then
+                  param(i) = param(i) 
+               else
+                  param(i) = param(i) - alpha(i)*pp(i)/abs(pp(i))
+               end if
+            end if
+            ppp(i) = pp(i)
          end do
          param(5) = max(param(5), 0.01)
          param(6) = max(param(6), 0.01)
