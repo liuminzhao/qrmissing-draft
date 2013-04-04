@@ -698,5 +698,62 @@ correlation within subject
 
 \end{itemize}
 
+\section{Adaptive Gradient Descent Algorithm}
 
+After using the adaptive gradient descent algorithm (Riedmiller and Braun, 1993), the convergence goes faster and consistent. The algorithm is :
+\begin{verbatim}
+      alphamax = 1
+      alphamin = 0.000001
+      etap = 1.2
+      etam = 0.5
+            if (pp(i) * ppp(i) > 0) then
+               alpha(i) = min(alpha(i)*etap, alphamax)
+               param(i) = param(i) - alpha(i)*pp(i)/abs(pp(i))
+            else if (pp(i)*ppp(i) < 0) then
+               alpha(i) = max(alpha(i)*etam, alphamin)
+               param(i) = param(i) - alpha(i)*pp(i)/abs(pp(i))
+               pp(i) = 0
+            else if (ppp(i)*pp(i) .eq. 0) then
+               if (pp(i) .eq. 0.d0) then
+                  param(i) = param(i) 
+               else
+                  param(i) = param(i) - alpha(i)*pp(i)/abs(pp(i))
+               end if
+            end if
+\end{verbatim}
+
+\section{trivariate case}
+
+Suppose distribution of $Y_{i2} | Y_{i1}$:
+\begin{align*}
+   Y_{i2} | y_{i1} , S = 2, x_i & \sim \textrm{N}(\Delta_{i2} + \beta_{02}^{(2)} + x_i\beta_{12}^{(2)} + y_{i1}\beta_{22}^{(2)}, \tau_2^{(2)}),  \\
+   Y_{i2} | y_{i1} , S = 3, x_i & \sim \textrm{N}(\Delta_{i2} + \beta_{02}^{(3)} + x_i\beta_{12}^{(3)} + y_{i1}\beta_{22}^{(3)}, \tau_2^{(3)}),  \\
+\end{align*}
+To identify $y_2 | y_1, S = 1$, denote it in general by the mixture:
+\begin{displaymath}
+\pr_1(y_2|y_1) = \Delta \pr_2(y_2|y_1) + (1 - \Delta) \pr_3(y_2|y_1)
+\end{displaymath}
+where $\Delta$ is not identifiable from the data and defined as a sensitivity parameter. If $\Delta$ satisfies:
+\begin{displaymath}
+\Delta(y_1) = \frac{\pi_2 \pr_2(y_1)}{\pi_2\pr_2(y_1) + \pi_3\pr_3(y_1)}
+\end{displaymath}
+then 
+\begin{displaymath}
+\pr_1(y_2|y_1) = \pr_{\geq 2} (y_2|y_1) = \frac{\pi_2 \pr_2(y_1) \pr_2(y_2|y_1) + \pi_3\pr_3(y_2|y_1)\pr_3(y_1)}{\pi_2\pr_2(y_1) + \pi_3\pr_3(y_1)}
+\end{displaymath}
+which yields MAR condition.
+
+
+To solve $\Delta_2$, 
+\begin{align*}
+\tau &= \pr (y_2 \leq x\gamma ) \\
+& = \pi_1 \pr_1(y_2 \leq x\gamma) + \pi_2 \pr_2(y_2 \leq x\gamma) + \pi_3 \pr_3(y_2 \leq x\gamma) 
+\end{align*}
+where the last two terms on the right hand side are easy to get as we mentioned before, it is 
+an integral of a normal cdf over a normal pdf . For the first term:
+\begin{align*}
+\pr_1(y_2 \leq x\gamma) & = \int \pr_{1}(y_2 \leq x\gamma| y_1) dF^{(1)}(y_1|S = 1) \\
+& = \int \left( \frac{\pi_2 \pr_2(y_1) \pr_2(y_2 \leq x\gamma|y_1) + \pi_3\pr_3(y_2 \leq x\gamma|y_1)\pr_3(y_1)}{\pi_2\pr_2(y_1) + \pi_3\pr_3(y_1)} \right)  dF^{(1)}(y_1|S = 1)
+\end{align*}
+where the integral is not closed form, but if using numerical method (Laplace approximation), it might be feasible. 
 \end{document}
