@@ -1,8 +1,8 @@
-## Time-stamp: <liuminzhao 03/29/2013 10:07:17>
+## Time-stamp: <liuminzhao 04/05/2013 17:12:17>
 ## WRAP UP BiMLESigma.f
 
 dyn.load('BiMLESigma.so')
-BiQRGradient <- function(y, R, x, tau=0.5, niter = 1000, sp = c(0,0,0,1)){
+BiQRGradient <- function(y, R, x, tau=0.5, niter = 1000, sp = c(0,0,0,1,1)){
   n <- length(R)
   param <- rep(0, 14)
   param[1] = 0 
@@ -19,8 +19,12 @@ BiQRGradient <- function(y, R, x, tau=0.5, niter = 1000, sp = c(0,0,0,1)){
   param[12]= 1 
   param[13]= sp[4]
   param[14]= 0.5 
+  param[15]= 0
+  param[16]= 0
+  param[17]= 0
+  param[18]= sp[5]
 
-  paramsave <- matrix(0, niter, 15)
+  paramsave <- matrix(0, niter, 19)
   mod <- .Fortran("BiQRGradientf",
                   y = as.double(y),
                   R = as.integer(R),
@@ -35,9 +39,9 @@ BiQRGradient <- function(y, R, x, tau=0.5, niter = 1000, sp = c(0,0,0,1)){
 }
 
 Diagnose <- function(mod){
-  a <- matrix(mod$paramsave, mod$niter, 15)
-  colnames(a) <- c('Gamma0', 'Gamma1', 'Beta0', 'Beta1', 'Sigma1', 'Sigma0', 'Gamma02', 'Gamma12', 'beta02','beta12','beta22','sigma2','lambda','phi', 'NLL')
-  for (i in 1:15){
+  a <- matrix(mod$paramsave, mod$niter, 19)
+  colnames(a) <- c('Gamma0', 'Gamma1', 'Beta0', 'Beta1', 'Sigma1', 'Sigma0', 'Gamma02', 'Gamma12', 'beta02','beta12','beta22','sigma2','lambda','phi', 'heter1(1)', 'heter1(2)', 'heter2(1)', 'heter2(2)','NLL')
+  for (i in 1:19){
     plot(ts(a[, i]), main = colnames(a)[i])
   }
 }

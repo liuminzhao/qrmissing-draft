@@ -1,6 +1,6 @@
 c===========================================================
 c$$$  
-C$$$  Time-stamp: <liuminzhao 04/02/2013 20:31:36>
+C$$$  Time-stamp: <liuminzhao 04/08/2013 11:26:30>
 c$$$  Univariate MLE using sigma
 c$$$  
 c===========================================================
@@ -8,11 +8,12 @@ c===========================================================
 CCCCCCCCCCCCCCCCCCCCC      
 C     TARGET DELTA EQUATION
 CCCCCCCCCCCCCCCCCCCCC
-      SUBROUTINE TargetEqnf(delta, gamma, beta, sigma, tau, p, x, f)
+      SUBROUTINE TargetEqnf(delta,gamma,beta,sigma,heter, tau, p, x, f)
       
       implicit none
 
       real*8 delta, gamma(2), beta(2), sigma(2), tau, p, x, f
+      real*8 heter(2)
 
       real*8 ans
 
@@ -25,8 +26,9 @@ C     TEMP
       quan = gamma(1) + gamma(2) * x
       lp = beta(1) + beta(2) * x
 
-      f = tau - p * pnrm((quan - delta - lp)/sigma(1),0.d0,1.d0,1,0)-
-     &     (1 - p) * pnrm((quan - delta + lp)/sigma(2),0.d0,1.d0,1,0)
+      f = tau - p * pnrm((quan - delta - lp)/(1+heter(1)*x)/sigma(1)
+     &     ,0.d0,1.d0,1,0)-(1 - p) * pnrm((quan - delta + lp)/
+     &     (1+heter(2)*x)/sigma(2),0.d0,1.d0,1,0)
 
       return 
       end 
@@ -39,9 +41,9 @@ CCCCCCCCCCCCCCCCCCCC
 
       implicit none
 
-      real*8 param(7)
+      real*8 param(9)
       real*8 gamma(2), beta(2), sigma(2), tau, p, x, root
-
+      real*8 heter(2)
 C     TEMP
 
       real*8 a, b, fa, fb, m, fm, tol
@@ -63,10 +65,12 @@ C     INITIAL
       sigma(1) = param(5)
       sigma(2) = param(6)
       p = param(7)
+      heter(1) = param(8)
+      heter(2) = param(9)
 
-      call TargetEqnf(m, gamma, beta, sigma, tau, p, x, fm)
-      call TargetEqnf(b, gamma, beta, sigma, tau, p, x, fb)
-      call TargetEqnf(a, gamma, beta, sigma, tau, p, x, fa)
+      call TargetEqnf(m,gamma,beta,sigma,heter,tau, p, x, fm)
+      call TargetEqnf(b,gamma,beta,sigma,heter,tau, p, x, fb)
+      call TargetEqnf(a,gamma,beta,sigma,heter,tau, p, x, fa)
 
       do while(abs(fm) > tol)
          if (fm * fb < 0) then
@@ -76,7 +80,7 @@ C     INITIAL
             fb = fm
          end if
          m = (a + b)/2
-         call TargetEqnf(m, gamma, beta, sigma, tau, p, x, fm)
+         call TargetEqnf(m,gamma,beta,sigma,heter,tau, p, x, fm)
       end do
 
       root = m
@@ -94,8 +98,8 @@ CCCCCCCCCCCCCCCCCCCC
       
       integer n
       integer S(n)
-      real*8 y(n), x(n), delta(n), beta(2), sigma(2), nll, p, param(7)
-
+      real*8 y(n), x(n), delta(n), beta(2), sigma(2), nll, p, param(9)
+      real*8 heter(2)
       real*8 dnrm
       
 C     TEMP
@@ -107,14 +111,16 @@ C     TEMP
       sigma(1) = param(5)
       sigma(2) = param(6)
       p = param(7)
+      heter(1) = param(8)
+      heter(2) = param(9)
 
       do i = 1, n
          if (S(i) .eq. 1) then
-            nll=nll+dnrm(y(i),delta(i)+beta(1)+beta(2)*x(i),sigma(1),1)
-     &           + log(p)
+            nll=nll+dnrm(y(i),delta(i)+beta(1)+beta(2)*x(i),
+     &           (1+heter(1)*x(i))*sigma(1),1)+ log(p)
          else
-            nll=nll+dnrm(y(i),delta(i)-beta(1)-beta(2)*x(i),sigma(2),1)
-     &           + log(1 - p)
+            nll=nll+dnrm(y(i),delta(i)-beta(1)-beta(2)*x(i),
+     &           (1+heter(2)*x(i))*sigma(2),1)+ log(1 - p)
          end if
       end do
 
@@ -132,19 +138,19 @@ CCCCCCCCCCCCCCCCCCCC
       implicit none
 
       integer n
-      real*8 param(7)
+      real*8 param(9)
       integer S(n)
-      real*8 tau, x(n), y(n), pp(7)
+      real*8 tau, x(n), y(n), pp(9)
 
 C     TEMP
-      real*8 epsilon, delta1(n), delta2(n), param1(7), param2(7)
+      real*8 epsilon, delta1(n), delta2(n), param1(9), param2(9)
       real*8 ll1, ll2
       integer i, j
 
       epsilon = 0.0003
       
-      do i = 1, 7
-         do j = 1, 7
+      do i = 1, 9
+         do j = 1, 9
             param1(j) = param(j)
             param2(j) = param(j)
          end do
@@ -177,12 +183,13 @@ CCCCCCCCCCCCCCCCCCCC
 
       integer n, niter
       integer S(n)
-      real*8 param(7), y(n), x(n), tau, delta(n), paramsave(niter, 8)
+      real*8 param(9), y(n), x(n), tau, delta(n), paramsave(niter, 10)
 
 C     TEMP
       integer i, iter, j
-      real*8 dif, nll0, nll, pp(7), ppp(7)
-      real*8 alpha(7), alphamax, alphamin, etap, etam
+      real*8 dif, nll0, nll, pp(9), ppp(9)
+      real*8 alpha(9), alphamax, alphamin, etap, etam
+      real*8 maxx
 
 C     INITIAL
       param(1) = 0
@@ -192,8 +199,10 @@ C     INITIAL
       param(5) = 1
       param(6) = 1
       param(7) = 0.5
+      param(8) = 0
+      param(9) = 0
       
-      do i = 1, 7
+      do i = 1, 9
          alpha(i) = 0.1
          ppp(i) = 1
       end do
@@ -207,14 +216,21 @@ C     INITIAL
       nll0 = 0
 
       do i = 1, niter
-         do j = 1, 8
+         do j = 1, 10
             paramsave(i, j) = 0
          end do
       end do
 
+      maxx = 0
+      do i = 1, n
+         if (x(i) > maxx) then
+            maxx = x(i)
+         end if
+      end do
+
       do while (dif > 0.00001 .and. iter .le. niter)
          call Partialf(param, tau, x, y, S, n, pp)
-         do i = 1, 7
+         do i = 1, 9
             if (pp(i) * ppp(i) > 0) then
                alpha(i) = min(alpha(i)*etap, alphamax)
                param(i) = param(i) - alpha(i)*pp(i)/abs(pp(i))
@@ -234,6 +250,9 @@ C     INITIAL
          param(5) = max(param(5), 0.01)
          param(6) = max(param(6), 0.01)
          param(7) = max(min(param(7), 0.99), 0.001)
+         param(8) = max(param(8), -1/maxx)
+         param(9) = max(param(9), -1/maxx)
+
          do i = 1, n
             call SolveDeltaf(param, tau, x(i), delta(i))        
          end do
@@ -244,9 +263,34 @@ C     INITIAL
             paramsave(iter, i) = param(i)
          end do
          paramsave(iter, 8) = nll
+         paramsave(iter, 9) = param(8)
+         paramsave(iter, 10) = param(9)
 
+         call progress(iter, niter)
          iter = iter + 1
       end do
 
       return 
+      end
+
+
+
+CCCCCCCCCCCCCCCCCCCC
+C   PROGRESS BAR     
+CCCCCCCCCCCCCCCCCCCC
+
+      subroutine progress(j, n)
+ 
+      implicit none
+      integer(kind=4) :: j,k,n
+      character(len=18) :: bar="\r???% |          |"
+ 
+      write(unit=bar(2:4),fmt="(i3)") 100*j/n
+      do k = 1, j*10/n
+         bar(7+k:7+k)="*"
+      enddo
+ 
+      write(*,'(a)',advance='no') bar
+ 
+      return
       end

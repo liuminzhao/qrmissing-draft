@@ -1,11 +1,11 @@
-## Time-stamp: <liuminzhao 03/29/2013 01:03:31>
+## Time-stamp: <liuminzhao 04/04/2013 18:32:32>
 ## WRAP UP UniMLESigma.f
 
 dyn.load('UniMLESigma.so')
 QRGradient <- function(y, S, x, tau, niter = 1000){
   n <- length(y)
-  param <- rep(0, 7)
-  paramsave <- matrix(0, niter, 8)
+  param <- rep(0, 9)
+  paramsave <- matrix(0, niter, 10)
   mod <- .Fortran("QRGradientf",
                   y = as.double(y),
                   S = as.integer(S),
@@ -20,9 +20,10 @@ QRGradient <- function(y, S, x, tau, niter = 1000){
 }
 
 Diagnose <- function(mod){
-  a <- matrix(mod$paramsave, mod$niter, 8)
-  colnames(a) <- c('Gamma0', 'Gamma1', 'Beta0', 'Beta1', 'Sigma1', 'Sigma0', 'phi', 'NLL')
-  for (i in 1:8){
+  a <- matrix(mod$paramsave, mod$niter, 10)
+  colnames(a) <- c('Gamma0', 'Gamma1', 'Beta0', 'Beta1', 'Sigma1', 'Sigma0', 'phi', 'NLL',
+                   'Heter1', 'Heter2')
+  for (i in 1:10){
     plot(ts(a[, i]), main = colnames(a)[i])
   }
 }
