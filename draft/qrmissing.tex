@@ -12,6 +12,7 @@
 \usepackage{amsthm}
 \usepackage{ulem}
 \geometry{verbose,letterpaper,tmargin=1in,bmargin=.75in,lmargin=.75in,rmargin=1in}
+\usepackage{booktabs}
 
 \title{Quantile Regression with Monotone Dropout Missingness}
 \date{\today}
@@ -29,6 +30,7 @@
 \newcommand{\polya}{P\'{o}lya}
 \newcommand{\iid}{\stackrel{\text{i.i.d}}{\sim}}
 \DeclareMathOperator{\pr}{p}
+\DeclareMathOperator{\prob}{Pr}
 \DeclareMathOperator{\pt}{PT}
 
 \begin{document}
@@ -514,10 +516,103 @@ While $\bm \xi_{s2} = (0, 0, 0, \tau_2^{(\geq 2)})$ and $\bm \xi_{s3} = (0, 0, 0
 \label{sec:general}
 
 \begin{itemize}
+\item Generalized J 
 \item GLM: not only normal distribution, but all the exponential family as well
 \item Pattern mixture: group the patter
 \item $\exp(\lambda)$: consider MNAR for more general case, not only $\lambda\sigma_{2|1}^{(1)}$
 \end{itemize}
+
+\subsection{General Case}
+\label{sec:general-case}
+
+We extend our mixture  model to general monotone dropout scenario. Suppose the
+follow up time $S \in \{1, 2, \ldots, J\}$, denote response vector for
+subject $i$: $\bm y = (y_{1}, y_2, \ldots, y_J)$ and in the following
+context, we omit subject subscript $i$ to save typing. In principle,
+$y_{ij}, \Delta_{ij}, x_{ij}$ can be changing with subject.
+
+\begin{table}[h]
+  \renewcommand{\arraystretch}{1.3}
+  \centering
+  \caption[]{\label{tab:mar} Table of conditional distribution for $J = 4$. }
+  \vspace{4mm}
+  \begin{tabular}[tb]{lllll}
+    \toprule
+    & $j = 1$    & $j=2$         & $j=3$            & $j=4$                 \\
+    \hline
+    $S=1$ & $\pr_1(y_1)$ & $\pr_1(y_2|y_1)$ & $\pr_1(y_3|y_1,y_2)$ & $\pr_1(y_4|y_1, y_2, y_3)$ \\
+    \cline{3-3}
+    $S=2$ & $\pr_2(y_1)$ & $\pr_{\geq 2}(y_2|y_1)$ & $\pr_2(y_3|y_1,y_2)$ & $\pr_2(y_4|y_1, y_2, y_3)$ \\
+    \cline{4-4}
+    $S=3$ & $\pr_3(y_1)$ & $\pr_{\geq 2}(y_2|y_1)$  & $\pr_{\geq 3}(y_3|y_1,y_2)$ & $\pr_3(y_4|y_1, y_2, y_3)$ \\
+    \cline{5-5}
+    $S=4$ & $\pr_4(y_1)$ & $\pr_{\geq 2}(y_2|y_1)$ & $\pr_{\geq 3}(y_3|y_1,y_2)$ & $\pr_4(y_4|y_1, y_2, y_3)$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+First we introduce some notations. Let
+\begin{align*}
+  \pr_k(y) &= \pr (y | S = k)\\
+  \pr_{\geq k} (y) & = \pr (y | S \geq k).
+\end{align*}
+be the density of response $y$ given follow-up time $S=k$ and $S \geq k$. And $\prob_k$ be the corresponding 
+probability given $S = k$.
+
+For follow-up time $S$, we assume:
+\begin{align*}
+\prob (S = k) & = \pi_k,\\
+\sum_{k=1}^J \pi_k = 1.
+\end{align*}
+
+For $Y_1$, suppose
+\begin{align*}
+  & \prob (Y_1 \leq X \bm \gamma_1 )  = \tau ,\\
+  & \pr_k(y_1) = \pr(Y_1|S = k)  \sim \textrm{N} (\Delta_1 + \beta_{01}^{(k)} + \beta_{x1}^{(k)}x, \sigma_1^{(k)}), k = 1, \ldots, J,\\
+  & \sum_{k=1}^J \beta_{i1}^{(k)} = 0, i = 0, x.
+\end{align*}
+The $\Delta_1$ can be determined by
+\begin{align*}
+  \tau = \prob (Y_1 \leq X \bm \gamma_1 ) = \sum_{k=1}^J \pi_k\prob_k (Y_1 \leq X \bm \gamma_1 )
+\end{align*}
+
+For $Y_j, j \geq 2$, we assume
+\begin{align*}
+  &  \prob (Y_j \leq X \bm \gamma_j )  = \tau ,\\
+  & \pr_k(y_j|y_1, \ldots, y_{j-1}) =
+  \begin{cases}
+    \textrm{N} (\Delta_j + \beta_{0j}^{(k)} + \beta_{xj}^{(k)}x + \beta_{1j}^{(k)}y_1 \cdots
+    + \beta_{(j-1)j}^{(k)}y_{j-1}, \sigma_j^{(k)}) & k < j ; \\
+    \textrm{N} (\Delta_j + \beta_{0j}^{(\geq k)} + \beta_{xj}^{(\geq k)}x +
+    \beta_{1j}^{(\geq k)}y_1 \cdots + \beta_{(j-1)j}^{(\geq k)}y_{j-1},
+    \sigma_j^{(\geq k)}) & k \geq j ;
+  \end{cases} \\
+  & \sum_{k=1}^j \beta_{ij}^{(k)} + \beta_{ij}^{(\geq j)} = 0, i = 0, x, 1,
+  \ldots , j-1.
+\end{align*}
+
+By Molenberghs et al. (1998) theorem (MAR for discrete-time pattern
+mixture models under monotone dropout), MAR holds if and only if, for
+each $j \geq 2$ and $k < j$:
+\begin{align*}
+  \pr_k(y_j|y_1, \ldots, y_{j-1}) = \pr_{\geq j}(y_j|y_1, \ldots, y_{j-1})
+  .
+\end{align*}
+So MAR condition can be assumed by fixing $\beta_{ij}^{(k)} =
+\beta_{ij}^{(\geq j)} = 0$ for $i = 0, x, 1, \ldots, j-1; 2 \leq k < j$.
+
+Similarly, $\Delta_j$ can also be deterministic by 
+\begin{align*}
+  \tau &= \prob (Y_j \leq X \bm \gamma_j ) = \sum_{k=1}^J \pi_k\prob_k (Y_j \leq X \bm \gamma_j ) \\
+& = \sum_{k=1}^J \pi_k \int\cdots \int  \prob_k (Y_j \leq X \bm \gamma_j |y_1,\ldots, y_{j-1})  
+\pr_k (y_{j-1}| y_1, \ldots, y_{j-2}) \cdots\pr_k (y_{2}| y_1) \pr_k(y_1) dy_{j-1}\cdots dy_1. 
+\end{align*}
+
+The contributed observed likelihood for $\bm y = (y_1, \ldots, y_k)$ given follow-up time $S = k$ is 
+\begin{align*}
+\pr(\bm y, S=k) & = \pi_k\pr_k (y_k | y_1, \ldots, y_{k-1}) \pr_k (y_{k-1}|y_1, \ldots, y_{k-2}) \cdots \pr_{k} (y_1) \\
+& = \pi_k \pr_{\geq k} (y_k | y_1, \ldots, y_{k-1}) \pr_{\geq k-1} (y_{k-1}|y_1, \ldots, y_{k-2}) \cdots \pr_{k} (y_1) 
+\end{align*}
 
 \section{Simulation}
 \label{sec:simulation}

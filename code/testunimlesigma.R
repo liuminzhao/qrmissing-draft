@@ -1,8 +1,10 @@
+#! /usr/bin/Rscript
 ## Test UniMLESigma.R
+
 rm(list = ls())
 set.seed(1)
 source('UniMLESigma.R')
-n <- 500
+n <- 250
 p <- 0.5
 S <- rbinom(n, 1, p)
 b01 <- 1
@@ -46,3 +48,5 @@ print(mod3$param)
 mod1 <- QRGradient(y, S, x, tau = 0.1)
 abline(mod1$param[1:2])
 print(mod1$param)
+
+
