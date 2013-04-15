@@ -1,8 +1,9 @@
-## Time-stamp: <liuminzhao 04/13/2013 22:55:18>
+## Time-stamp: <liuminzhao 04/15/2013 10:25:23>
 ## WRAP UP BiMLESigma.f
 
 dyn.load('BiMLESigma.so')
 dyn.load('BiMLESigmaH1.so')
+dyn.load('BiMLESigmaH2.so')
 BiQRGradient <- function(y, R, x, tau=0.5, niter = 1000, sp = c(0,0,0,1,1), method = 'homo'){
   n <- length(R)
   if (method == 'homo') {
@@ -56,6 +57,38 @@ BiQRGradient <- function(y, R, x, tau=0.5, niter = 1000, sp = c(0,0,0,1,1), meth
 
     paramsave <- matrix(0, niter, 19)
     mod <- .Fortran("BiQRGradientH1f",
+                    y = as.double(y),
+                    R = as.integer(R),
+                    x = as.double(x),
+                    tau = as.double(tau),
+                    n = as.integer(n),
+                    niter = as.integer(niter),
+                    param = as.double(param),
+                    paramsave = as.double(paramsave)
+                    )
+  } else if (method == 'heter2') {
+    param <- rep(0, 18)
+    param[1] = 0 
+    param[2] = 0 
+    param[3] = 0 
+    param[4] = 0 
+    param[5] = 1 
+    param[6] = 1 
+    param[7] = 0 
+    param[8] = 0 
+    param[9] = sp[1]
+    param[10]= sp[2]
+    param[11]= sp[3] 
+    param[12]= 1 
+    param[13]= sp[4]
+    param[14]= 0.5 
+    param[15]= 0
+    param[16]= 0
+    param[17]= 0
+    param[18]= sp[5]
+
+    paramsave <- matrix(0, niter, 19)
+    mod <- .Fortran("BiQRGradientH2f",
                     y = as.double(y),
                     R = as.integer(R),
                     x = as.double(x),
