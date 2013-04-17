@@ -1,6 +1,6 @@
 c===========================================================
 c$$$  
-C$$$  Time-stamp: <liuminzhao 04/15/2013 10:21:26>
+C$$$  Time-stamp: <liuminzhao 04/16/2013 22:56:21>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c===========================================================
@@ -39,7 +39,7 @@ CCCCCCCCCCCCCCCCCCCC
 
       implicit none
 
-      real*8 param(18)
+      real*8 param(19)
       real*8 gamma(2), beta(2), sigma(2), tau, p, x, root
 
 C     TEMP
@@ -88,41 +88,52 @@ CCCCCCCCCCCCCCCCCCCC
 C TARGET EQN FOR DELTA2     
 CCCCCCCCCCCCCCCCCCCC
 
-      subroutine targeteqn2h2f(delta2, gamma2, beta1, beta2, sigma1,
+      subroutine targeteqn2h2f(delta2, gamma2, beta1, beta2, h, sigma1,
      &     sigma2, tau, p, x, delta1, f)
       implicit none
-      real*8 delta2, gamma2(2), beta1(2), beta2(3)
+      real*8 delta2, gamma2(2), beta1(2), beta2(3), h
       real*8 sigma1(2), sigma2(2), tau, p, x, delta1
       real*8 f
 
       real*8 pnrm
       real*8 p1, p2
-      
-      if (beta2(3) .ne. 0) then
-         p1=1-pnrm(((delta2-gamma2(1)-x*gamma2(2)-beta2(1)-x*beta2(2))
-     &        /beta2(3)-(delta1+beta1(1)+x*beta1(2)))/
+      real*8 beta22
+
+      beta22 = beta2(3) + h
+
+      if (beta22 .ne. 0) then
+         p1=pnrm(((-delta2+gamma2(1)+x*gamma2(2)+beta2(1)+x*beta2(2))
+     &        /beta22-(delta1+beta1(1)+x*beta1(2)))/
      &        sigma1(1)/sqrt(
      &        sigma2(1)**2/
-     &        sigma1(1)**2/beta2(3)**2+1),
+     &        sigma1(1)**2/beta22**2+1),
      &        0.d0,1.d0,1,0)
+      else 
+         p1=pnrm((gamma2(1)+x*gamma2(2)-delta2+beta2(1)+x*beta2(2))
+     &        /sigma2(1), 0.d0, 1.d0, 1, 0)
+      end if
+      
+      if (beta2(3) .ne. 0) then
          p2=pnrm(((-delta2+gamma2(1)+x*gamma2(2)-beta2(1)-x*beta2(2))
      &        /beta2(3)-(delta1-beta1(1)-x*beta1(2)))/
      &        sigma1(2)/sqrt(
      &        sigma2(2)**2/
      &        sigma1(2)**2/beta2(3)**2+1),
      &        0.d0,1.d0,1,0)
-         if (beta2(3) > 0) then
-            f = tau - p*p1 - (1 - p) * p2
-         else
-            f = tau - p * (1 - p1) - (1 - p) * (1 - p2)
-         end if
       else
-         p1=pnrm((gamma2(1)+x*gamma2(2)-delta2+beta2(1)+x*beta2(2))
-     &        /sigma2(1), 0.d0, 1.d0, 1, 0)
          p2=pnrm((gamma2(1)+x*gamma2(2)-delta2-beta2(1)-x*beta2(2))
      &        /sigma2(2), 0.d0, 1.d0, 1, 0)
-         f = tau - p * p1 - (1 - p) * p2
+      end if 
+
+      if (beta22 < 0) then
+         p1 = 1 - p1
       end if
+
+      if (beta2(3) < 0) then
+         p2 = 1 - p2
+      end if
+
+      f = tau - p * p1 - (1 - p) * p2
 
       return 
       end
@@ -134,9 +145,9 @@ CCCCCCCCCCCCCCCCCCCC
 
       subroutine solvedelta2h2f(param, tau, x, delta1, root)
       implicit none
-      real*8 param(18)
+      real*8 param(19)
       real*8 gamma1(2), beta1(2), sigma1(2)
-      real*8 gamma2(2), beta2(3), sigma2(2), p
+      real*8 gamma2(2), beta2(3), sigma2(2), p, h
       real*8 tau, x, delta1, root
       real*8 a, b, fa, fb, m, fm, tol
 
@@ -164,12 +175,13 @@ C     INITIAL
       sigma2(1) = exp(param(12) + param(17) * x)
       sigma2(2) = exp(param(12)*param(13) + param(17) * x*param(18))
       p = param(14)
+      h = param(19)
 
-      call targeteqn2h2f(m, gamma2, beta1, beta2, sigma1,
+      call targeteqn2h2f(m, gamma2, beta1, beta2,h, sigma1,
      &     sigma2, tau, p, x, delta1, fm)
-      call targeteqn2h2f(b, gamma2, beta1, beta2, sigma1,
+      call targeteqn2h2f(b, gamma2, beta1, beta2,h, sigma1,
      &     sigma2, tau, p, x, delta1, fb)
-      call targeteqn2h2f(a, gamma2, beta1, beta2, sigma1,
+      call targeteqn2h2f(a, gamma2, beta1, beta2,h, sigma1,
      &     sigma2, tau, p, x, delta1, fa)
 
       do while(abs(fm) > tol)
@@ -180,7 +192,7 @@ C     INITIAL
             fb = fm
          end if
          m = (a + b)/2
-         call targeteqn2h2f(m, gamma2, beta1, beta2, sigma1,
+         call targeteqn2h2f(m, gamma2, beta1, beta2,h, sigma1,
      &        sigma2, tau, p, x, delta1, fm)
       end do
 
@@ -197,11 +209,12 @@ CCCCCCCCCCCCCCCCCCCC
       implicit none
       integer n
       integer R(n)
-      real*8 y(n, 2),x(n), delta1(n), delta2(n), param(18), nll
+      real*8 y(n, 2),x(n), delta1(n), delta2(n), param(19), nll
       real*8 dnrm
       real*8 gamma1(2), beta1(2), sigma1(2)
       real*8 gamma2(2), beta2(3), sigma2(2), p
       integer  i
+      real*8 beta22, h
 
       gamma1(1) = param(1)
       gamma1(2) = param(2)
@@ -213,6 +226,9 @@ CCCCCCCCCCCCCCCCCCCC
       beta2(2) = param(10)
       beta2(3) = param(11)
       p = param(14)
+      h = param(19)
+
+      beta22 = beta2(3) + h
 
       nll = 0
       do i = 1, n
@@ -220,7 +236,7 @@ CCCCCCCCCCCCCCCCCCCC
             nll=nll+dnrm(y(i,1),delta1(i)+beta1(1)+x(i)*beta1(2),
      &     exp(param(5) + param(15) * x(i)),1)
      &           +dnrm(y(i,2),delta2(i)-beta2(1)-
-     &           x(i)*beta2(2)-y(i,1)*beta2(3),
+     &           x(i)*beta2(2)+y(i,1)*beta22,
      &  exp(param(12) + param(17) * x(i)),1)+log(p)
          else
             nll=nll+dnrm(y(i,1),delta1(i)-beta1(1)-x(i)*beta1(2),
@@ -239,20 +255,20 @@ CCCCCCCCCCCCCCCCCCCC
       subroutine PartialH2f(param, tau, x, y, R, n, pp)
       implicit none
       integer n
-      real*8 param(18)
+      real*8 param(19)
       integer R(n)
-      real*8 tau, x(n), y(n, 2), pp(18)
+      real*8 tau, x(n), y(n, 2), pp(19)
 
-      real*8 epsilon, delta1p(n), delta2p(n), param1(18), param2(18)
+      real*8 epsilon, delta1p(n), delta2p(n), param1(19), param2(19)
       real*8 delta1m(n), delta2m(n)
       real*8 ll1, ll2
       integer i, j
 
       epsilon = 0.0003
 
-      do i = 1, 18
-         if(i.ne.9.and.i.ne.10.and.i.ne.11.and.i.ne.13.and.i.ne.18) then
-            do j = 1, 18
+      do i = 1, 19
+         if(i.ne.9.and.i.ne.10.and.i.ne.19.and.i.ne.13.and.i.ne.18) then
+            do j = 1, 19
                param1(j) = param(j)
                param2(j) = param(j)
             end do
@@ -285,14 +301,14 @@ CCCCCCCCCCCCCCCCCCCC
       implicit none
       integer n, niter
       integer R(n)
-      real*8 param(18), y(n,2), x(n),tau, paramsave(niter, 19)
+      real*8 param(19), y(n,2), x(n),tau, paramsave(niter, 20)
       real*8 delta1(n), delta2(n)
 
       integer i, iter, j
-      real*8 dif, nll0, nll, pp(18), alpha(18), ppp(18)
+      real*8 dif, nll0, nll, pp(19), alpha(19), ppp(19)
       real*8 alphamax, alphamin, etap, etam
 
-      do i = 1, 18
+      do i = 1, 19
          pp(i) = 0
          alpha(i) = 0.1
          ppp(i) = 1
@@ -307,14 +323,14 @@ CCCCCCCCCCCCCCCCCCCC
       nll0 = 0
 
       do i = 1, niter 
-         do j = 1, 19
+         do j = 1, 20
             paramsave(i, j) = 0
          end do
       end do
 
       do while (dif > 0.00001 .and. iter .le. niter)
          call PartialH2f(param, tau, x, y, R, n, pp)
-         do i = 1, 18
+         do i = 1, 19
             if (pp(i) * ppp(i) > 0) then
                alpha(i) = min(alpha(i)*etap, alphamax)
                param(i) = param(i) - alpha(i)*pp(i)/abs(pp(i))
@@ -341,10 +357,10 @@ CCCCCCCCCCCCCCCCCCCC
          call negloglikelihoodh2(y, R, x, delta1, delta2,param,n,nll)
          dif = abs(nll - nll0)
          nll0 = nll
-         do i = 1, 18
+         do i = 1, 19
             paramsave(iter, i) = param(i)
          end do
-         paramsave(iter, 19) = nll
+         paramsave(iter, 20) = nll
 C         print*, param, '\n' ,pp, '\n', iter
 
          call progress(iter, niter)
