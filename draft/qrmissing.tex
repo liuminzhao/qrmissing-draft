@@ -588,8 +588,7 @@ For $Y_j, j \geq 2$, we assume
     \beta_{1j}^{(\geq k)}y_1 \cdots + \beta_{(j-1)j}^{(\geq
       k)}y_{j-1}, \sigma_j^{(\geq k)}) & k \geq j ;
   \end{cases} \\
-  & \sum_{k=1}^{j-1} \beta_{ij}^{(k)} + \beta_{ij}^{(\geq j)} = 0, i = 0, x, 1, \ldots ,
-  j-1.
+  & \sum_{k=1}^{j-1} \beta_{ij}^{(k)} + \beta_{ij}^{(\geq j)} = 0, i = 0, x. 
 \end{align*}
 
 By Molenberghs et al. (1998) theorem (MAR for discrete-time pattern
@@ -599,8 +598,9 @@ each $j \geq 2$ and $k < j$:
   \pr_k(y_j|y_1, \ldots, y_{j-1}) = \pr_{\geq j}(y_j|y_1, \ldots, y_{j-1})
   .
 \end{align*}
-So MAR condition can be assumed by fixing $\beta_{ij}^{(k)} =
-\beta_{ij}^{(\geq j)} = 0$ for $i = 0, x, 1, \ldots, j-1; 1 \leq k < j$.
+So MAR condition is satisfied by fixing $\beta_{ij}^{(k)} =
+\beta_{ij}^{(\geq j)} = 0$ for $i = 0, x ; 1 \leq k < j$, and $\beta_{ij}^{(k)} =
+\beta_{ij}^{(\geq j)}$ for $i = 1, \ldots, j-1 ; 1 \leq k < j$.
 
 Similarly, $\Delta_j$ can also be deterministic by
 \begin{align*}
@@ -691,7 +691,7 @@ value.
     function in R package 'quantreg'.}
   \vspace{10pt}
   \begin{tabular}{rrrrrrrrrrr}
-    \hline
+    \toprule
     & \multicolumn{ 10}{c}{MAR} \\
     \cline{2-11}
     &  \multicolumn{2}{c}{0.1} &  \multicolumn{2}{c}{0.3} &  \multicolumn{2}{c}{0.5} &  \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
@@ -702,7 +702,7 @@ value.
     $\gamma_{11}$ &  0.03 &0.07&  0.02 &0.08 &0.58 &0.74 &0.03 &0.08 &0.03 &0.07 \\ 
     $\gamma_{02}$ & 0.04  &0.12&  0.05 &0.07 &0.04 &0.06 &0.05 &0.07 &0.05 &0.11 \\ 
     $\gamma_{12}$ &  0.03 & 0.09& 0.03 &0.05 &0.03 &0.05 &0.03 &0.05 &0.03 &0.09 \\ 
-    \hline
+    \bottomrule
   \end{tabular}  \label{tab:sim}
 \end{table}
 
@@ -716,7 +716,7 @@ value.
     function in R package 'quantreg'.}
   \vspace{10pt}
   \begin{tabular}{rrrrrrrrrrr}
-    \hline
+    \toprule
     & \multicolumn{ 10}{c}{MNAR} \\
     \cline{2-11}
     &  \multicolumn{2}{c}{0.1} &  \multicolumn{2}{c}{0.3} &  \multicolumn{2}{c}{0.5} &  \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
@@ -727,7 +727,7 @@ value.
     $\gamma_{11}$ & 0.03 &0.07&0.02 &0.08 &0.64 &0.74 &0.03 &0.08 &0.03 &0.07 \\ 
     $\gamma_{02}$ & 0.04 &0.30&0.05 &0.52 &0.07 &1.06 &0.05 &1.79 &0.05 &2.59 \\ 
     $\gamma_{12}$ & 0.03 &0.09&0.03 &0.05 &0.03 &0.05 &0.03 &0.05 &0.03 &0.09 \\ 
-    \hline
+    \bottomrule
   \end{tabular}  \label{tab:sim2}
 \end{table}
 
@@ -796,7 +796,7 @@ correlation within subject
 \end{itemize}
 
 \section{Adaptive Gradient Descent Algorithm}
-
+\label{sec:adapt}
 After using the adaptive gradient descent algorithm (Riedmiller and
 Braun, 1993), the convergence goes faster and consistent. The
 algorithm is :
@@ -865,7 +865,7 @@ where the integral is not closed form, but if using numerical method
 
 Recall if $y$ is distributed from:
 \begin{align*}
-y =  \beta_0 + \beta_x x + (\alpha_0 + \alpha_xx) \epsilon
+y =  \beta_0 + \beta_x x + (\alpha_0 + \alpha_xx) \epsilon \\
 \epsilon \sim N(0, 1)
 \end{align*}
 then for $\tau$ - quantile, the quantile regression coefficient is $(\gamma_0, \gamma_1) 
@@ -903,6 +903,7 @@ If distribution of $y|R = 1$ and $y | R = 0$ are almost \textit{separable}, then
 
 
 \section{Heterogeneous Model}
+\label{sec:heter}
 
 In this section we illustrate how to allow heterogeneous variance
 changing with covariates in different patterns.  First we apply the
@@ -933,18 +934,111 @@ sensitivity parameters in section \ref{sec:sa}. Let
 
 Here $\bm \xi_{\lambda} = (\lambda_0, \lambda_x) $ can be additive parameters too. Combined
 with discussion in section \ref{sec:sa}, when $\bm \xi_s =
-(\beta_{02}^{(0)} , \beta_{x2}^{(0)}, \beta_{12}^{(0)}) = (0, 0, 0) $
+(\beta_{02}^{(0)} , \beta_{x2}^{(0)}, h) = (0, 0, 0) $
 and $\bm \xi_{\lambda} = (1, 1)$, MAR condition holds.
 
 The plot shows our estimated quantile lines for a small toy example:
 
-\centering
+\begin{center}
 \includegraphics[scale = 0.5]{../image/bih2.png}
+\end{center}
 
 \section{Questions}
  
 \begin{itemize}
-\item How to get true quantile regression estimates?  
+\item How to get true quantile regression estimates?
+\item Even not complete separable, those quantile lines are still linear. 
 \end{itemize}
+
+\section{Correction}
+
+One correction about bivariate normal mixture model with monotone dropout, no constraints should be put on $\beta_{22}^{(r)}$ in equation (\ref{eq:model2}), thus constraint (\ref{eq:beta22}) is not necessary and to apply missing mechanism, we can denote 
+\begin{align*}
+\beta_{22}^{(1)} = \beta_{22}^{(0)} + h
+\end{align*}
+where $h$ is sensitivity parameter.  $h = 0$ leads to MAR.
+
+For general case, I have corrected them in section \ref{sec:general-case}.
+
+\section{Simulation(MAR)}
+
+In this section, we test performance of our proposed heterogeneous
+model in section \ref{sec:heter} combined with adaptive gradient
+descent algorithm in section \ref{sec:adapt}, compared with
+\textit{rq} function in \textit{quantreg} R package.
+
+The simulation study included 1000 data sets. Each data set consists
+200 bivariate observations $\bm Y_i = (Y_{i1}, Y_{i2})$ for $i = 1,
+\ldots, 200$. $Y_{i1}$ was always observed, while some of $Y_{i2}$
+were missing with probability $0.5$. Covariates $x$ were sampled from
+uniform (0,2). We sampled $\bm Y_i$ from:
+\begin{align*}
+  Y_{i1} |R = 1 & \sim N ( 2 + x, 1 + 0.5x)\\
+  Y_{i2} | R = 1, y_{i1} & \sim N(1 - x - 1/2y_{i1}, 1) \\
+  Y_{i1}| R= 0 & \sim N(-2 - x, 1 + 0.5x) \\
+  Y_{i2}| R= 0, y_{i1} & \sim N(1 - x - 1/2y_{i1}, 1) \\
+  \pr (R = 1) & = 0.5.
+\end{align*}
+
+$Y_{i2}| R = 0, y_{i1}$ is not observed. And in this setting, we
+assume distribution of $Y_{i2} | R = 0, y_{i1}$ is equal to $Y_{i2}|
+R= 1, Y_{i1}$, thus MAR condition satisfies.
+
+By integrating $Y_{i1}|R$ out of $Y_{i2}|R, y_{i1}$, we have
+\begin{align*}
+  Y_{i2} | R = 1 & \sim N( - 3x/2, 5/4 + x/8) \\
+  Y_{i2} | R = 0 & \sim N( 2 - x/2, 5/4 + x/8)
+\end{align*}
+
+To apply MAR assumption, we fix sensitivity parameter $\bm \xi_s =
+(\beta_{02}^{(0)}, \beta_{x2}^{(0)}, h, \lambda_0, \lambda_x) =
+(0,0,0,1,1)$ as discussed in section \ref{sec:heter} for our proposed
+model. For \textit{rq} function from \textit{quantreg} R package,
+because only $Y_{i2}| R = 1$ is observed, quantile regression for
+$Y_{i2}$ can only be fit from the information of $Y_{i2}|R = 1$ vs
+$x$.
+
+For each dataset in both scenario, we fit quantile regression for
+quantiles $\tau = 0.1, 0.3, 0.5, 0.7, 0.9$.
+
+Algorithms were evaluated by mean squared error (MSE), which is
+defined by :
+\begin{equation*}
+  \text{MSE} (\gamma_{ij}) = \frac{1}{1000} \sum_{k = 1}^{1000} \left( \hat{\gamma}_{ij}^{(k)}  - \gamma_{ij}\right)^2,
+\end{equation*}
+where $\gamma_{ij}$ is the true value for quantile regression coefficient,
+$\hat{\gamma}_{ij}^{(k)}$ is the estimates in $k$-th simulated dataset
+($(\gamma_{01}, \gamma_{11})$ for $Y_{i1}$, $(\gamma_{02},
+\gamma_{12})$ for $Y_{i2}$).
+
+\begin{table}[ht]
+  \renewcommand{\arraystretch}{1.3}
+  \centering
+  \caption{Simulation result: MSE for coefficients estimates of quantiles
+    0.1, 0.3, 0.5, 0.7, 0.9 under MAR assumptions. $(\gamma_{01}, \gamma_{11})$ 
+    are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$ 
+    are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq'     function in R package 'quantreg'.}\label{tab:simh2} 
+  \vspace{10pt}
+  \begin{tabular}{rrrrrrrrrrr}
+    \toprule
+    & \multicolumn{ 10}{c}{MAR} \\
+    \cline{2-11}
+    &  \multicolumn{2}{c}{0.1} &  \multicolumn{2}{c}{0.3} &  \multicolumn{2}{c}{0.5} &  \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
+    \cline{2-11}
+    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ \\
+    \hline
+    $\gamma_{01}$ & 0.09 & 0.15 & 0.12 & 0.19 & 0.11 & 1.08 & 0.16 & 0.19 & 0.10 & 0.15 \\ 
+    $\gamma_{11}$ & 0.09 & 0.15 & 0.07 & 0.19 & 0.14 & 1.19 & 0.08 & 0.20 & 0.10 & 0.15 \\ 
+    $\gamma_{02}$ & 0.08 & 0.27 & 0.07 & 0.59 & 0.06 & 1.08 & 0.12 & 1.75 & 0.24 & 2.92 \\ 
+    $\gamma_{12}$ & 0.06 & 0.17 & 0.05 & 0.13 & 0.06 & 0.33 & 0.07 & 0.75 & 0.09 & 0.96 \\ 
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Mean squared errors are shown in table \ref{tab:simh2}. Results show
+that our proposed method has smaller MSE than \textit{rq} function in
+all cases. Furthermore, when $Y_{i2}$ are missing at random, our
+method shows tremendous advantage over \textit{rq} method, because
+\textit{quantreg} does not consider the missing mechanism.
 
 \end{document}
