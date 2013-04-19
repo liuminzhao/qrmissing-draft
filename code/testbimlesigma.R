@@ -2,9 +2,9 @@
 ## SIMULATE DATA
 rm(list = ls())
 source('BiMLESigma.R')
-set.seed(100)
+set.seed(1)
 p <- 0.5
-n <- 1000
+n <- 200
 R <- rbinom(n, 1, p)
 b01 <- 1
 b00 <- -1
@@ -54,39 +54,41 @@ for (i in 1:n){
 
 ## options(warn = 2)
 
-mod5 <- BiQRGradient(y, R, x, tau = 0.5, method = 'heter2')
+X <- as.matrix(cbind(1, x))
+
+mod5 <- BiQRGradient(y, R, X, tau = 0.5, method = 'heter2')
 print(mod5$param)
 
-mod7 <- BiQRGradient(y, R, x, tau = 0.7, method = 'heter2')
-print(mod7$param)
+## mod7 <- BiQRGradient(y, R, x, tau = 0.7, method = 'heter2')
+## print(mod7$param)
 
-mod9 <- BiQRGradient(y, R, x, tau = 0.9, method = 'heter2')
-print(mod9$param)
+## mod9 <- BiQRGradient(y, R, x, tau = 0.9, method = 'heter2')
+## print(mod9$param)
 
-mod3 <- BiQRGradient(y, R, x, tau = 0.3, method = 'heter2')
-print(mod3$param)
+## mod3 <- BiQRGradient(y, R, x, tau = 0.3, method = 'heter2')
+## print(mod3$param)
 
-mod1 <- BiQRGradient(y, R, x, tau = 0.1, method = 'heter2')
-print(mod1$param)
+## mod1 <- BiQRGradient(y, R, x, tau = 0.1, method = 'heter2')
+## print(mod1$param)
 
-png('../image/bih2.png', width = 960, height = 480)
-par(mfrow = c(1, 2))
-plot(y[,1] ~ x)
-abline(mod5$param[1:2])
-abline(mod7$param[1:2])
-abline(mod9$param[1:2])
-abline(mod3$param[1:2])
-abline(mod1$param[1:2])
+## png('../image/bih2.png', width = 960, height = 480)
+## par(mfrow = c(1, 2))
+## plot(y[,1] ~ x)
+## abline(mod5$param[1:2])
+## abline(mod7$param[1:2])
+## abline(mod9$param[1:2])
+## abline(mod3$param[1:2])
+## abline(mod1$param[1:2])
 
 
 
-plot(y[,2][R==1] ~ x[R==1])
-abline(mod5$param[7:8])
-abline(mod9$param[7:8])
-abline(mod7$param[7:8])
-abline(mod3$param[7:8])
-abline(mod1$param[7:8])
-dev.off()
+## plot(y[,2][R==1] ~ x[R==1])
+## abline(mod5$param[7:8])
+## abline(mod9$param[7:8])
+## abline(mod7$param[7:8])
+## abline(mod3$param[7:8])
+## abline(mod1$param[7:8])
+## dev.off()
 
 ## mod5N <- BiQRGradient(y, R, x, tau = 0.5, niter = 1000, sp = c(1,0,0,1,1))
 ## print(mod5N$param)

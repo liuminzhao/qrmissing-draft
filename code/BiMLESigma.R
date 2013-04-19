@@ -1,10 +1,10 @@
-## Time-stamp: <liuminzhao 04/16/2013 22:56:58>
+## Time-stamp: <liuminzhao 04/19/2013 14:54:28>
 ## WRAP UP BiMLESigma.f
 
 dyn.load('BiMLESigma.so')
 dyn.load('BiMLESigmaH1.so')
 dyn.load('BiMLESigmaH2.so')
-BiQRGradient <- function(y, R, x, tau=0.5, niter = 1000, sp = c(0,0,0,1,1), method = 'homo'){
+BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]), method = 'homo'){
   n <- length(R)
   if (method == 'homo') {
     param <- rep(0, 14)
@@ -67,37 +67,24 @@ BiQRGradient <- function(y, R, x, tau=0.5, niter = 1000, sp = c(0,0,0,1,1), meth
                     paramsave = as.double(paramsave)
                     )
   } else if (method == 'heter2') {
-    param <- rep(0, 19)
-    param[1] = 0 
-    param[2] = 0 
-    param[3] = 0 
-    param[4] = 0 
-    param[5] = 1 
-    param[6] = 1 
-    param[7] = 0 
-    param[8] = 0 
-    param[9] = sp[1]
-    param[10]= sp[2]
-    param[11]= 0
-    param[12]= 1 
-    param[13]= sp[4]
-    param[14]= 0.5 
-    param[15]= 0
-    param[16]= 0
-    param[17]= 0
-    param[18]= sp[5]
-    param[19] = sp[3]
+    xdim <- dim(X)[2]
+    param <- rep(0, 8*xdim + 3)
+    param[(5*xdim + 1):(6*xdim)] = sp[1:xdim]
+    param[(7*xdim + 1):(8*xdim)] = sp[(xdim + 2):(2*xdim + 1)]
+    param[18]= sp[xdim + 1]
+    param[8*xdim + 3] = 0.5
 
-    paramsave <- matrix(0, niter, 20)
+    paramsave <- matrix(0, niter, 8*xdim + 4)
     mod <- .Fortran("BiQRGradientH2f",
                     y = as.double(y),
                     R = as.integer(R),
-                    x = as.double(x),
+                    x = as.double(X),
                     tau = as.double(tau),
                     n = as.integer(n),
                     niter = as.integer(niter),
                     param = as.double(param),
-                    paramsave = as.double(paramsave)
+                    paramsave = as.double(paramsave),
+                    xdim = as.integer(xdim)
                     )
   }
   return(mod)
