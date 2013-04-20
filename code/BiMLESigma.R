@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 04/19/2013 14:54:28>
+## Time-stamp: <liuminzhao 04/20/2013 18:19:28>
 ## WRAP UP BiMLESigma.f
 
 dyn.load('BiMLESigma.so')
@@ -68,10 +68,13 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
                     )
   } else if (method == 'heter2') {
     xdim <- dim(X)[2]
+    lmcoef <- solve(t(X)%*%X)%*%(t(X)%*%y)
     param <- rep(0, 8*xdim + 3)
+    param[1:xdim] <- lmcoef[, 1]
+    param[(4*xdim + 1):(5*xdim)] <- lmcoef[, 2]
     param[(5*xdim + 1):(6*xdim)] = sp[1:xdim]
     param[(7*xdim + 1):(8*xdim)] = sp[(xdim + 2):(2*xdim + 1)]
-    param[18]= sp[xdim + 1]
+    param[8*xdim + 2]= sp[xdim + 1]
     param[8*xdim + 3] = 0.5
 
     paramsave <- matrix(0, niter, 8*xdim + 4)
@@ -97,4 +100,19 @@ Diagnose <- function(mod){
   for (i in 1:19){
     plot(ts(a[, i]), main = colnames(a)[i])
   }
+}
+
+mysummary <- function(mod){
+  q <- mod$xdim
+  param <- mod$param[1:(8*q)]
+  coef <- matrix(param, 8, q, byrow = T)
+  coef <- coef[c(1, 5, 2, 6, 3, 4, 7, 8), ]
+  p <- mod$param[8*q + 3]
+  beta22 <- mod$param[8*q + 1]
+  h <- mod$param[8*q + 2]
+  rownames(coef) <- c('Q1Coef', 'Q2Coef', 'beta1(0)', 'beta2(0)',
+                      'Sigma1(1)', 'Sigma1(0)', 'Sigma2(1)', 'Sigma2(0)')
+  cat("\n Coefficients: \n")
+  print(coef)
+  cat("\n beta22 is ", beta22, " h is ", h, " p is ", p, "\n")
 }
