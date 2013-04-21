@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 04/20/2013 18:19:28>
+## Time-stamp: <liuminzhao 04/20/2013 22:20:22>
 ## WRAP UP BiMLESigma.f
 
 dyn.load('BiMLESigma.so')
@@ -76,7 +76,7 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
     param[(7*xdim + 1):(8*xdim)] = sp[(xdim + 2):(2*xdim + 1)]
     param[8*xdim + 2]= sp[xdim + 1]
     param[8*xdim + 3] = 0.5
-
+    print(param)
     paramsave <- matrix(0, niter, 8*xdim + 4)
     mod <- .Fortran("BiQRGradientH2f",
                     y = as.double(y),
@@ -94,10 +94,11 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
 }
 
 Diagnose <- function(mod){
-  a <- matrix(mod$paramsave, mod$niter, 19)
-  colnames(a) <- c('Gamma0', 'Gamma1', 'Beta0', 'Beta1', 'Sigma1', 'Sigma0', 'Gamma02', 'Gamma12', 'beta02','beta12','beta22','sigma2','lambda','phi', 'heter1(1)', 'heter1(2)', 'heter2(1)', 'heter2(2)','NLL')
+  a <- matrix(mod$paramsave, mod$niter, length(mod$param) + 1)
+  xdim <- mod$xdim
+  colnames(a) <- c(paste('gamma1', 1:xdim, sep=''), paste('beta1', 1:xdim, sep=''), paste('sigma1', 1:xdim, sep = ''), paste('sigma0', 1:xdim, sep = ''), paste('gamma2', 1:xdim, sep=''), paste('beta1', 1:xdim, sep=''), paste('sigma2', 1:xdim, sep = ''), paste('sp', 1:xdim, sep = ''), 'beta22', 'h', 'p', 'nll')
   par(mfrow = c(2, 2))
-  for (i in 1:19){
+  for (i in 1:dim(a)[2]){
     plot(ts(a[, i]), main = colnames(a)[i])
   }
 }
@@ -114,5 +115,5 @@ mysummary <- function(mod){
                       'Sigma1(1)', 'Sigma1(0)', 'Sigma2(1)', 'Sigma2(0)')
   cat("\n Coefficients: \n")
   print(coef)
-  cat("\n beta22 is ", beta22, " h is ", h, " p is ", p, "\n")
+  cat("\n beta22 is ", beta22, ", h is ", h, ", p is ", p, "\n")
 }
