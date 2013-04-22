@@ -1,6 +1,6 @@
 c===========================================================
 c$$$  
-C$$$  Time-stamp: <liuminzhao 04/19/2013 14:47:48>
+C$$$  Time-stamp: <liuminzhao 04/21/2013 15:31:47>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c===========================================================
@@ -52,8 +52,8 @@ C     TEMP
 
 C     INITIAL 
       
-      a = -30 
-      b = 30 
+      a = -100 
+      b = 100 
       fa = 0
       fb = 0
       m = (a + b)/2
@@ -178,8 +178,8 @@ CCCCCCCCCCCCCCCCCCCC
       integer i, j
 C     INITIAL 
       
-      a = -30 
-      b = 30 
+      a = -100 
+      b = 100 
       fa = 0
       fb = 0
       m = (a + b)/2

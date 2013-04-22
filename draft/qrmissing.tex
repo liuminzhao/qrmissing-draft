@@ -1043,36 +1043,47 @@ method shows tremendous advantage over \textit{rq} method, because
 
 \section{Real Data Analysis}
 
+Here is the analysis for \textit{tours} data. \textit{Weight2} stands for weight at 6 months after the baseline measure, and \textit{weight3} stands for the one at 18 months after the baseline. There were three treatments and two main races in this study (Treatment M, Treatment O and Treatment T; Race 1 and Race 3). Weights at 6th month were always observed and some weights at 18th month were missing (211 observed out of 224 , 94\%). All weights are scaled by 1/100.
+
+Here is the boxplot of weights vs treatments and races. 
+
+\includegraphics{../tours/weight-plot}
+
+Quantile regression models were fitted for responses \textit{weight2} and \textit{weight3} together ($\bm Y_i = (Y_{i1}, Y_{i2})$) for quantiles (10\%, 30\%, 50\%, 70\%, 90\%). Covariates are treatments and races, and we assume their effects are additive. Treatment M and Race 1 are baseline references. 
+
+Estimates are presented in table \ref{tab:w2} and \ref{tab:w3}. For \textit{weight2},  quantile estimates show there is heterogeneity between treatments and races. Weight2 for treatment O are generally bigger than those in baseline treatment M. The difference becomes larger when comparing the higher quantiles of weight2. Similar situation can be observed for treatment T vs treatment M. For race 3, weight2 is generally smaller than baseline race 1, and especially for lower quantile, the difference increases to 0.13. 
+
 \begin{table}[ht]
 \begin{center}
-\begin{tabular}{rrrrrr}
+\caption{Marginal quantile regression coefficients for Weight2}\label{tab:w2}
+\begin{tabular}{rrrrr}
   \hline
- & 1 & 2 & 3 & 4 & 5 \\
+            & Intercept & Trt O & Trt T & Race 3 \\
   \hline
-1 & 1.87 & 4.74 & 6.73 & 9.37 & 11.57 \\
-  2 & -0.48 & -0.55 & -0.54 & -0.52 & -0.65 \\
-  3 & 2.24 & 3.25 & 3.97 & 3.99 & 5.80 \\
-  4 & -6.96 & -4.13 & -1.65 & 0.62 & 4.32 \\
-  5 & 0.83 & 0.52 & 0.46 & 0.37 & 0.46 \\
-  6 & -3.72 & -1.51 & -0.64 & 0.57 & 1.67 \\
+tau = 0.1   & 0.80      & 0.01  & -0.01 & -0.13  \\
+  tau = 0.3 & 0.83      & 0.04  & 0.02  & -0.07  \\
+  tau = 0.5 & 0.85      & 0.05  & 0.04  & -0.03  \\
+  tau = 0.7 & 0.95      & 0.03  & 0.02  & -0.04  \\
+  tau = 0.9 & 0.98      & 0.07  & 0.06  & -0.01  \\
    \hline
 \end{tabular}
 \end{center}
 \end{table}
-% latex table generated in R 2.15.3 by xtable 1.7-0 package
-% Fri Apr 19 17:09:04 2013
+
+For weights at 18th month, the difference of treatment O and baseline treatment M is small for most quantiles. But it is still large for quantile 90\% (0.05). When comparing treatment T and baseline treatment M, for the  people with normal weights (quantiles from  30\% to 70\%), the difference is small. However, for extreme quantiles (10\% and 90\%), weights of patients in treatment T are much smaller (10\%)and much bigger (90\%) than those in treatment M. When comparing weights from two races,  there is fewer difference for the upper quantile (90\%) of weights in both races, but given lower quantiles, the difference becomes larger. 
+
 \begin{table}[ht]
 \begin{center}
-\begin{tabular}{rrrrrr}
+\caption{Marginal quantile regression coefficients for Weight3}\label{tab:w3}
+\begin{tabular}{rrrrr}
   \hline
- & tau= 0.1 & tau= 0.3 & tau= 0.5 & tau= 0.7 & tau= 0.9 \\
+ & Intercept & Trt O & Trt T & Race 3 \\
   \hline
-1 & 1.74 & 4.34 & 6.77 & 8.43 & 11.30 \\
-  2 & -0.30 & -0.80 & -0.69 & -0.83 & -0.86 \\
-  3 & 2.40 & 3.74 & 3.53 & 4.80 & 6.08 \\
-  4 & -6.66 & -3.38 & -1.71 & -0.23 & 3.65 \\
-  5 & 0.33 & 0.33 & 0.43 & 0.18 & 0.64 \\
-  6 & -2.64 & -2.32 & -1.27 & 0.47 & 2.93 \\
+tau = 0.1 & 0.78 & -0.01 & -0.04 & -0.13 \\
+  tau = 0.3 & 0.82 & 0.01 & -0.01 & -0.06 \\
+  tau = 0.5 & 0.88 & 0.02 & 0.02 & -0.03 \\
+  tau = 0.7 & 0.99 & 0.00 & -0.00 & -0.04 \\
+  tau = 0.9 & 1.02 & 0.05 & 0.04 & 0.00 \\
    \hline
 \end{tabular}
 \end{center}

@@ -1,9 +1,9 @@
-## Time-stamp: <liuminzhao 04/20/2013 22:20:22>
+## Time-stamp: <liuminzhao 04/21/2013 18:42:42>
 ## WRAP UP BiMLESigma.f
 
-dyn.load('BiMLESigma.so')
-dyn.load('BiMLESigmaH1.so')
-dyn.load('BiMLESigmaH2.so')
+dyn.load('~/Documents/qrmissing/code/BiMLESigma.so')
+dyn.load('~/Documents/qrmissing/code/BiMLESigmaH1.so')
+dyn.load('~/Documents/qrmissing/code/BiMLESigmaH2.so')
 BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]), method = 'homo'){
   n <- length(R)
   if (method == 'homo') {
@@ -116,4 +116,5 @@ mysummary <- function(mod){
   cat("\n Coefficients: \n")
   print(coef)
   cat("\n beta22 is ", beta22, ", h is ", h, ", p is ", p, "\n")
+  return(coef)
 }
