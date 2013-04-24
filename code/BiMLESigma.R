@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 04/21/2013 18:42:42>
+## Time-stamp: <liuminzhao 04/24/2013 16:44:02>
 ## WRAP UP BiMLESigma.f
 
 dyn.load('~/Documents/qrmissing/code/BiMLESigma.so')
@@ -76,7 +76,7 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
     param[(7*xdim + 1):(8*xdim)] = sp[(xdim + 2):(2*xdim + 1)]
     param[8*xdim + 2]= sp[xdim + 1]
     param[8*xdim + 3] = 0.5
-    print(param)
+##    print(param)
     paramsave <- matrix(0, niter, 8*xdim + 4)
     mod <- .Fortran("BiQRGradientH2f",
                     y = as.double(y),
@@ -113,8 +113,8 @@ mysummary <- function(mod){
   h <- mod$param[8*q + 2]
   rownames(coef) <- c('Q1Coef', 'Q2Coef', 'beta1(0)', 'beta2(0)',
                       'Sigma1(1)', 'Sigma1(0)', 'Sigma2(1)', 'Sigma2(0)')
-  cat("\n Coefficients: \n")
-  print(coef)
-  cat("\n beta22 is ", beta22, ", h is ", h, ", p is ", p, "\n")
+  ## cat("\n Coefficients: \n")
+  ## print(coef)
+  ## cat("\n beta22 is ", beta22, ", h is ", h, ", p is ", p, "\n")
   return(coef)
 }

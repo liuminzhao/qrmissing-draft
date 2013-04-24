@@ -1060,11 +1060,11 @@ Estimates are presented in table \ref{tab:w2} and \ref{tab:w3}. For \textit{weig
   \hline
             & Intercept & Trt O & Trt T & Race 3 \\
   \hline
-tau = 0.1   & 0.80      & 0.01  & -0.01 & -0.13  \\
-  tau = 0.3 & 0.83      & 0.04  & 0.02  & -0.07  \\
-  tau = 0.5 & 0.85      & 0.05  & 0.04  & -0.03  \\
-  tau = 0.7 & 0.95      & 0.03  & 0.02  & -0.04  \\
-  tau = 0.9 & 0.98      & 0.07  & 0.06  & -0.01  \\
+  $\tau$ = 0.1   & 0.80      & 0.01  & -0.01 & -0.13  \\
+  $\tau$ = 0.3 & 0.83      & 0.04  & 0.02  & -0.07  \\
+  $\tau$ = 0.5 & 0.85      & 0.05  & 0.04  & -0.03  \\
+  $\tau$ = 0.7 & 0.95      & 0.03  & 0.02  & -0.04  \\
+  $\tau$ = 0.9 & 0.98      & 0.07  & 0.06  & -0.01  \\
    \hline
 \end{tabular}
 \end{center}
@@ -1077,16 +1077,155 @@ For weights at 18th month, the difference of treatment O and baseline treatment 
 \caption{Marginal quantile regression coefficients for Weight3}\label{tab:w3}
 \begin{tabular}{rrrrr}
   \hline
- & Intercept & Trt O & Trt T & Race 3 \\
+            & Intercept & Trt O & Trt T & Race 3 \\
   \hline
-tau = 0.1 & 0.78 & -0.01 & -0.04 & -0.13 \\
-  tau = 0.3 & 0.82 & 0.01 & -0.01 & -0.06 \\
-  tau = 0.5 & 0.88 & 0.02 & 0.02 & -0.03 \\
-  tau = 0.7 & 0.99 & 0.00 & -0.00 & -0.04 \\
-  tau = 0.9 & 1.02 & 0.05 & 0.04 & 0.00 \\
+  $\tau$ = 0.1 & 0.78      & -0.01 & -0.04 & -0.13  \\
+  $\tau$ = 0.3 & 0.82      & 0.01  & -0.01 & -0.06  \\
+  $\tau$ = 0.5 & 0.88      & 0.02  & 0.02  & -0.03  \\
+  $\tau$ = 0.7 & 0.99      & 0.00  & -0.00 & -0.04  \\
+  $\tau$ = 0.9 & 1.02      & 0.05  & 0.04  & 0.00   \\
    \hline
 \end{tabular}
 \end{center}
 \end{table}
+
+\section{Identifiability}
+
+First consider univariate case with two patterns. Suppose $y$ is
+univariate and there are two patterns $R = 1$ and $R = 0$.
+
+Before going forward to quantile regression, first we consider
+identifiability problem in mean regression.
+
+Consider a pattern mixture model:
+\begin{align*}
+  y | R = 1 & \sim N(\Delta + R_1 , \sigma_1) \\
+  y | R = 0 & \sim N(\Delta + R_0, \sigma_0) \\
+  \prob (R = 1) & = \pi \\
+  E (y ) & = \theta
+\end{align*}
+Thus by iterated expectation, we have
+\begin{align*}
+  \theta = \Delta + R_1\pi + R_0(1-\pi) \\
+  \Delta = \theta - \pi R_1 - (1 - \pi)R_0
+\end{align*}
+We can see $\Delta$ is deterministic by $\theta, R_1, R_0$. If plugged in
+likelihood, we have
+\begin{align*}
+  y | R = 1 & \sim N(\theta + (1 - \pi)R_1 - (1 - \pi)R_0, \sigma_1) \\
+  y | R = 0 & \sim N(\theta - \pi R_1 + \pi R_0, \sigma_0)
+\end{align*}
+Denote $\xi_1 = (\theta , R_1, R_0)$, and if $\xi_2 = (\theta, R_1+ 1, R_0+1)$, both
+parameters lead to the same distribution of $\pr(y, R) =
+\pr(y|R)\pr(R)$. Therefore, $\xi$ is not identifiable.  If we put
+constraints on $R_1$ and $R_0$, for example $R_0 = -R_1$, then
+\begin{align*}
+  y | R = 1 & \sim N(\theta + 2(1 - \pi)R_1 , \sigma_1) \\
+  y | R = 0 & \sim N(\theta - 2\pi R_1 , \sigma_0)
+\end{align*}
+thus it is identifiable. If $\xi_2 \neq \xi_1$ , then $\pr_2(y, R) \neq \pr_1(y,
+R)$.
+
+Secondly, we consider quantile regression for pattern mixture model:
+\begin{align*}
+  y | R = 1 & \sim N(\Delta + R_1 , \sigma_1) \\
+  y | R = 0 & \sim N(\Delta + R_0, \sigma_0) \\
+  \prob (R = 1) & = \pi \\
+  \pr (y \leq \theta ) & = \tau
+\end{align*}
+where $\theta$ is the quantile estimate of interest and we does not include
+covariates so far. We will show $\bm \xi = (\theta, R_1, R_0) $ is not
+identifiable.
+
+Again by iterated expectation, we have
+\begin{align*}
+  \tau = \pi \Phi \left( \frac{\theta - \Delta - R_1}{\sigma_1} \right) + (1 - \pi) \Phi \left(
+    \frac{\theta - \Delta - R_0}{\sigma_0} \right)
+\end{align*}
+thus $\Delta$ is again deterministic by other parameters:
+\begin{align*}
+  \Delta = h(\theta, R_1, R_0, \sigma_1, \sigma_0 , \pi, \tau)
+\end{align*}
+To show $\bm \xi = (\theta, R_1, R_0, \sigma_1, \sigma_0)$ is not identifiable, we need
+to find $\bm \xi^{'} \neq \bm \xi$, such that $\pr(y|R) =
+\pr^{'}(y|R)$. If the last equation holds, then we must have
+$\sigma_1^{'} = \sigma_1, \sigma_0^{'} = \sigma_0$, thus we still need
+to find $\theta^{'} , R_1^{'}, R_0^{'}$ such that
+\begin{align*}
+  h(\bm \xi) + R_1 & = h(\bm \xi^{'}) + R_1^{'} \\
+  h(\bm \xi) + R_0 & = h(\bm \xi^{'}) + R_0^{'}
+\end{align*}
+By substracting previous equations, we have $R_1^{'}- R_0^{'} = R_1-
+R_0$, thus denote $R_1^{'} = R_1 + \delta$ and $R_0^{'} = R_0 +
+\delta$, and let $\theta^{'} = \theta$ such that
+\begin{align*}
+  \Delta^{'} = h(\theta^{'}, R_1, R_0, \sigma_1, \sigma_0, \delta) = h(\bm \xi) - \delta = \Delta - \delta
+\end{align*}
+then the new parameter $\bm \xi^{'}$ yields the same distribution with
+one from $\bm \xi$. Therefore $\bm \xi$ is not identifiable.
+
+Instead, if we put constraint, for example $R_1 = -R_0$, then by
+calculation, $\pr(y|R;\bm \xi) = \pr(y|R; \bm \xi^{'})$ yields $\bm \xi =
+\bm \xi^{'}$.
+
+Now consider the case with covariates. Suppose the model is
+\begin{align*}
+  y | R = 1, x & \sim N(\Delta + R_1 + \beta_{x1} x , \sigma_1) \\
+  y | R = 0, x & \sim N(\Delta - R_1 + \beta_{x0} x, \sigma_0) \\
+  \prob (R = 1) & = \pi \\
+  \pr (y \leq \gamma_0 + \gamma_1 x ) & = \tau
+\end{align*}
+Still $\Delta$ can be determined by
+\begin{align*}
+  \Delta = h(x, \gamma_0, \gamma_1, R_1, \beta_{x1}, \beta_{x0}, \sigma_1, \sigma_0, \pi , \tau)
+\end{align*}
+We want to show parameter $\bm \xi = (\gamma_0, \gamma_1, R_1, \beta_{x1}, \beta_{x0}, \sigma_1,
+\sigma_0, \pi )$ is not identifiable by finding $\bm \xi^{'} \neq \bm
+\xi$, but $\pr (y | R; \bm \xi) = \pr (y | R; \bm \xi^{'})$. Still if
+the last equation holds, first we have $\sigma_1^{'} = \sigma_1, \sigma_0^{'} = \sigma_0$,
+then to equate the two means, we have
+\begin{align*}
+  \Delta + R_1 + \beta_{x1} x & = \Delta^{'} + R_1^{'} + \beta_{x1}^{'}x \\
+  \Delta - R_1 + \beta_{x0} x & = \Delta^{'} - R_1^{'} + \beta_{x0}^{'}x
+\end{align*}
+By substracting the two equations, we have
+\begin{align*}
+  2R_1 + (\beta_{x1} - \beta_{x0}) x = 2R_1^{'} + (\beta_{x1}^{'} -
+  \beta_{x0}^{'}) x
+\end{align*}
+which holds for all $x$. Thus $R_1 = R_1^{'}$ and $(\beta_{x1} - \beta_{x0}) =
+(\beta_{x1}^{'} - \beta_{x0}^{'})$. Then let
+\begin{align*}
+  \beta_{x1}^{'} =  \beta_{x1} + \delta\\
+  \beta_{x0}^{'} = \beta_{x0} + \delta
+\end{align*}
+and all the other parameters in $\bm \xi^{'}$ keep the same, we can
+still have the same distribution of $y|R; \bm \xi$ but with different
+$\bm \xi$. Therefore, $\bm \xi$ is not identifiable, especially for
+$\beta_{x1} $ and $\beta_{x0}$. One solution is to restrict $\beta_{x1} =
+- \beta_{x0}$ to make all the parameters identifiable.
+
+Now consider the bivariate $(y_1, y_2)$ case, and we focus on the
+identifiability issue especially on $y_2|y_1$. Suppose the model is
+\begin{align*}
+  y_2 | y_1, x, R = 1 \sim N(\Delta + R_1 + x\beta_{x1} + \beta_{11}y_1, \sigma_1) \\
+  y_2 | y_1, x, R = 0 \sim N(\Delta - R_1 - x\beta_{x1} + \beta_{10}y_1, \sigma_0)
+\end{align*} 
+Here $R$ stands for two different patterns, and missingness is not considered.
+
+we are wondering if $\beta_{11}$ and $\beta_{10}$ are identifiable, say if 
+there exists $\beta_{11}^{'}$ and $\beta_{10}^{'}$, such that
+\begin{align*}
+  \Delta + R_1 + x\beta_x + \beta_{11}y_1 = \Delta^{'} + R_1^{'} + x\beta_{x}^{'} + \beta_{11}^{'}y_1\\
+  \Delta - R_1 - x\beta_x + \beta_{10}y_1 = \Delta^{'} - R_1^{'} -
+  x\beta_{x}^{'} + \beta_{10}^{'}y_1
+\end{align*}
+still by substracting two equations, we have $R_1 = R_1^{'}$ and $\beta_x =
+\beta_x^{'}$. Considering $\Delta$ is determined by integrating out $y_1$,
+such that matching the two sides of the above equation for coefficient
+of $y_1$, we must have $\beta_{11} = \beta_{11}^{'}$ and $\beta_{10} =
+\beta_{10}^{'}$, therefore, $\bm \xi$ is identifiable.
+
+For identifiability issue in heterogeneous model described in section \ref{sec:heter}, it is easy to show there is no trouble with heterogeneity parameters $\alpha$, analog to the linear model case. For the other parameters, it can be found similar to the above discussion.
 
 \end{document}
