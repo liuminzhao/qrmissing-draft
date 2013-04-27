@@ -1,11 +1,11 @@
-## Time-stamp: <liuminzhao 04/24/2013 16:43:05>
+## Time-stamp: <liuminzhao 04/24/2013 16:50:40>
 ## bootstrap on tours data
 ## weight2 and weight3
 ## scaled by 1/100
 ## covariates: 3 treatments and 2 races
 rm(list=ls())
 source('~/Documents/qrmissing/code/BiMLESigma.R')
-source('sendEmail.R')
+source('~/Documents/qrmissing/code/sendEmail.R')
 library(doMC)
 registerDoMC()
 options(cores = 8)
