@@ -3,7 +3,7 @@
 
 * 2013-05-23
 
-** TODO SP
+** DONE SP
    SCHEDULED: <2013-05-23 Thu 20:00>
 
    [[file:~/Documents/qrmissing/draft/0523l.pdf][SP]] : once h is fixed, \mu is identified.
