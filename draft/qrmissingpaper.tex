@@ -11,7 +11,7 @@
 \geometry{verbose,letterpaper,tmargin=1in,bmargin=.75in,lmargin=.75in,rmargin=1in}
 \usepackage{booktabs}
 
-\title{Quantile Regression with Monotone Dropout Missingness}
+\title{Quantile Regression in the Presence of Monotone Missingness}
 \date{\today}
 \author{}
 
@@ -37,219 +37,209 @@
 
 \section{Introduction}
 
-Quantile regression is an attractive way to study the relationship
-between response and covariates when one (or several) quantiles are of
+Quantile regression is a simple way to study the relationship between
+response and covariates when one (or several) quantiles are of
 interest as compared to mean regression.  The dependence between upper
-or lower quantiles of the response variable and the covariates are
-expected to vary differentially relative to that of the average. This
-is often of interest in econometrics, educational studies, biomedical
-studies, and environment studies (\citet{yu2001},
-\citet{buchinsky1994}, \citet{buchinsky1998}, \citet{he1998},
-\citet{koenker1999}, \citet{wei2006}, \citet{yu2003}). More
-comprehensive review of applications of quantile regression was
-presented in \citet{koenker2005}.
+or lower quantiles of the response variable and the covariates
+typically vary differentially relative to that of the mean. This is
+often of interest in econometrics, educational studies, biomedical
+studies, and environment studies (\citep{yu2001},
+\citep{buchinsky1994}, \citep{buchinsky1998}, \citep{he1998},
+\citep{koenker1999}, \citep{wei2006}, \citep{yu2003}). A comprehensive
+review of applications of quantile regression was presented in
+\citep{koenker2005}.
 
 Unlike mean regression, quantile regression is more robust to outliers
 and provides more information about how covariates affect
-quantiles. For example, both as a summary statistics of data, median
-gives a measure more robust than arithmetic mean when outliers
-exist. In addition, mean regression only focus on the change of
-covariates on the mean, while quantile regression can offer a more
-complete description of the conditional distribution of the
-response. Different effects of covariates can be assumed for different
-quantiles.
+quantiles. For example, as a summary statistic of data, median is more
+robust than the mean in the presence of outliers.  In addition, mean
+regression only focus on the change of covariates on the mean, while
+quantile regression can offer a more complete description of the
+conditional distribution of the response. Different effects of
+covariates can be assumed for different quantiles.
 
 The traditional frequentist approach was proposed by
-\citet{koenker1978} for a single quantile with estimators derived by
+\citep{koenker1978} for a single quantile with estimators derived by
 minimizing a loss function. The popularity of this approach is due to
-its computational efficiency by linear programming, well-developed
-asymptotic properties, and straightforward extensions to simultaneous
-quantile regression and random effect models. However, asymptotic
-inference may not be accurate for small sample sizes.
+its computational efficiency, well-developed asymptotic properties,
+and straightforward extensions to simultaneous quantile regression and
+random effect models. However, asymptotic inference may not be
+accurate for small sample sizes.
 
 Bayesian approaches offer exact inference. Motivated by the loss
-(check) function, \citet{yu2001} proposed an asymmetric Laplace
+(check) function, \citep{yu2001} proposed an asymmetric Laplace
 distribution for the error term, such that maximizing the posterior
 distribution is equivalent to minimizing the check function. Other
 than parametric Bayesian approaches, some semiparametric methods have
-been proposed for median regression. \citet{walker1999} used a diffuse
-finite \polya{} Tree prior for the error term. \citet{kottas2001}
+been proposed for median regression. \citep{walker1999} used a diffuse
+finite \polya{} Tree prior for the error term. \citep{kottas2001}
 modeled the error by two families of median zero distribution using a
 mixture Dirichlet process priors, which is very useful for unimodal
-error distributions. \citet{hanson2002} adopted mixture of \polya{}
+error distributions. \citep{hanson2002} adopted mixture of \polya{}
 Tree prior in median regression, which is more robust in terms of
 multimodality and skewness. Other recent approaches include quantile
 pyramid priors, mixture of Dirichlet process priors of multivariate
 normal distributions and infinite mixture of Gaussian densities which
-put quantile constraints on the residuals (\citet{hjort2007},
-\citet{hjort2009}, \citet{kottas2009}, \citet{reich2010}).
+put quantile constraints on the residuals (\citep{hjort2007},
+\citep{hjort2009}, \citep{kottas2009}, \citep{reich2010}).
 
-However, above methods deal with complete data without missingness.
-There are still few articles about quantile regression with
-missingness.  \citet{yuan2010} introduced a Bayesian quantile
-regression approach for longitudinal study with nonignorable missing
+However, above methods focus on complete data without missingness.
+There are few more articles about quantile regression with
+missingness.  \citep{yuan2010} introduced a Bayesian quantile
+regression approach for longitudinal data with nonignorable missing
 data. They used random effects to explain the within-subject
 correlation and applied a $l_2$ penalty in the traditional quantile
 regression check function to shrink toward the common population
-values. However, the quantile regression coefficients are still
-conditional on the random effects, which is not of interest if we are
-looking into the marginal relationship.  \citet{wei2012} proposed a
-multiple imputation method for quantile regression model when there
-are some covariates missing at random. They impute the missing
-covariates by specifying the its conditional density given observed
-covariates and outcomes, which comes from the estimated conditional
-quantile regression and specification of conditional density of
-missing covariates given observed ones.  Therefore, their model fully
-use the whole dataset and have more efficiency. However, they put more
-focus on the missing covariates rather than missing outcomes, which is
-of more interested.  \cite{bottai2013} illustrated a new imputation
+values. However, the quantile regression coefficients are conditional
+on the random effects, which is not of interest if we are looking into
+the marginal relationship.  \citep{wei2012} proposed a multiple
+imputation method for quantile regression model when there are some
+covariates missing at random. They impute the missing covariates by
+specifying the its conditional density given observed covariates and
+outcomes, which comes from the estimated conditional quantile
+regression and specification of conditional density of missing
+covariates given observed ones.  Therefore, their model fully use the
+whole dataset and have more efficiency. However, they put more focus
+on the missing covariates rather than missing outcomes, which is of
+more interested.  \cite{bottai2013} illustrated a new imputation
 method by estimated conditional quantiles of missing outcomes given
 observed data. Their approach does not make distribution
 assumptions. Their method also has advantages as robustness to
-outliers and invariance to transformations.
-\citet{roy2008} proposed a pattern mixture model for data with
-nonignorable dropout, which borrowed idea from \citet{heagerty1999}.
-But their methods are studying the marginal covariate effects on the
-mean. We still use the ideas from them, but we will fit them into
-quantile regression models, which will be illustrated below.
+outliers and invariance to transformations.  \citep{roy2008} proposed
+a pattern mixture model for data with nonignorable dropout, which
+borrowed idea from \citep{heagerty1999}.  But their methods examine
+the marginal covariate effects on the mean. We will use these ideas
+for quantile regression models.
 
-The structure of this article is as below: first, we introduce our
-quantile regression methods to deal with monotone dropout in general
-case in section \ref{sec:model}, including sensitivity analysis and
-computational details.  And we also used simulation studies to
+The structure of this article is as below: first, we introduce a
+quantile regression methods to deal with monotone nonignorable dropout
+in general case in section \ref{sec:model}, including sensitivity
+analysis and computational details.  We use simulation studies to
 demonstrate the performance of our algorithm in section
-\ref{sec:simulation}. We also applied our approach on tours data, and
-we demonstrated the process in section \ref{sec:real}. Finally,
-discussion and conclusions are in section \ref{sec:discussion}.
+\ref{sec:simulation}. We apply our approach on data from a recent
+clinical trial in section \ref{sec:real}. Finally, discussion and
+conclusions are in section \ref{sec:discussion}.
 
 \section{Model}
 \label{sec:model}
 
 In this section, we first introduce some notations on monotone
 dropout, then describe our proposed quantile regression model in
-section \ref{sec:settings}. And we will give more details on deploying
-MAR and MNAR and computation in section \ref{sec:sa} and section
-\ref{sec:computation}.
+section \ref{sec:settings}. We provide more details on MAR and MNAR
+and computation in sections \ref{sec:sa} and \ref{sec:computation}.
 
-Under monotone dropout scenario, without loss of generality, denote
-$S_i \in \{1, 2, \ldots, J\}$ to be the follow up time, and $\bm Y_i =
-(Y_{i1}, Y_{i2}, \ldots, Y_{iJ})^{T}$ to be the response vector for
-subject $i$, where $J$ is the maximum follow up time. $Y_{i1}$ is
-always observed. What we are interested in are the marginal $\tau$-th
-quantile regression coefficients $\bm \gamma_j = (\gamma_{j0}, \gamma_{j2}, \ldots,
-\gamma_{jp})^T$ such that:
+Under monotone dropout, without loss of generality, denote $S_i \in
+\{1, 2, \ldots, J\}$ to be the follow up time, and $\bm Y_i = (Y_{i1},
+Y_{i2}, \ldots, Y_{iJ})^{T}$ to be the response vector for subject
+$i$, where $J$ is the maximum follow up time. We assume $Y_{i1}$ is
+always observed. We are interested in the $\tau$-th marginal quantile
+regression coefficients $\bm \gamma_j = (\gamma_{j0}, \gamma_{j2},
+\ldots, \gamma_{jp})^T$,
 \begin{equation}
   \label{eq:quantile}
   \prob (Y_{ij} \leq \bm x_i^{T} \bm \gamma_j ) = \tau, \text{ for } j = 1, \ldots, J,
 \end{equation}
-where $\bm x_i$ is a $p \times 1$ covariates vector for subject $i$.
+where $\bm x_i$ is a $p \times 1$ vector of covariates for subject $i$.
 
 Let
 \begin{align*}
   \pr_k(Y) &= \pr (Y | S = k), \\
   \pr_{\geq k} (Y) & = \pr (Y | S \geq k)
 \end{align*}
-be the density of response $\bm Y$ given follow-up time $S=k$ and $S \geq
-k$. And $\prob_k$ be the corresponding probability given $S = k$.
+be the densities of response $\bm Y$ given follow-up time $S=k$ and $S
+\geq k$. And $\prob_k$ be the corresponding probability given $S = k$.
 
-\subsection{Settings}
+\subsection{Mixture Model Specification}
 \label{sec:settings}
-Instead of selection model, we adopt mixture model to deal with
-missingness, because it is easier to deploy missing
-mechanism assumptions. Meanwhile, we want to capture the slope change of marginal
-quantile lines not only by mixture of distributions, but also by the
-heterogeneity of variance.
-
+We adopt a pattern mixture model to deal with
+missingness. 
 Without loss of clarity, we suppress the subscript $i$ for subject
 $i$. Specify the conditional distribution as:
 \begin{align}
-  & \pr_k(y_1) = \textrm{N} (\Delta_1 + \bm x_1^T \bm \beta_1^{(k)}, 
-\exp (\bm x_{1}^T \bm \alpha_1^{(k)} ) ), k = 1, \ldots, J, \label{eq:model}\\
+  & \pr_k(y_1) = \textrm{N} (\Delta_1 + \bm x_1^T \bm \beta_1^{(k)},
+  \exp (\bm x_{1}^T \bm \alpha_1^{(k)} ) ), k = 1, \ldots, J, \label{eq:model}\\
   &\pr_k(y_j|y_1, \ldots, y_{j-1}) =
   \begin{cases}
-    \textrm{N} \big (\Delta_j + \bm x_{j*}^T \bm \beta_{j*}^{(k)}, 
-\exp (\bm x_{j}^T \bm \alpha_j^{(k)} ) \big), & k < j ;  \nonumber \\
-    \textrm{N} \big (\Delta_j + \bm x_{j*}^T \bm \beta_{j*}^{(\geq j)}, 
-\exp (\bm x_{j}^T \bm \alpha_j^{(\geq j)} ) \big), & k \geq j ; \nonumber \\
+    \textrm{N} \big (\Delta_j + \bm x_{j*}^T \bm \beta_{j*}^{(k)},
+    \exp (\bm x_{j}^T \bm \alpha_j^{(k)} ) \big), & k < j ;  \nonumber \\
+    \textrm{N} \big (\Delta_j + \bm x_{j*}^T \bm \beta_{j*}^{(\geq
+      j)},
+    \exp (\bm x_{j}^T \bm \alpha_j^{(\geq j)} ) \big), & k \geq j ; \nonumber \\
   \end{cases}, \text{ for } 2 \leq j \leq J, \nonumber \\
   & \prob (S = k)  = \pi_k, \nonumber \\
   & \sum_{k=1}^J \pi_k = 1, \nonumber
 \end{align}
-where $\pi_k$ do not depend on covariates, $\bm x_{j*} = (\bm x_j^T, y_1,
-\ldots, y_{j-1})^T$ is a $(p + j - 1) \times 1$ modified covariates
-vector, and $\bm \alpha_j^{(k)}$ is a $p \times 1$ vector controlling
-heterogeneity of response component $j$ under follow up time $S = k$,
-$\bm \beta_{j*}^{(k)} = (\bm \beta_j^T, \beta_{y_1j}, \ldots,
-\beta_{y_{j-1}j})^T$, where $\bm \beta_j = (\beta_{1j},
-\ldots, \beta_{pj})^{T}$ under follow up time $S=k$, which can be regarded as coefficients of
-interaction of pattern $k$ and modified covariates analog to mean
-regression with length $ (p + j - 1) \times 1$. 
+where $\pi_k$ does not depend on covariates, $\bm x_{j*} = (\bm x_j^T,
+y_1, \ldots, y_{j-1})^T$ is a $(p + j - 1) \times 1$ modified
+covariates vector, and $\bm \alpha_j^{(k)}$ is a $p \times 1$ vector
+controlling heterogeneity of response component $j$ under follow up
+time $S = k$, $\bm \beta_{j*}^{(k)} = (\bm \beta_j^T, \beta_{y_1j},
+\ldots, \beta_{y_{j-1}j})^T$, where $\bm \beta_j = (\beta_{1j},
+\ldots, \beta_{pj})^{T}$  can be
+regarded as coefficients of interaction of pattern $k$ and modified
+covariates analog to mean regression with length $ (p + j - 1) \times
+1$.
 
-We model the heterogeneity parameters $\bm \alpha_j$ inside the exponential
-because there is no restriction on those heterogeneity parameters,
-therefore it is computationally more stable under both frequentist and
-Bayesian framework.
+We model the heterogeneity parameters $\bm \alpha_j$ inside the
+exponential because there is no restriction on those heterogeneity
+parameters, therefore it is computationally more stable under both
+frequentist and Bayesian framework.
 
-In equations (\ref{eq:model}) for model settings , $\Delta_j$ are functions of 
-$\tau, \bm x_j$ and other parameters and are
-deterministic by
+In  (\ref{eq:model}) , $\Delta_j$ are
+functions of $\tau, \bm x_j$ and other parameters and are
+determined by
 \begin{align}
   \label{eq:deltaeqn1}
-  \tau = \prob (Y_j \leq \bm x_j^T \bm \gamma_j ) = \sum_{k=1}^J 
-\pi_k\prob_k (Y_j \leq
-  \bm x_j^T \bm \gamma_j ),
+  \tau = \prob (Y_j \leq \bm x_j^T \bm \gamma_j ) = \sum_{k=1}^J
+  \pi_k\prob_k (Y_j \leq \bm x_j^T \bm \gamma_j ),
 \end{align}
 for $j = 1$ and
 \begin{align}\label{eq:deltaeqn2}
-  \tau &= \prob (Y_j \leq \bm x_j^{T} \bm \gamma_j ) = \sum_{k=1}^J 
-\pi_k\prob_k (Y_j \leq \bm x_j^{T} \bm \gamma_j ) \\
-  & = \sum_{k=1}^J \pi_k \int\cdots \int \prob_k (Y_j \leq \bm x_j^{T} 
-\bm \gamma_j |y_1,\ldots,
+  \tau &= \prob (Y_j \leq \bm x_j^{T} \bm \gamma_j ) = \sum_{k=1}^J
+  \pi_k\prob_k (Y_j \leq \bm x_j^{T} \bm \gamma_j ) \\
+  & = \sum_{k=1}^J \pi_k \int\cdots \int \prob_k (Y_j \leq \bm x_j^{T}
+  \bm \gamma_j |y_1,\ldots,
   y_{j-1}) \pr_k (y_{j-1}| y_1, \ldots, y_{j-2})  \nonumber \\
-& \quad \cdots \pr_k (y_{2}| y_1) \pr_k(y_1) dy_{j-1}\cdots dy_1. \nonumber
+  & \quad \cdots \pr_k (y_{2}| y_1) \pr_k(y_1) dy_{j-1}\cdots
+  dy_1. \nonumber
 \end{align}
 for $j = 2, \ldots, J$. More computational details will be given in
 section \ref{sec:computation}.
 
-The idea is to model the marginal quantile regression
-coefficients directly, then to involve them in the likelihood through
-restrictions by iterated expectation from mixture model, and finally
-to estimate them in either frequentist or Bayesian way. Meanwhile we
-model the mixture patterns and heterogeneity between subjects to
-explain the change of marginal quantile regression coefficients,
-either case can make the slope change over different
-quantiles. Otherwise, the quantile lines would just be parallel to
-each other for different quantiles.
+The idea is to model the marginal quantile regression coefficients
+directly, then to involve them in the likelihood through restrictions
+in the mixture model, and finally to estimate
+them using likelihood methods. The
+mixture patterns and heterogeneity between subjects allow the
+ marginal quantile regression coefficients to differ by quantiles 
+. Otherwise, the
+quantile lines would  be parallel to each other for different
+quantiles.
 
-Furthermore, we have to put another set of restrictions because of
-identifiability issue:
+For identifiability, we need another set of restrictions, 
 \begin{align*}
   & \sum_{k=1}^J \beta_{l1}^{(k)} = 0, l = 1,\ldots, p, \\
-  & \big( \sum_{k=1}^{j-1} \beta_{lj}^{(k)} \big) + \beta_{lj}^{(\geq j)} = 0, l = 1, \ldots, p,
-  2 \leq j \leq J;
+  & \big( \sum_{k=1}^{j-1} \beta_{lj}^{(k)} \big) + \beta_{lj}^{(\geq
+    j)} = 0, l = 1, \ldots, p, 2 \leq j \leq J;
 \end{align*}
-We show the need to keep those restrictions
-in appendix \ref{sec:iden}.
+Further details on these restrictions can be found  in appendix
+\ref{sec:iden}.
 
-\subsection{Sensitivity Analysis}
+\subsection{Missing Data Mechanism and Sensitivity Analysis}
 \label{sec:sa}
 
-Theorem of \citet{molen1998} (MAR for
-discrete-time pattern mixture models under monotone dropout) is used
-to specify models under different missing mechanism assumptions, MAR
+In our mixture model (\ref{eq:model}), \citep{molen1998} shows MAR
 holds if and only if, for each $j \geq 2$ and $k < j$:
 \begin{equation}
   \label{eq:molen}
   \pr_k(y_j|y_1, \ldots, y_{j-1}) = \pr_{\geq j}(y_j|y_1, \ldots, y_{j-1}).
 \end{equation}
-We illustrate how to deploy MAR and MNAR assumption from both
-frequentist way and Bayesian framework.
 
-In model settings equation (\ref{eq:model}), when $2 \leq j \leq J, k
-< j$, $Y_j$ is not observed, thus $\bm \beta_j^{(k)}, k = 1, \ldots,
-J$ and $\bm \alpha_j^{(k)}$, $ \bm \beta_{y, j}^{(k)} =
-(\beta_{y_1,j}^{(k)}, \ldots, \beta_{y_{j-1},j}^{(k)}), k < j$ can not
-be identified. Denote
+When $2 \leq j \leq J, k < j$, $Y_j$ is not observed, thus $\bm
+\beta_j^{(k)}, k = 1, \ldots, J$ and $\bm \alpha_j^{(k)}$, $ \bm
+\beta_{y, j}^{(k)} = (\beta_{y_1,j}^{(k)}, \ldots,
+\beta_{y_{j-1},j}^{(k)}), k < j$ can not be identified from the
+observed data. Denote
 \begin{align*}
   \bm \alpha_j^{(k)} &= \bm \alpha_j^{(\geq j)} + \bm h_j^{(k)}, \\
   \bm \beta_{y, j}^{(k)} &= \bm \beta_{y, j}^{(\geq j)} + \bm
@@ -296,18 +286,18 @@ $\bm \xi_{\alpha} = (\bm h_j^{(k)}) , k < j, 2 \leq j \leq J$.
 \subsection{Computation}
 \label{sec:computation}
 
-In section \ref{sec:deltacal} , we give details on how to calculate
-$\Delta_{ij}$ in model (\ref{eq:model}) for $j = 1, \ldots, J$ . Then
-we illustrate how to get maximum likelihood estimator using adaptive
-gradient descent algorithm in section \ref{sec:mle}. Last, we present
-the Bayesian sampling procedure in section \ref{sec:bayesian}.
+In section \ref{sec:deltacal} , we provide details on  calculating
+$\Delta_{ij}$ in  (\ref{eq:model}) for $j = 1, \ldots, J$ . Then
+we show how to obtain maximum likelihood estimates using an adaptive
+gradient descent algorithm in section \ref{sec:mle}. Finally, we present
+a MCMC  sampling algorithm  for Bayesian interface in section \ref{sec:bayesian}.
 
-\subsubsection{$\Delta$ Calculation}
+\subsubsection{Calculation of $\Delta$ }
 \label{sec:deltacal}
-Seen from equation (\ref{eq:deltaeqn1}) and (\ref{eq:deltaeqn2}),
+From equation (\ref{eq:deltaeqn1}) and (\ref{eq:deltaeqn2}),
 $\Delta_{ij}$ depends on subject covariates $\bm x_i$, thus
 $\Delta_{ij}$ needs to be calculated for each subject generally. We
-illustrate how to calculate $\Delta_{ij}$ given all the other
+now illustrate how to calculate $\Delta_{ij}$ given all the other
 parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
 
 \begin{itemize}
@@ -317,33 +307,34 @@ parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
         \gamma_1 - \Delta_{i1} - \bm x_{i1}^T\bm \beta_1^{(k)}}{\exp
         \big( \bm x_{i1}^T \bm \alpha_1^{(k)} \big)} \right),
   \end{align*}
-  where $\Phi$ is the standard normal CDF. Because above equation is
-  continuous and monotone on $\Delta_{i1}$, it can be solved by
-  standard numerical root-find method without much difficulty, for
-  example, the bisection method.
+  where $\Phi$ is the standard normal CDF. Because the above equation
+  is continuous and monotone in $\Delta_{i1}$, it can be solved by a
+  standard numerical root-finding method (e.g. bisection method) with
+  minimal difficulty.
 
-\item \textbf{$\Delta_{ij}, 2\leq j \leq J: $} First we introduce a lemma:
+\item \textbf{$\Delta_{ij}, 2\leq j \leq J: $}
+
+  First we introduce a lemma:
   \begin{lem}\label{sec:lemma}
-    An integral of a normal CDF over a non-standard normal
-    distribution can be simplified to a closed form in terms of
+    An integral of a normal CDF with mean $b$ and standard deviation
+    $a$ over another normal distribution with mean $\mu$ and standard
+    deviation $\sigma$ can be simplified to a closed form in terms of
     another normal CDF:
     \begin{equation}
       \label{eq:lem}
       \int \Phi \left( \frac{x-b}{a} \right) d\Phi(x; \mu, \sigma)  = 
       \begin{cases}
         1- \Phi \left( \frac{b-\mu}{\sigma} \big / \sqrt{\frac{a^2}{\sigma^2}+1} \right) & a > 0, \\
-        \Phi \left( \frac{b-\mu}{\sigma} \big / \sqrt{\frac{a^2}{\sigma^2}+1} \right) &
-        a < 0 ,
+        \Phi \left( \frac{b-\mu}{\sigma} \big /
+          \sqrt{\frac{a^2}{\sigma^2}+1} \right) & a < 0 ,
       \end{cases}
     \end{equation}
-    where $\Phi(x; \mu, \sigma)$ stands for a CDF of normal distribution with
-    mean $\mu$ and standard deviation $\sigma$.
+    where $\Phi(x; \mu, \sigma)$ stands for a CDF of normal
+    distribution with mean $\mu$ and standard deviation $\sigma$.
   \end{lem}
-  Proof of lemma can be seen in appendix \ref{sec:proof}.
+  Proof of \ref{sec:lemma} is in Appendix \ref{sec:proof}.
 
-  For computation of $\Delta_{ij}$ when $j >= 2$, to solve equation
-  (\ref{eq:deltaeqn2}), we propose two approaches and again we
-  suppress the subscript $i$ for subject $i$:
+  To solve equation (\ref{eq:deltaeqn2}), we propose two approaches:
 
   \begin{enumerate}
   \item \textbf{Assume first order relationship:} We assume
@@ -351,20 +342,19 @@ parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
       \pr (Y_j|S, x, Y_{j-1}, \ldots, Y_1) = \pr (Y_j|S, x, Y_{j-1}).
     \end{equation*}
     After obtaining $\Delta_{j-1}$, for each component in equation
-    (\ref{eq:deltaeqn2}):
+    (\ref{eq:deltaeqn2}),
     \begin{align*}
       \pr (Y_j \leq \bm x^T \bm \gamma_j | S = k) & = \int\dots\int
       \pr (Y_j \leq \bm x^T\bm \gamma_j | S=k, x, Y_{j-1}, \ldots, Y_1)\\
       & \quad  dF(Y_{j-1}|S=k, Y_{j-2}, \ldots, Y_1)\cdots dF(Y_2|S=s, Y_1),\\
-      & = \int \pr (Y_j \leq \bm x^T \bm \gamma | S=s, x, Y_{j-1}) dF(Y_{j-1}|S=k,
-      Y_{j-2}).
+      & = \int \pr (Y_j \leq \bm x^T \bm \gamma | S=s, x, Y_{j-1})
+      dF(Y_{j-1}|S=k, Y_{j-2}).
     \end{align*}
 
     Thus, only one integral is needed. Furthermore, by lemma
-    \ref{sec:lemma} , we can simplify above integral by closed form in
-    terms of normal CDF, without using any numerical approximations,
-    for example, the Laplace approximation.
-
+    \ref{sec:lemma} , we can evaluate the above integral analytically
+    in terms of a normal CDF, without using any numerical
+    approximations.
 
   \item \textbf{Recursive Computation: }
 
@@ -378,64 +368,61 @@ parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
     $\Delta_{ij}$.
   \end{enumerate}
 
-  Recursive computation is exact and put less restrictions than
-  assuming first order relationship. In the later simulation and real
-  data analysis, we adopt the recursive computation method. However,
-  it is computationaly more complicated than assuming first order
-  relationship.
+  Option 2 is exact and does not assume a restrictive first order
+  relationship.  However, it is computational more intensive than
+  option 1.
 
 \end{itemize}
 
 \subsubsection{Maximum Likelihood Estimation}
 \label{sec:mle}
 
-The contributed observed likelihood for $\bm y_i = (y_1, \ldots, y_k)$
-with follow-up time $S = k$ is
-\begin{align} \label{eq:ll}
-  L_i(\bm \xi| \bm y_i, S_{i} = k) & = \pi_k\pr_k (y_k | y_1, \ldots, y_{k-1}) 
-\pr_k (y_{k-1}|y_1, \ldots, y_{k-2}) \cdots \pr_{k} (y_1) \\
+The observed likelihood for $\bm y_i = (y_1, \ldots, y_k)$ with
+follow-up time $S = k$ is
+\begin{align} \label{eq:ll} L_i(\bm \xi| \bm y_i, S_{i} = k) & =
+  \pi_k\pr_k (y_k | y_1, \ldots, y_{k-1})
+  \pr_k (y_{k-1}|y_1, \ldots, y_{k-2}) \cdots \pr_{k} (y_1) \\
   & = \pi_k \pr_{\geq k} (y_k | y_1, \ldots, y_{k-1}) \pr_{\geq k-1}
   (y_{k-1}|y_1, \ldots, y_{k-2}) \cdots \pr_{k} (y_1) \nonumber
 \end{align}
 
-We use adaptive gradient descent algorithm to get the maximum
-likelihood estimates \citet{ried1993}. Denote $J(\bm
-\xi) = - \log L = - \log \sum_{i = 1}^n L_i$.  Then to maximize
-likelihood is equivalent to minimize the target function $J(\bm
-\xi)$. Under MAR assumption, we fix $\bm \xi_s = \bm 0$, while under
-MNAR assumption, $\bm \xi_s $ can be chosen to assume there is an
-intercept shift between the conditional distributions of $Y_{j}|
-Y_{1}, \ldots, Y_{j-1}, S$, or there is heterogeneity between those
-distributions.
+We use an adaptive gradient descent algorithm to compute the maximum
+likelihood estimates \citep{ried1993}. Denote $J(\bm \xi) = - \log L =
+- \log \sum_{i = 1}^n L_i$.  Then to maximize likelihood is equivalent
+to minimize the target function $J(\bm \xi)$. Under MAR assumption, we
+fix $\bm \xi_s = \bm 0$, while under MNAR assumption, $\bm \xi_s $ can
+be chosen to assume there is an intercept shift between the
+conditional distributions of $Y_{j}| Y_{1}, \ldots, Y_{j-1}, S$, or
+there is heterogeneity between those distributions.
 
-During each step in adaptive gradient descent algorithm, $\Delta_{ij}$ has
-to be calculated for each subject and component, as well as partial
-derivatives for each parameter. Because it is computationaly
-expensive, we use compiled fortran language within R to make it fast.
+During each step in adaptive gradient descent algorithm, $\Delta_{ij}$
+has to be calculated for each subject and component, as well as
+partial derivatives for each parameter. Because it is computational
+expensive, we compile fortran within R for speed.
 
-Details about the maximization algorithm are presented in the appendix
-[ref].
+Details about the maximization algorithm are presented in the Appendix
+\ref{sec:agda}. 
 
 \subsubsection{Bayesian Framework}
 \label{sec:bayesian}
 
-Under Bayesian framework, we are going to put priors on the parameters
-$\bm \xi$ and make exact inference through posterior samples.
+Under a Bayesian framework, we  put priors on the parameters
+$\bm \xi$ and make exact inference.
 
-We can use the block Gibbs sampling method to draw sample from
+We use a  block Gibbs sampling method to draw samples from the
 posterior distribution. Denote all the parameters (including
-sensitivity parameters) to sample as : 
+sensitivity parameters) to sample as :
 \begin{displaymath}
   \bm \xi = \left( \bm \gamma_1, \bm \gamma_2, \ldots, \gamma_J, 
-\bm \beta_{j*}^{(k)}, \bm \alpha_j^{(k)}
+    \bm \beta_{j*}^{(k)}, \bm \alpha_j^{(k)}
     \text{ for } k = 1, \ldots, J, j = 1, \ldots, J \right).
 \end{displaymath}
 Comma separated parameters are marked to sample as a block in block
-Gibbs sampling.  All the procedures require Metropolis-Hasting
-algorithm to update samples because the likelihood is intractable.
+Gibbs sampling.  All updates require Metropolis-Hasting
+algorithm.
 
 As mentioned in section \ref{sec:sa}, MAR or MNAR assumptions are
-adopted using specific priors. For example, if MAR is assumed with no
+adopted via specific priors. For example, if MAR is assumed with no
 uncertainty, then $ \bm \xi _s= \bm 0$ with probability 1. Details for
 updating parameters are:
 
@@ -465,9 +452,8 @@ implement the algorithm.
 
 \section{Simulation Study}
 \label{sec:simulation}
-In this section, we tested performance of our proposed heterogeneous
-model in section \ref{sec:settings} combined with adaptive gradient
-descent algorithm, compared with \textit{rq} function in
+In this section, we compared the performance of our proposed 
+model in section \ref{sec:settings}  with the \textit{rq} function in
 \textit{quantreg} R package.
 
 \subsection{MAR}
@@ -475,8 +461,8 @@ descent algorithm, compared with \textit{rq} function in
 The simulation study included 1000 data sets. Each data set consists
 200 bivariate observations $\bm Y_i = (Y_{i1}, Y_{i2})$ for $i = 1,
 \ldots, 200$. $Y_{i1}$ was always observed, while some of $Y_{i2}$
-were missing with probability $0.5$. Covariates $x$ were sampled from
-uniform (0,2). We sampled $\bm Y_i$ from:
+were missing. Covariates $x$ were sampled from uniform (0,2). We
+sampled $\bm Y_i$ from:
 \begin{align*}
   Y_{i1} |R = 1 & \sim N ( 2 + x, 1 + 0.5x)\\
   Y_{i2} | R = 1, y_{i1} & \sim N(1 - x - 1/2y_{i1}, 1) \\
@@ -485,17 +471,18 @@ uniform (0,2). We sampled $\bm Y_i$ from:
   \pr (R = 1) & = 0.5.
 \end{align*}
 
-$Y_{i2}| R = 0, y_{i1}$ is not observed. And in this setting, we
-assume distribution of $Y_{i2} | R = 0, y_{i1}$ is equal to $Y_{i2}|
-R= 1, Y_{i1}$, thus MAR condition satisfies.
+When $R = 0$, $Y_{i2}$ is not observed, so $\pr(Y_{i2}| R = 0,
+y_{i1})$ is not identifiable from observed data. Here we assume the
+distribution of $[Y_{i2} | R = 0, y_{i1}]$ is equal to $[Y_{i2}| R= 1,
+Y_{i1}]$ (MAR).
 
 By integrating $Y_{i1}|R$ out of $Y_{i2}|R, y_{i1}$, we have
 \begin{align*}
-  Y_{i2} | R = 1 & \sim N( - 3x/2, 5/4 + x/8) \\
-  Y_{i2} | R = 0 & \sim N( 2 - x/2, 5/4 + x/8)
+  Y_{i2} | R = 1 & \sim N( - 3x/2, 5/4 + x/8), \\
+  Y_{i2} | R = 0 & \sim N( 2 - x/2, 5/4 + x/8).
 \end{align*}
 
-To apply MAR assumption, we fix sensitivity parameter $\bm \xi_s =
+Under MAR assumption, we fix sensitivity parameter $\bm \xi_s =
 (0,0,0,0,0)$ as discussed in section \ref{sec:sa} for our proposed
 model. For \textit{rq} function from \textit{quantreg} R package,
 because only $Y_{i2}| R = 1$ is observed, quantile regression for
@@ -505,11 +492,10 @@ $x$.
 For each dataset in both scenario, we fit quantile regression for
 quantiles $\tau =$ 0.1, 0.3, 0.5, 0.7, 0.9.
 
-Algorithms were evaluated by mean squared error (MSE), which is
-defined by :
+Parameter estimations were evaluated by mean squared error (MSE),
 \begin{equation*}
   \text{MSE} (\gamma_{ij}) = \frac{1}{1000} \sum_{k = 1}^{1000} 
-\left( \hat{\gamma}_{ij}^{(k)}  - \gamma_{ij}\right)^2,
+  \left( \hat{\gamma}_{ij}^{(k)}  - \gamma_{ij}\right)^2,
 \end{equation*}
 where $\gamma_{ij}$ is the true value for quantile regression
 coefficient, $\hat{\gamma}_{ij}^{(k)}$ is the estimates in $k$-th
@@ -522,7 +508,7 @@ $(\gamma_{02}, \gamma_{12})$ for $Y_{i2}$).
   \caption{Simulation result: MSE for coefficients estimates of quantiles
     0.1, 0.3, 0.5, 0.7, 0.9 under MAR assumptions. $(\gamma_{01}, \gamma_{11})$ 
     are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$   
-  are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq' 
+    are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq' 
     function in R package 'quantreg'.}\label{tab:simh2}  
   \vspace{10pt}
   \begin{tabular}{rrrrrrrrrrr}
@@ -530,7 +516,7 @@ $(\gamma_{02}, \gamma_{12})$ for $Y_{i2}$).
     & \multicolumn{ 10}{c}{MAR} \\
     \cline{2-11}
     &  \multicolumn{2}{c}{0.1} &  \multicolumn{2}{c}{0.3} &  \multicolumn{2}{c}{0.5} &
-  \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
+    \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
     \cline{2-11}
     & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ \\
     \hline
@@ -542,21 +528,20 @@ $(\gamma_{02}, \gamma_{12})$ for $Y_{i2}$).
   \end{tabular}
 \end{table}
  
-Mean squared errors are shown in table \ref{tab:simh2}. Results show
+Mean squared errors are shown in Table \ref{tab:simh2}. Results show
 that our proposed method has smaller MSE than \textit{rq} function in
-all cases. Furthermore, when $Y_{i2}$ are missing at random, our
-method shows tremendous advantage over \textit{rq} method, because
-\textit{quantreg} does not consider the missing mechanism.  The
-difference in MSE becomes larger for upper quantile is because $Y_2 |R
-= 0$ tends to be larger than $Y_2 | R = 1$, therefore, the \textit{rq}
-method only using the observed $Y_2$ yields larger bias for upper quantile when 
-estimating the marginal quantile estimates.
+all cases. Since $Y_{i2}$ are missing at random, our method provides
+larger gains over \textit{rq} method, because \textit{quantreg} does
+not consider the missingness mechanism.  The difference in MSE becomes
+larger for the upper quantiles because $Y_2 |R = 0$ tends to be larger
+than $Y_2 | R = 1$; therefore, the \textit{rq} method only using the
+observed $Y_2$ yields larger bias for upper quantile when estimating
+the marginal quantile estimates.
 
 \subsection{MCAR and MNAR}
 
-Another group of dataset were simulated to test our algorithm
-performance under MCAR and MNAR situation, comparing to \textit{rq}
-function in \textit{quantreg} R package. We sampled $\bm Y_i$ from:
+We also simulated datasets under MCAR and MNAR . For MCAR, We sampled
+$\bm Y_i$ from:
 \begin{align*}
   \begin{pmatrix}
     Y_{i1}\\
@@ -576,17 +561,15 @@ function in \textit{quantreg} R package. We sampled $\bm Y_i$ from:
 \end{align*}
 
 We conducted simulation study under two different situations: MCAR and
-MNAR. Under MCAR scenario, we still fixed sensitivity parameter $\bm
-\xi_s$ in section \ref{sec:sa} at $\bm 0$ (assuming it is MAR), while
-under MNAR scenario, we fixed $\bm \xi_s$ at the true value $(1, 0, 0,
-0)$, assuming there was an intercept shift between distribution of
-$Y_{i2}|Y_{i1}, R = 1$ and $Y_{i2}|Y_{i1}$, $R = 0$.
+MNAR.  Under MNAR scenario, we fixed $\bm \xi_s$ at the true value
+$(1, 0, 0, 0)$, assuming there was an intercept shift between
+distribution of $Y_{i2}|Y_{i1}, R = 1$ and $Y_{i2}|Y_{i1}$, $R = 0$.
 
 For each dataset in both scenario, we fit quantile regression for
-quantiles $\tau =$  0.1, 0.3, 0.5, 0.7, 0.9.
+quantiles $\tau =$ 0.1, 0.3, 0.5, 0.7, 0.9.
 
-Algorithms were evaluated by mean squared error (MSE)
-as we described above. 
+Algorithms were evaluated by mean squared error (MSE) as we described
+above.
 
 Simulation results show estimates from our algorithm are closer to the
 true value for all quantiles from 0.1 to 0.9. Table \ref{tab:sim} and
@@ -613,7 +596,7 @@ value.
     & \multicolumn{ 10}{c}{MAR} \\
     \cline{2-11}
     &  \multicolumn{2}{c}{0.1} &  \multicolumn{2}{c}{0.3} &  \multicolumn{2}{c}{0.5} 
-&  \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
+    &  \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
     \cline{2-11}
     & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ \\
     \hline
@@ -639,7 +622,7 @@ value.
     & \multicolumn{ 10}{c}{MNAR} \\
     \cline{2-11}
     &  \multicolumn{2}{c}{0.1} &  \multicolumn{2}{c}{0.3} &  \multicolumn{2}{c}{0.5} 
-&  \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
+    &  \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
     \cline{2-11}
     & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ \\
     \hline
@@ -663,7 +646,8 @@ baseline. There were three treatments and two main races in this study
 at 18th month were missing (211 observed out of 224 , 94\%). All
 weights are scaled by 1/100.
 
-Figure \ref{fig:tours} is the boxplot of weights vs treatments and races.
+Figure \ref{fig:tours} is the boxplot of weights vs treatments and
+races.
 
 \begin{figure}[htb]
   \centerline{\includegraphics[scale =
@@ -727,33 +711,29 @@ significantly different for quantiles (50\% to 90\%).
 \section{Discussion}
 \label{sec:discussion}
 
-In this paper, we developed a marginal quantile regression model for
-data with monotone dropout missingness. We use pattern mixture model
-to explain the missing mechanism instead of selection
-model. Meanwhile, marginal quantile regression coefficients are of
-interest instead of ones conditional on random effects as in
-\citet{yuan2010}. In addition, our approach capture nontrivial change
-of quantile lines over different quantiles by modeling the mixture
-distribution and heterogeneity of variance.
+In this paper, we have developed a marginal quantile regression model
+for data with monotone dropout missingness. We use a pattern mixture
+model to explain the missing mechanism. Here marginal quantile
+regression coefficients are of interest instead of coefficients
+conditional on random effects as in \citep{yuan2010}. In addition, our
+approach allows non-parallel quantile lines over different quantiles
+via modeling the mixture distribution and heterogeneity of variance.
 
-It is also easy for our method to adopt missing mechanism assumptions
-for nonignorable missing data. We illustrated how to put informative
-priors in Bayesian way and how to assign values for sensitivity
-parameters in frequantist way to apply different missing mechanism
-assumptions.  We also recommend recursive integration to simplify the
-computation and it is also easy to implement even in high dimension.
-Simulation study demonstrates that our approach has smaller MSE than
-the traditional frequantist method and it behaves even better in MAR
-and MNAR case.
+Our method allows the missingness to be MNAR.  We illustrated how to
+put informative priors for Bayesian inference and how to find
+sensitivity parameters allow different missing data mechanisms .  The
+recursive integration algorithm simplifies computation and can be
+easily implemented even in high dimension.  Simulation study
+demonstrates that our approach has smaller MSE than the traditional
+frequentist method and it allows for MAR and MNAR missingness.
 
-However, our model assumes heterogeneous normal distribution for each
-component, which might be too restrictive. It is also possible to replace
-them with non- or semi- parametric model, for example, the Dirichlet process
-or \polya{} tree. Correlation within subject is not explicit in our
-method. It is hard to look into marginal correlations in a pattern
-mixture model. It would also be interesting to assume that component
-probabilities depend on covariates. Our future work also includes to
-propose a goodness of fit test to check the model fit.
+Our model assumes a multivariate normal distribution for each
+component in the pattern mixture model, which might be too
+restrictive. It is possible to replace them with a semi-parametric
+model, for example, the Dirichlet process or \polya{} tree.  It would
+also be interesting to assume that mixture probabilities depend on
+covariates. Our future work will also include proposing a goodness of
+fit test to check the model fit.
 
 \section{Acknowledgments}
 
@@ -920,69 +900,74 @@ parameters, it can be found similar to the above discussion.
 \begin{itemize}
 \item Denote
   \begin{displaymath}
-    I(a,b) = \int \Phi \left( \frac{x-b}{a} \right)\phi(x) dx 
+    I(a,b) = \int \Phi \left( \frac{x-b}{a} \right)\phi(x) dx ,
   \end{displaymath}
-  where $\Phi$ is the standard normal cdf and $\phi$ is the standard normal
-  pdf and $a > 0$.
+  where $\Phi$ is the standard normal cdf and $\phi$ is the standard
+  normal pdf and $a > 0$.
   \begin{align*}
     \frac{\partial I(a,b)}{\partial b} & = - \frac{1}{a} \int \phi \left( \frac{x-b}{a} \right) \phi(x) dx \\
     & = - \frac{1}{\sqrt{2 \pi} \sqrt{a^2+1}} \exp \left( - \frac{b^2}{2(a^2+1)} \right)\\
-    & = -\frac{1}{\sqrt{a^2+1}} \phi \left( \frac{b}{\sqrt{a^2+1}} \right)
+    & = -\frac{1}{\sqrt{a^2+1}} \phi \left( \frac{b}{\sqrt{a^2+1}}
+    \right).
   \end{align*}
   Since $I(a, \infty) = 0$,
   \begin{align}
     I(a,b) &= - \frac{1}{\sqrt{a^2+1}} \int_b^{\infty} \phi \left( \frac{s}{\sqrt{a^2+1}} \right) ds \nonumber \\
     &= \int_{b/\sqrt{a^2+1}}^{\infty} \phi(t) dt \nonumber\\
     \label{eq:int}
-    & = 1- \Phi(b/\sqrt{a^2+1})
+    & = 1- \Phi(b/\sqrt{a^2+1}).
   \end{align}
   For $a < 0$,
   \begin{align*}
     \frac{\partial I(a,b)}{\partial b} & = - \frac{1}{a} \int \phi \left( \frac{x-b}{a} \right) \phi(x) dx \\
     & = - \frac{sgn(a)}{\sqrt{2 \pi} \sqrt{a^2+1}} \exp \left( - \frac{b^2}{2(a^2+1)} \right)\\
-    & = -\frac{sgn(a)}{\sqrt{a^2+1}} \phi \left( \frac{b}{\sqrt{a^2+1}}
-    \right)
+    & = -\frac{sgn(a)}{\sqrt{a^2+1}} \phi \left(
+      \frac{b}{\sqrt{a^2+1}} \right).
   \end{align*}
   Since $I(a, -\infty) = 0$:
   \begin{align}
     I(a,b) &= \int^{b/\sqrt{a^2+1}}_{-\infty} \phi(t) dt \nonumber\\
     \label{eq:intneg}
-    & = \Phi(b/\sqrt{a^2+1})
+    & = \Phi(b/\sqrt{a^2+1}).
   \end{align}
-\item If integrating over non-standard normal distribution:
+\item For integrating over a normal distribution with mean $\mu$ and
+  standard deviation $\sigma$:
   \begin{align*}
     \int \Phi(x)d\Phi(x; \mu, \sigma) & = \int \Phi(x) \frac{1}{\sigma} \phi \left( \frac{x-\mu}{\sigma} \right) dx \\
     & = \int \Phi(\sigma t + \mu)\phi(t) dt \\
-    \text{by equation (\ref{eq:int}): } \quad & = 1 -
-    \Phi(-\mu/\sigma/\sqrt{1/\sigma^2+1})
+    & = 1 - \Phi(-\mu/\sigma/\sqrt{1/\sigma^2+1}).
   \end{align*}
-\item If integrating a non standard cdf over a non-standard normal
-  distribution:
+  The last equation holds by (\ref{eq:int})
+\item For integrating a $\textrm{N}(b, a)$ CDF over another normal
+  distribution ($\textrm{N}(\mu, \sigma$)):
   \begin{align}
     \int \Phi \left( \frac{x-b}{a} \right) d\Phi(x; \mu, \sigma) & = \int \Phi \left( \frac{x-b}{a} \right) \frac{1}{\sigma} \phi \left( \frac{x-\mu}{\sigma} \right) dx \nonumber\\
     &= \int \Phi \left( \frac{\sigma y + \mu - b}{a}  \right) \phi(y) dy \nonumber \\
     \label{eq:intg1}
-    & = 1- \Phi \left( \frac{b-\mu}{\sigma} / \sqrt{\frac{a^2}{\sigma^2}+1} \right)
+    & = 1- \Phi \left( \frac{b-\mu}{\sigma} /
+      \sqrt{\frac{a^2}{\sigma^2}+1} \right).
   \end{align}
   If $a < 0$,
   \begin{equation}
     \label{eq:intg2}
-    \int \Phi \left( \frac{x-b}{a} \right) d\Phi(x; \mu, \sigma) = \Phi \left( \frac{b-\mu}{\sigma} / \sqrt{\frac{a^2}{\sigma^2}+1} \right)
+    \int \Phi \left( \frac{x-b}{a} \right) d\Phi(x; \mu, \sigma) = \Phi \left( \frac{b-\mu}{\sigma} / \sqrt{\frac{a^2}{\sigma^2}+1} \right).
   \end{equation}
 
 \end{itemize}
 
-\section{Maximum Likelihood Estimation Using Adaptive Gradient Descent Algorithm}
+\section{Maximum Likelihood Estimation Using Adaptive Gradient Descent
+  Algorithm}
+\label{sec:agda}
 
-Notations are in section \ref{sec:mle}. 
+See section \ref{sec:mle} for notations.
 
-Maximization can be reached by the following procedures:
+The likelihood can be maximized via the following algorithms:
 \begin{enumerate}
 \item Initialize $\bm \xi$
 \item \label{item:der} calculate $\partial J(\bm \xi) / \partial
   \xi_j$ for all $j$,
-\item update $\bm \xi$ by adaptive gradient descent algorithm 
-described in \citet{ried1993} for all $j$
+\item update $\bm \xi$ by adaptive gradient descent algorithm
+  described in \citep{ried1993} for all $j$
 \item evaluate new $J(\bm \xi)$
 \item if the amount of descent of $J ( \bm \xi)$ is great than certain
   number, say $10^{-3}$, then go back to step \ref{item:der} and
@@ -990,9 +975,10 @@ described in \citet{ried1993} for all $j$
 \end{enumerate}
 
 We can use numerical approximation to calculate $\partial J(\bm
-\xi)/\partial \xi_j$ in algorithm step \ref{item:der}. For example, when $j = 1$, 
+\xi)/\partial \xi_j$ in algorithm step \ref{item:der}. For example,
+when $j = 1$,
 \begin{displaymath}
-  \frac{\partial J(\bm \xi)}{\partial \xi_1} \approx \frac{J(\xi_1 + \epsilon, \xi_2, \ldots) - J(\xi_1 - \epsilon, \xi_2 , \ldots)}{2\epsilon}, 
+  \frac{\partial J(\bm \xi)}{\partial \xi_1} \approx \frac{J(\xi_1 + \epsilon, \xi_2, \ldots) - J(\xi_1 - \epsilon, \xi_2 , \ldots)}{2\epsilon}.
 \end{displaymath}
 
 \end{document}
