@@ -1,5 +1,5 @@
 \documentclass[12pt]{article}
-\usepackage{amsmath} 
+\usepackage{amsmath}
 \usepackage[round]{natbib}
 \usepackage{geometry}
 \usepackage{graphicx}
@@ -111,6 +111,8 @@ borrowed idea from \citep{heagerty1999}.  But their methods examine
 the marginal covariate effects on the mean. We will use these ideas
 for quantile regression models.
 
+
+
 The structure of this article is as below: first, we introduce a
 quantile regression methods to deal with monotone nonignorable dropout
 in general case in section \ref{sec:model}, including sensitivity
@@ -151,43 +153,37 @@ be the densities of response $\bm Y$ given follow-up time $S=k$ and $S
 
 \subsection{Mixture Model Specification}
 \label{sec:settings}
-We adopt a pattern mixture model to deal with
-missingness. 
-Without loss of clarity, we suppress the subscript $i$ for subject
+We adopt a pattern mixture model to deal with missingness.  Without
+loss of clarity, we suppress the subscript $i$ for subject
 $i$. Specify the conditional distribution as:
 \begin{align}
   & \pr_k(y_1) = \textrm{N} (\Delta_1 + \bm x_1^T \bm \beta_1^{(k)},
   \exp (\bm x_{1}^T \bm \alpha_1^{(k)} ) ), k = 1, \ldots, J, \label{eq:model}\\
   &\pr_k(y_j|y_1, \ldots, y_{j-1}) =
   \begin{cases}
-    \textrm{N} \big (\Delta_j + \bm x_{j*}^T \bm \beta_{j*}^{(k)},
+    \textrm{N} \big (\Delta_j + \bm x_{j}^T \bm h_{j}^{(k)} + \bm
+    y_{1:(j-1)}^T \bm \beta_{y,j-1}^{(k)},
     \exp (\bm x_{j}^T \bm \alpha_j^{(k)} ) \big), & k < j ;  \nonumber \\
-    \textrm{N} \big (\Delta_j + \bm x_{j*}^T \bm \beta_{j*}^{(\geq
-      j)},
+    \textrm{N} \big (\Delta_j + \bm y_{1:(j-1)}^T \bm
+    \beta_{y,j-1}^{(\geq j)},
     \exp (\bm x_{j}^T \bm \alpha_j^{(\geq j)} ) \big), & k \geq j ; \nonumber \\
   \end{cases}, \text{ for } 2 \leq j \leq J, \nonumber \\
-  & \prob (S = k)  = \pi_k, \nonumber \\
-  & \sum_{k=1}^J \pi_k = 1, \nonumber
+  &S| \bm x_j \sim \textrm{Multinomial}(1, \bm \pi), \nonumber
 \end{align}
-where $\pi_k$ does not depend on covariates, $\bm x_{j*} = (\bm x_j^T,
-y_1, \ldots, y_{j-1})^T$ is a $(p + j - 1) \times 1$ modified
-covariates vector, and $\bm \alpha_j^{(k)}$ is a $p \times 1$ vector
-controlling heterogeneity of response component $j$ under follow up
-time $S = k$, $\bm \beta_{j*}^{(k)} = (\bm \beta_j^T, \beta_{y_1j},
-\ldots, \beta_{y_{j-1}j})^T$, where $\bm \beta_j = (\beta_{1j},
-\ldots, \beta_{pj})^{T}$  can be
-regarded as coefficients of interaction of pattern $k$ and modified
-covariates analog to mean regression with length $ (p + j - 1) \times
-1$.
+where $\bm \pi = (\pi_1, \ldots, \pi_J)$ could depend on covariates,
+$\bm x_j$ is a $p \times 1$ covariates vector, $\bm y_{1:(j-1)} =
+(y_1, \ldots, y_{j-1})^T, \bm \beta_{y, j-1}^{(k)} = \big(\beta_{y_1,
+  j-1}^{(k)}, \ldots, \beta_{y_{j-1}, j-1}^{(k)} \big)^T$ and $\bm
+\alpha_j^{(k)}$ is a $p \times 1$ vector controlling heterogeneity of
+response component $j$ under follow up time $S = k$.
 
 We model the heterogeneity parameters $\bm \alpha_j$ inside the
 exponential because there is no restriction on those heterogeneity
 parameters, therefore it is computationally more stable under both
 frequentist and Bayesian framework.
 
-In  (\ref{eq:model}) , $\Delta_j$ are
-functions of $\tau, \bm x_j$ and other parameters and are
-determined by
+In (\ref{eq:model}) , $\Delta_j$ are functions of $\tau, \bm x_j$ and
+other parameters and are determined by
 \begin{align}
   \label{eq:deltaeqn1}
   \tau = \prob (Y_j \leq \bm x_j^T \bm \gamma_j ) = \sum_{k=1}^J
@@ -208,22 +204,19 @@ section \ref{sec:computation}.
 
 The idea is to model the marginal quantile regression coefficients
 directly, then to involve them in the likelihood through restrictions
-in the mixture model, and finally to estimate
-them using likelihood methods. The
-mixture patterns and heterogeneity between subjects allow the
- marginal quantile regression coefficients to differ by quantiles 
-. Otherwise, the
-quantile lines would  be parallel to each other for different
-quantiles.
+in the mixture model, and finally to estimate them using likelihood
+methods. The mixture patterns and heterogeneity between subjects allow
+the marginal quantile regression coefficients to differ by quantiles
+. Otherwise, the quantile lines would be parallel to each other for
+different quantiles.
 
-For identifiability, we need another set of restrictions, 
+For identifiability, we need another set of restrictions,
 \begin{align*}
-  & \sum_{k=1}^J \beta_{l1}^{(k)} = 0, l = 1,\ldots, p, \\
-  & \big( \sum_{k=1}^{j-1} \beta_{lj}^{(k)} \big) + \beta_{lj}^{(\geq
-    j)} = 0, l = 1, \ldots, p, 2 \leq j \leq J;
+  & \sum_{k=1}^J \beta_{l1}^{(k)} = 0, l = 1,\ldots, p,
 \end{align*}
-Further details on these restrictions can be found  in appendix
-\ref{sec:iden}.
+where $\bm \beta_1^{(k)} = (\beta_{11}, \ldots,
+\beta_{p1})^{(k)T}$. Further details on these restrictions can be
+found in appendix \ref{sec:iden}.
 
 \subsection{Missing Data Mechanism and Sensitivity Analysis}
 \label{sec:sa}
@@ -236,52 +229,42 @@ holds if and only if, for each $j \geq 2$ and $k < j$:
 \end{equation}
 
 When $2 \leq j \leq J, k < j$, $Y_j$ is not observed, thus $\bm
-\beta_j^{(k)}, k = 1, \ldots, J$ and $\bm \alpha_j^{(k)}$, $ \bm
-\beta_{y, j}^{(k)} = (\beta_{y_1,j}^{(k)}, \ldots,
-\beta_{y_{j-1},j}^{(k)}), k < j$ can not be identified from the
-observed data. Denote
+h_j^{(k)}$ and $\bm \alpha_j^{(k)}$, $ \bm \beta_{y, j-1}^{(k)} =
+\big(\beta_{y_1,j}^{(k)}, \ldots, \beta_{y_{j-1},j-1}^{(k)} \big)^T, k
+< j$ can not be identified from the observed data. Denote
 \begin{align*}
-  \bm \alpha_j^{(k)} &= \bm \alpha_j^{(\geq j)} + \bm h_j^{(k)}, \\
-  \bm \beta_{y, j}^{(k)} &= \bm \beta_{y, j}^{(\geq j)} + \bm
-  \eta_j^{(k)},
+  \bm \alpha_j^{(k)} &= \bm \alpha_j^{(\geq j)} + \bm \delta_{j}^{(k)}, \\
+  \bm \beta_{y, j-1}^{(k)} &= \bm \beta_{y, j-1}^{(\geq j)} + \bm
+  \eta_{j-1}^{(k)},
 \end{align*}
-where $\bm h_j^{(k)} = \big( h_{1j}^{(k)}, \ldots, h_{pj}^{(k)} \big)$
-and $\bm \eta_j^{(k)} = \big( \eta_{y_1,j}^{(k)}, \ldots,
-\eta_{y_{j-1}, j}^{(k)} \big)$ for $k < j$, then $\bm \xi_s = ( \bm
-\xi_{\beta} , \bm \xi_{\alpha})$ could be a group of sensitivity
-parameters, where $\bm \xi_{\beta} = (\bm \beta_j^{(k)}, \bm
-\beta_j^{(\geq j)}, \bm \eta_j^{(k)}), k < j, 2 \leq j \leq J $, and
-$\bm \xi_{\alpha} = (\bm h_j^{(k)}) , k < j, 2 \leq j \leq J$.
+where $\bm \delta_j^{(k)} = \big( \delta_{1j}^{(k)}, \ldots,
+\delta_{pj}^{(k)} \big)$ and $\bm \eta_{j-1}^{(k)} = \big(
+\eta_{y_1,j-1}^{(k)}, \ldots, \eta_{y_{j-1}, j-1}^{(k)} \big)$ for $k
+< j$, then $\bm \xi_s = ( \bm h_j^{(k)} , \bm \eta_{j-1}^{(k)}, \bm
+\delta_j^{(k)})$ could be a group of sensitivity parameters, where $k
+< j, 2 \leq j \leq J $.
 
-\begin{itemize}
-\item \textbf{Frequentist way: }
+When $\bm \xi_s = \bm \xi_{s0} = \bm 0$, MAR holds. If $\bm \xi_s$ is
+fixed at $\bm \xi_s \neq \bm \xi_{s0}$, the missing mechanism is MNAR.
 
-  When $\bm \xi_s = \bm \xi_{s0} = \bm 0$, it yields Molenberghs
-  condition (\ref{eq:molen}), therefore MAR condition satisfies. If
-  $\bm \xi_s$ is fixed at $\bm \xi_s \neq \bm \xi_{s0}$, then
-  Molenberghs condition fails, thus the missing mechanism is missing
-  not at random.
-\item \textbf{Bayesian Framework: }
-
-  We put priors on $(\bm \xi_s, \bm \xi_m)$ ($\bm \xi_m$ are
-  identifiable parameters) as :
-  \begin{displaymath}
-    p(\bm \xi_s, \bm \xi_m) = p(\bm \xi_s) p(\bm \xi_m).
-  \end{displaymath} 
-  If we assume MAR with no uncertainty, the prior of $\bm \xi_s$ is
-  $\pr(\bm \xi_s = \bm 0) = 1$. Sensitivity analysis can be executed
-  through putting a set of priors on $\bm \xi_s$ to check the effect
-  of priors on the posterior inference about quantile regression
-  coefficients $\bm \gamma_{ij}^{\tau}$. For example, if MAR is
-  assumed with uncertainty, priors can be assigned as $\textrm{E}(\bm
-  \xi_s) = \bm \xi_{s0} = \bm 0$ with $\textrm{Var}(\bm \xi_s) \neq
-  \bm 0$. If we assume MNAR with no uncertainty, we can put priors
-  satisfying $\textrm{E}(\bm \xi_s) = \Delta_{\xi}$, where
-  $\Delta_{\xi} \neq \bm 0$ and $\textrm{Var}(\bm \xi_s) = \bm 0$. If
-  MNAR is assumed with uncertainty, then priors could be
-  $\textrm{E}(\bm \xi_s) = \Delta_{\xi}$, where $\Delta_{\xi} \neq \bm
-  0 $ and $\textrm{Var}(\bm \xi_s) \neq \bm 0$.
-\end{itemize}
+For fully Bayesian inference, We put priors on $(\bm \xi_s, \bm
+\xi_m)$ ($\bm \xi_m$ are identifiable parameters) as :
+\begin{displaymath}
+  p(\bm \xi_s, \bm \xi_m) = p(\bm \xi_s) p(\bm \xi_m).
+\end{displaymath}
+If we assume MAR with no uncertainty, the prior of $\bm \xi_s$ is
+$\pr(\bm \xi_s = \bm 0) = 1$. Sensitivity analysis can be executed
+through putting a set of priors on $\bm \xi_s$ to check the effect of
+priors on the posterior inference about quantile regression
+coefficients $\bm \gamma_{ij}^{\tau}$. For example, if MAR is assumed
+with uncertainty, priors can be assigned as $\textrm{E}(\bm \xi_s) =
+\bm \xi_{s0} = \bm 0$ with $\textrm{Var}(\bm \xi_s) \neq \bm 0$. If we
+assume MNAR with no uncertainty, we can put priors satisfying
+$\textrm{E}(\bm \xi_s) = \Delta_{\xi}$, where $\Delta_{\xi} \neq \bm
+0$ and $\textrm{Var}(\bm \xi_s) = \bm 0$. If MNAR is assumed with
+uncertainty, then priors could be $\textrm{E}(\bm \xi_s) =
+\Delta_{\xi}$, where $\Delta_{\xi} \neq \bm 0 $ and $\textrm{Var}(\bm
+\xi_s) \neq \bm 0$.
 
 \subsection{Computation}
 \label{sec:computation}
@@ -322,7 +305,7 @@ parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
     another normal CDF:
     \begin{equation}
       \label{eq:lem}
-      \int \Phi \left( \frac{x-b}{a} \right) d\Phi(x; \mu, \sigma)  = 
+      \int \Phi \left( \frac{x-b}{a} \right) d\Phi(x; \mu, \sigma)  =
       \begin{cases}
         1- \Phi \left( \frac{b-\mu}{\sigma} \big / \sqrt{\frac{a^2}{\sigma^2}+1} \right) & a > 0, \\
         \Phi \left( \frac{b-\mu}{\sigma} \big /
@@ -334,43 +317,27 @@ parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
   \end{lem}
   Proof of \ref{sec:lemma} is in Appendix \ref{sec:proof}.
 
-  To solve equation (\ref{eq:deltaeqn2}), we propose two approaches:
+  To solve equation (\ref{eq:deltaeqn2}), we propose a recursive
+  approaches:
 
-  \begin{enumerate}
-  \item \textbf{Assume first order relationship:} We assume
-    \begin{equation*}
-      \pr (Y_j|S, x, Y_{j-1}, \ldots, Y_1) = \pr (Y_j|S, x, Y_{j-1}).
-    \end{equation*}
-    After obtaining $\Delta_{j-1}$, for each component in equation
-    (\ref{eq:deltaeqn2}),
-    \begin{align*}
-      \pr (Y_j \leq \bm x^T \bm \gamma_j | S = k) & = \int\dots\int
-      \pr (Y_j \leq \bm x^T\bm \gamma_j | S=k, x, Y_{j-1}, \ldots, Y_1)\\
-      & \quad  dF(Y_{j-1}|S=k, Y_{j-2}, \ldots, Y_1)\cdots dF(Y_2|S=s, Y_1),\\
-      & = \int \pr (Y_j \leq \bm x^T \bm \gamma | S=s, x, Y_{j-1})
-      dF(Y_{j-1}|S=k, Y_{j-2}).
-    \end{align*}
+  For the first multiple integral in equation (\ref{eq:deltaeqn2}), apply
+lemma \ref{sec:lemma} once, we have:
+  \begin{align*}
+    \prob (Y_j \leq \bm x^T \bm \gamma_j | S = 1) & = \int\dots\int
+    \prob (Y_j \leq \bm x^T\bm \gamma_j | S=1, \bm x, Y_{j-1}, \ldots, Y_1)\\
+    & \quad  dF(Y_{j-1}|S=1, Y_{j-2}, \ldots, Y_1) \cdots dF(Y_2|S=1, Y_1) d F (Y_1 | S = 1), \\
+& = \int\dots\int
+    \Phi \left( \frac{\bm x^T \bm \gamma_j - \mu_{j|1, \ldots, j-1}(y_{j-1})}{\sigma_{j|1, \ldots, j-1}} \right) \\
+& \quad dF(Y_{j-1}|S=1, Y_{j-2}, \ldots, Y_1) \cdots dF(Y_2|S=1, Y_1) d F (Y_1 | S = 1), \\
+    & = \int\dots\int
+    \Phi \left( \frac{y_{j-2} - b^{*}}{a^{*}} \right)
+dF(Y_{j-2}|S=1, Y_{j-3}, \ldots, Y_1) \cdots d F (Y_1 | S = 1).
+  \end{align*}
 
-    Thus, only one integral is needed. Furthermore, by lemma
-    \ref{sec:lemma} , we can evaluate the above integral analytically
-    in terms of a normal CDF, without using any numerical
-    approximations.
-
-  \item \textbf{Recursive Computation: }
-
-    From equation (\ref{eq:lem}), we can find after single integral,
-    the kernel part is still a normal CDF, but with other
-    coefficients. So recursive simplification can be applied. After
-    recursively applying lemma \ref{sec:lemma} $j - 1$ times, equation
-    (\ref{eq:deltaeqn2}) becomes a closed form in terms of normal CDF
-    analytically without calculating integral numerically, thus it can
-    be solved again using standard numerical root-find method for
-    $\Delta_{ij}$.
-  \end{enumerate}
-
-  Option 2 is exact and does not assume a restrictive first order
-  relationship.  However, it is computational more intensive than
-  option 1.
+  Therefore, by recursively applying lemma \ref{sec:lemma} $j-1$
+  times, each multiple integral in equation (\ref{eq:deltaeqn2}) can
+  be simplified to single normal CDF. Thus it can be solved again
+  using standard numerical root-find method for $\Delta_{ij}$.
 
 \end{itemize}
 
@@ -401,7 +368,7 @@ partial derivatives for each parameter. Because it is computational
 expensive, we compile fortran within R for speed.
 
 Details about the maximization algorithm are presented in the Appendix
-\ref{sec:agda}. 
+\ref{sec:agda}.
 
 \subsubsection{Bayesian Framework}
 \label{sec:bayesian}
@@ -413,7 +380,7 @@ We use a  block Gibbs sampling method to draw samples from the
 posterior distribution. Denote all the parameters (including
 sensitivity parameters) to sample as :
 \begin{displaymath}
-  \bm \xi = \left( \bm \gamma_1, \bm \gamma_2, \ldots, \gamma_J, 
+  \bm \xi = \left( \bm \gamma_1, \bm \gamma_2, \ldots, \gamma_J,
     \bm \beta_{j*}^{(k)}, \bm \alpha_j^{(k)}
     \text{ for } k = 1, \ldots, J, j = 1, \ldots, J \right).
 \end{displaymath}
@@ -452,35 +419,43 @@ implement the algorithm.
 
 \section{Simulation Study}
 \label{sec:simulation}
-In this section, we compared the performance of our proposed 
-model in section \ref{sec:settings}  with the \textit{rq} function in
-\textit{quantreg} R package.
+In this section, we compared the performance of our proposed model in
+section \ref{sec:settings} with the \textit{rq} function in
+\textit{quantreg} R package. The \textit{rq} function minimizes the
+target function $\sum_{i=1}^n \rho_{\tau} (y_i - \bm x_i^T \bm \beta)$
+in terms of $\bm \beta$ and does not assign any distribution
+assumptions, where the loss function $\rho_{\tau} (u) = u(\tau - I(u <
+0))$.
 
-\subsection{MAR}
+We conducted two groups of datasets and tested both approaches under
+MCAR, MAR and MNAR assumptions. The simulation study included 1000
+data sets. Each data set consists 200 bivariate observations $\bm Y_i
+= (Y_{i1}, Y_{i2})$ for $i = 1, \ldots, 200$. $Y_{i1}$ was always
+observed, while some of $Y_{i2}$ were missing. Covariates $x$ were
+sampled from uniform (0,2). We sampled $\bm Y_i$ from:
 
-The simulation study included 1000 data sets. Each data set consists
-200 bivariate observations $\bm Y_i = (Y_{i1}, Y_{i2})$ for $i = 1,
-\ldots, 200$. $Y_{i1}$ was always observed, while some of $Y_{i2}$
-were missing. Covariates $x$ were sampled from uniform (0,2). We
-sampled $\bm Y_i$ from:
-\begin{align*}
-  Y_{i1} |R = 1 & \sim N ( 2 + x, 1 + 0.5x)\\
-  Y_{i2} | R = 1, y_{i1} & \sim N(1 - x - 1/2y_{i1}, 1) \\
-  Y_{i1}| R= 0 & \sim N(-2 - x, 1 + 0.5x) \\
-  Y_{i2}| R= 0, y_{i1} & \sim N(1 - x - 1/2y_{i1}, 1) \\
-  \pr (R = 1) & = 0.5.
-\end{align*}
+\begin{enumerate}
+\item \label{sim:mcar} $ ( Y_{i1}, Y_{i2}) |R = 1 \sim \textrm{N}
+  \big( (1 + x, 1 - x), (\sigma_1 = 1, \rho = 0 , \sigma_2 = 1)
+  \big)$, $ Y_{i1} | R = 0 \sim \textrm{N}(-1-x, 1) $, $ Y_{i2} | R =
+  1 \sim \textrm{N}(1-x, 1) $;
 
-When $R = 0$, $Y_{i2}$ is not observed, so $\pr(Y_{i2}| R = 0,
-y_{i1})$ is not identifiable from observed data. Here we assume the
-distribution of $[Y_{i2} | R = 0, y_{i1}]$ is equal to $[Y_{i2}| R= 1,
-Y_{i1}]$ (MAR).
+\item \label{sim:mar} $ Y_{i1} |R = 1 \sim N ( 2 + x, 1 + 0.5x)$, $
+  Y_{i2} | R = 1, y_{i1} \sim N(1 - x - 1/2y_{i1}, 1) $, $ Y_{i1}| R=
+  0 \sim N(-2 - x, 1 + 0.5x) $, $ Y_{i2}| R= 0, y_{i1} \sim N(1 - x -
+  1/2y_{i1}, 1)$;
 
-By integrating $Y_{i1}|R$ out of $Y_{i2}|R, y_{i1}$, we have
-\begin{align*}
-  Y_{i2} | R = 1 & \sim N( - 3x/2, 5/4 + x/8), \\
-  Y_{i2} | R = 0 & \sim N( 2 - x/2, 5/4 + x/8).
-\end{align*}
+\item \label{sim:mnar} $ ( Y_{i1}, Y_{i2}) |R = 1 \sim \textrm{N}
+  \big( ( 1 + x, 1 - x), (\sigma_1 = 1, \rho = 0 , \sigma_2 = 1)
+  \big)$, $ Y_{i1} | R = 0 \sim \textrm{N}(-1-x, 1) $, $ Y_{i2} | R =
+  1 \sim \textrm{N}(3-x, 1) $.
+\end{enumerate}
+
+For all cases, $\pr (R = 1) = 0.5$.  When $R = 0$, $Y_{i2}$ is not
+observed, so $\pr(Y_{i2}| R = 0, y_{i1})$ is not identifiable from
+observed data. Here we assume the missingness mechanism is MCAR in
+case \ref{sim:mcar}, MAR in case \ref{sim:mar} and MNAR in case
+\ref{sim:mnar}.
 
 Under MAR assumption, we fix sensitivity parameter $\bm \xi_s =
 (0,0,0,0,0)$ as discussed in section \ref{sec:sa} for our proposed
@@ -489,27 +464,73 @@ because only $Y_{i2}| R = 1$ is observed, quantile regression for
 $Y_{i2}$ can only be fit from the information of $Y_{i2}|R = 1$ vs
 $x$.
 
+Under MNAR scenario, we fixed $\bm \xi_s$ at the true value $(2, 0, 0,
+0, 0)$, assuming there was an intercept shift between distribution of
+$Y_{i2}|Y_{i1}, R = 1$ and $Y_{i2}|Y_{i1}$, $R = 0$.
+
 For each dataset in both scenario, we fit quantile regression for
 quantiles $\tau =$ 0.1, 0.3, 0.5, 0.7, 0.9.
 
 Parameter estimations were evaluated by mean squared error (MSE),
 \begin{equation*}
-  \text{MSE} (\gamma_{ij}) = \frac{1}{1000} \sum_{k = 1}^{1000} 
+  \text{MSE} (\gamma_{ij}) = \frac{1}{1000} \sum_{k = 1}^{1000}
   \left( \hat{\gamma}_{ij}^{(k)}  - \gamma_{ij}\right)^2,
 \end{equation*}
 where $\gamma_{ij}$ is the true value for quantile regression
 coefficient, $\hat{\gamma}_{ij}^{(k)}$ is the estimates in $k$-th
 simulated dataset ($(\gamma_{01}, \gamma_{11})$ for $Y_{i1}$,
 $(\gamma_{02}, \gamma_{12})$ for $Y_{i2}$).
- 
+
+Simulation results show estimates from our algorithm are closer to the
+true value for all quantiles from 0.1 to 0.9. Table \ref{tab:sim},
+\ref{tab:simh2} and \ref{tab:sim2} list the MSE for coefficients
+estimates of quantile 0.1, 0.3, 0.5, 0.7, 0.9 under MCAR, MAR and MNAR
+assumptions.  They show that our proposed method has smaller MSE than
+\textit{rq} function in all cases, even if the missingness is
+MCAR. When data are missing at random, our method provides larger
+gains over \textit{rq} method, because \textit{quantreg} does not
+consider the missingness mechanism. The difference in MSE becomes
+larger for the upper quantiles because $Y_2 |R = 0$ tends to be larger
+than $Y_2 | R = 1$; therefore, the \textit{rq} method only using the
+observed $Y_2$ yields larger bias for upper quantile when estimating
+the marginal quantile estimates.  For the same reason, under MNAR
+assumption, 'quantreg' method led to tremendous MSE and our proposed
+method were much closer to the true value.
+
+\begin{table}
+  \renewcommand{\arraystretch}{1.3}
+  \centering
+  \caption{Simulation result: MSE for coefficients estimates of quantiles
+    0.1, 0.3, 0.5, 0.7, 0.9 under MCAR scenario. $(\gamma_{01}, \gamma_{11})$
+    are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$
+    are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq'
+    function in R package 'quantreg'.}
+  \vspace{10pt}
+  \begin{tabular}{rrrrrrrrrrr}
+    \toprule
+    & \multicolumn{ 10}{c}{MAR} \\
+    \cline{2-11}
+    &  \multicolumn{2}{c}{0.1} &  \multicolumn{2}{c}{0.3} &  \multicolumn{2}{c}{0.5}
+    &  \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
+    \cline{2-11}
+    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ \\
+    \hline
+    $\gamma_{01}$ &  0.05 &0.09& 0.04  &0.10 &0.03 &0.24 &0.04 &0.10 &0.05 &0.10 \\
+    $\gamma_{11}$ &  0.03 &0.07&  0.02 &0.08 &0.58 &0.74 &0.03 &0.08 &0.03 &0.07 \\
+    $\gamma_{02}$ & 0.04  &0.12&  0.05 &0.07 &0.04 &0.06 &0.05 &0.07 &0.05 &0.11 \\
+    $\gamma_{12}$ &  0.03 & 0.09& 0.03 &0.05 &0.03 &0.05 &0.03 &0.05 &0.03 &0.09 \\
+    \bottomrule
+  \end{tabular}  \label{tab:sim}
+\end{table}
+
 \begin{table}[ht]
   \renewcommand{\arraystretch}{1.3}
   \centering
   \caption{Simulation result: MSE for coefficients estimates of quantiles
-    0.1, 0.3, 0.5, 0.7, 0.9 under MAR assumptions. $(\gamma_{01}, \gamma_{11})$ 
-    are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$   
-    are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq' 
-    function in R package 'quantreg'.}\label{tab:simh2}  
+    0.1, 0.3, 0.5, 0.7, 0.9 under MAR assumptions. $(\gamma_{01}, \gamma_{11})$
+    are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$
+    are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq'
+    function in R package 'quantreg'.}\label{tab:simh2}
   \vspace{10pt}
   \begin{tabular}{rrrrrrrrrrr}
     \toprule
@@ -520,116 +541,36 @@ $(\gamma_{02}, \gamma_{12})$ for $Y_{i2}$).
     \cline{2-11}
     & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ \\
     \hline
-    $\gamma_{01}$ & 0.09 & 0.15 & 0.12 & 0.19 & 0.11 & 1.08 & 0.16 & 0.19 & 0.10 & 0.15 \\ 
-    $\gamma_{11}$ & 0.09 & 0.15 & 0.07 & 0.19 & 0.14 & 1.19 & 0.08 & 0.20 & 0.10 & 0.15 \\ 
-    $\gamma_{02}$ & 0.08 & 0.27 & 0.07 & 0.59 & 0.06 & 1.08 & 0.12 & 1.75 & 0.24 & 2.92 \\ 
-    $\gamma_{12}$ & 0.06 & 0.17 & 0.05 & 0.13 & 0.06 & 0.33 & 0.07 & 0.75 & 0.09 & 0.96 \\ 
+    $\gamma_{01}$ & 0.09 & 0.15 & 0.12 & 0.19 & 0.11 & 1.08 & 0.16 & 0.19 & 0.10 & 0.15 \\
+    $\gamma_{11}$ & 0.09 & 0.15 & 0.07 & 0.19 & 0.14 & 1.19 & 0.08 & 0.20 & 0.10 & 0.15 \\
+    $\gamma_{02}$ & 0.08 & 0.27 & 0.07 & 0.59 & 0.06 & 1.08 & 0.12 & 1.75 & 0.24 & 2.92 \\
+    $\gamma_{12}$ & 0.06 & 0.17 & 0.05 & 0.13 & 0.06 & 0.33 & 0.07 & 0.75 & 0.09 & 0.96 \\
     \bottomrule
   \end{tabular}
-\end{table}
- 
-Mean squared errors are shown in Table \ref{tab:simh2}. Results show
-that our proposed method has smaller MSE than \textit{rq} function in
-all cases. Since $Y_{i2}$ are missing at random, our method provides
-larger gains over \textit{rq} method, because \textit{quantreg} does
-not consider the missingness mechanism.  The difference in MSE becomes
-larger for the upper quantiles because $Y_2 |R = 0$ tends to be larger
-than $Y_2 | R = 1$; therefore, the \textit{rq} method only using the
-observed $Y_2$ yields larger bias for upper quantile when estimating
-the marginal quantile estimates.
-
-\subsection{MCAR and MNAR}
-
-We also simulated datasets under MCAR and MNAR . For MCAR, We sampled
-$\bm Y_i$ from:
-\begin{align*}
-  \begin{pmatrix}
-    Y_{i1}\\
-    Y_{i2}
-  \end{pmatrix}
-  \Big |R = 1 & \sim N \left(
-    \begin{pmatrix}
-      1 + x\\
-      1 - x
-    \end{pmatrix},
-    \begin{pmatrix}
-      1& 0 \\
-      0 & 1
-    \end{pmatrix} \right), \\
-  Y_{i1} | R = 0 & \sim \textrm{N}(-1-x, 1) , \\
-  \pr (R = 1) & = 0.5.
-\end{align*}
-
-We conducted simulation study under two different situations: MCAR and
-MNAR.  Under MNAR scenario, we fixed $\bm \xi_s$ at the true value
-$(1, 0, 0, 0)$, assuming there was an intercept shift between
-distribution of $Y_{i2}|Y_{i1}, R = 1$ and $Y_{i2}|Y_{i1}$, $R = 0$.
-
-For each dataset in both scenario, we fit quantile regression for
-quantiles $\tau =$ 0.1, 0.3, 0.5, 0.7, 0.9.
-
-Algorithms were evaluated by mean squared error (MSE) as we described
-above.
-
-Simulation results show estimates from our algorithm are closer to the
-true value for all quantiles from 0.1 to 0.9. Table \ref{tab:sim} and
-\ref{tab:sim2} list the MSE for coefficients estimates of quantile
-0.1, 0.3, 0.5, 0.7, 0.9 under MAR and MNAR assumptions. Even for
-extreme quantiles ($\tau = 0.1$ and $\tau = 0.9$), our algorithm
-behave as good as for non-extreme quantile ($\tau = 0.3, 0.5, 0.7$) in
-terms of MSE. Furthermore, 'rq' function did not consider the missing
-mechanism, so under MNAR assumption, 'quantreg' method led to
-tremendous MSE and our proposed method were much closer to the true
-value.
-
-\begin{table}
-  \renewcommand{\arraystretch}{1.3}
-  \centering
-  \caption{Simulation result: MSE for coefficients estimates of quantiles
-    0.1, 0.3, 0.5, 0.7, 0.9 under MCAR scenario. $(\gamma_{01}, \gamma_{11})$ 
-    are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$ 
-    are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq' 
-    function in R package 'quantreg'.}
-  \vspace{10pt}
-  \begin{tabular}{rrrrrrrrrrr}
-    \toprule
-    & \multicolumn{ 10}{c}{MAR} \\
-    \cline{2-11}
-    &  \multicolumn{2}{c}{0.1} &  \multicolumn{2}{c}{0.3} &  \multicolumn{2}{c}{0.5} 
-    &  \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
-    \cline{2-11}
-    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ \\
-    \hline
-    $\gamma_{01}$ &  0.05 &0.09& 0.04  &0.10 &0.03 &0.24 &0.04 &0.10 &0.05 &0.10 \\
-    $\gamma_{11}$ &  0.03 &0.07&  0.02 &0.08 &0.58 &0.74 &0.03 &0.08 &0.03 &0.07 \\ 
-    $\gamma_{02}$ & 0.04  &0.12&  0.05 &0.07 &0.04 &0.06 &0.05 &0.07 &0.05 &0.11 \\ 
-    $\gamma_{12}$ &  0.03 & 0.09& 0.03 &0.05 &0.03 &0.05 &0.03 &0.05 &0.03 &0.09 \\ 
-    \bottomrule
-  \end{tabular}  \label{tab:sim}
 \end{table}
 
 \begin{table}[h]
   \renewcommand{\arraystretch}{1.3}
   \centering
   \caption{Simulation result: MSE for coefficients estimates of quantiles
-    0.1, 0.3, 0.5, 0.7, 0.9 under MNAR scenario. $(\gamma_{01}, \gamma_{11})$ 
-    are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$ 
-    are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq' 
+    0.1, 0.3, 0.5, 0.7, 0.9 under MNAR scenario. $(\gamma_{01}, \gamma_{11})$
+    are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$
+    are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq'
     function in R package 'quantreg'.}
   \vspace{10pt}
   \begin{tabular}{rrrrrrrrrrr}
     \toprule
     & \multicolumn{ 10}{c}{MNAR} \\
     \cline{2-11}
-    &  \multicolumn{2}{c}{0.1} &  \multicolumn{2}{c}{0.3} &  \multicolumn{2}{c}{0.5} 
+    &  \multicolumn{2}{c}{0.1} &  \multicolumn{2}{c}{0.3} &  \multicolumn{2}{c}{0.5}
     &  \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
     \cline{2-11}
     & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ \\
     \hline
     $\gamma_{01}$ & 0.04 &0.09&0.04 &0.10 &0.03 &0.24 &0.04 &0.10 &0.04 &0.10 \\
-    $\gamma_{11}$ & 0.03 &0.07&0.02 &0.08 &0.64 &0.74 &0.03 &0.08 &0.03 &0.07 \\ 
-    $\gamma_{02}$ & 0.04 &0.30&0.05 &0.52 &0.07 &1.06 &0.05 &1.79 &0.05 &2.59 \\ 
-    $\gamma_{12}$ & 0.03 &0.09&0.03 &0.05 &0.03 &0.05 &0.03 &0.05 &0.03 &0.09 \\ 
+    $\gamma_{11}$ & 0.03 &0.07&0.02 &0.08 &0.64 &0.74 &0.03 &0.08 &0.03 &0.07 \\
+    $\gamma_{02}$ & 0.04 &0.30&0.05 &0.52 &0.07 &1.06 &0.05 &1.79 &0.05 &2.59 \\
+    $\gamma_{12}$ & 0.03 &0.09&0.03 &0.05 &0.03 &0.05 &0.03 &0.05 &0.03 &0.09 \\
     \bottomrule
   \end{tabular}  \label{tab:sim2}
 \end{table}
@@ -637,14 +578,28 @@ value.
 
 \section{Real Data Analysis}
 \label{sec:real}
-Here is the analysis for \textit{tours} data. \textit{Weight2} stands
-for weight at 6th month after the baseline measure, and
-\textit{weight3} stands for the one at 18th month after the
-baseline. There were three treatments and two main races in this study
-(Treatment M, Treatment O and Treatment T; Race 1(black) and Race
-3(white)). Weights at 6th month were always observed and some weights
-at 18th month were missing (211 observed out of 224 , 94\%). All
-weights are scaled by 1/100.
+We apply our quantile regression approach on TOURS data from a weight
+management clinical trial \citep{perri2008extended}.  This trial aimed
+to test whether a lifestyle modification program was effective to help
+people to manage their weights in long term. After finishing the
+six-month program, participants were randomly assigned to three
+treatments groups: face-to-face counseling, telephone counseling and
+control group. Their weights were recorded at the beginning of the
+trial as baseline, 6 months ($Y_1$) and 18 months ($Y_2$) after the
+trial separately. In this article, we were interested in the how the
+weights at the sixth month and the eighteenth month changed with
+covariates for various quantiles. The regressors of interest includes
+AGE (PUT RANGE HERE), RACE (black and white). Weights at the sixth
+month ($Y_1$) were always observed and 13 out of 224 observations
+(6\%) contained missing $Y_2$. All weights are scaled by 1/100 for
+computation stability.
+
+We  fitted quantile regression  for bivariate  responses
+$\bm Y_i = (Y_{i1}, Y_{i2})$ together for
+quantiles (5\%, 30\%, 50\%, 70\%, 95\%). Covariates are AGE
+and RACE, and we assume their effects are additive.
+We fit 1,000 bootstraps to obtain the
+95\% confidence intervals.
 
 Figure \ref{fig:tours} is the boxplot of weights vs treatments and
 races.
@@ -657,14 +612,7 @@ races.
     race (black:1, white:3)}
 \end{figure}
 
-Quantile regression models were fitted for responses \textit{weight2}
-and \textit{weight3} together ($\bm Y_i = (Y_{i1}, Y_{i2})$) for
-quantiles (10\%, 30\%, 50\%, 70\%, 90\%). Covariates are treatments
-and races, and we assume their effects are additive. Treatment M and
-Race 1 are baseline references. We fit 1,000 bootstraps to obtain the
-95\% confidence intervals.
-
-Estimates are presented in table \ref{tab:w2}. For \textit{weight2},
+Estimates are presented in Table \ref{tab:w2}. For weight at 18th month,
 quantile estimates show there is no significant difference for three
 treatment group through all the quantiles, because all 95 \%
 confidence intervals include 0. However, when comparing weights from
@@ -682,20 +630,20 @@ significant.
     \vspace{10pt}
     \begin{tabular}{rrrrr}
       \toprule
-      & Intercept         & Trt.O                & Trt.T                & Race.3                \\ 
+      & Intercept         & Trt.O                & Trt.T                & Race.3                \\
       \hline
-      Weight2      &                   &                      &                      &                       \\ 
-      $\tau$ = 0.1 & 0.80 (0.70, 0.86) & 0.01  ( -0.04, 0.07) & -0.01 ( -0.06, 0.06) & -0.13 ( -0.19, -0.04) \\ 
-      $\tau$ = 0.3 & 0.83 (0.79, 0.92) & 0.04  ( -0.02, 0.07) & 0.02  ( -0.04, 0.05) & -0.07 ( -0.16, -0.03) \\ 
-      $\tau$ = 0.5 & 0.85 (0.82, 0.98) & 0.05  ( -0.03, 0.09) & 0.04  ( -0.06, 0.07) & -0.03 ( -0.14, 0.00 ) \\ 
-      $\tau$ = 0.7 & 0.95 (0.89, 1.03) & 0.03  ( -0.02, 0.10) & 0.02  ( -0.04, 0.08) & -0.04 ( -0.12, 0.00 ) \\ 
+      Weight2      &                   &                      &                      &                       \\
+      $\tau$ = 0.1 & 0.80 (0.70, 0.86) & 0.01  ( -0.04, 0.07) & -0.01 ( -0.06, 0.06) & -0.13 ( -0.19, -0.04) \\
+      $\tau$ = 0.3 & 0.83 (0.79, 0.92) & 0.04  ( -0.02, 0.07) & 0.02  ( -0.04, 0.05) & -0.07 ( -0.16, -0.03) \\
+      $\tau$ = 0.5 & 0.85 (0.82, 0.98) & 0.05  ( -0.03, 0.09) & 0.04  ( -0.06, 0.07) & -0.03 ( -0.14, 0.00 ) \\
+      $\tau$ = 0.7 & 0.95 (0.89, 1.03) & 0.03  ( -0.02, 0.10) & 0.02  ( -0.04, 0.08) & -0.04 ( -0.12, 0.00 ) \\
       $\tau$ = 0.9 & 0.98 (0.94, 1.11) & 0.07  ( -0.02, 0.14) & 0.06  ( -0.02, 0.14) & -0.01 ( -0.10, 0.05 ) \\
-      Weight3      &                   &                      &                      &                       \\ 
-      $\tau$ = 0.1 & 0.78 (0.38, 0.84) & -0.01 ( -0.07, 0.06) & -0.04 ( -0.10, 0.04) & -0.13 ( -0.18, -0.02) \\ 
-      $\tau$ = 0.3 & 0.82 (0.78, 0.93) & 0.01  ( -0.04, 0.06) & -0.01 ( -0.07, 0.05) & -0.06 ( -0.16, -0.01) \\ 
-      $\tau$ = 0.5 & 0.88 (0.84, 1.00) & 0.02  ( -0.06, 0.06) & 0.02  ( -0.08, 0.06) & -0.03 ( -0.13, 0.02 ) \\ 
-      $\tau$ = 0.7 & 0.99 (0.92, 1.07) & 0.00  ( -0.05, 0.08) & -0.00 ( -0.07, 0.06) & -0.04 ( -0.12, 0.01 ) \\ 
-      $\tau$ = 0.9 & 1.02 (0.98, 1.16) & 0.05  ( -0.06, 0.11) & 0.04  ( -0.05, 0.12) & 0.00  ( -0.10, 0.06 ) \\ 
+      Weight3      &                   &                      &                      &                       \\
+      $\tau$ = 0.1 & 0.78 (0.38, 0.84) & -0.01 ( -0.07, 0.06) & -0.04 ( -0.10, 0.04) & -0.13 ( -0.18, -0.02) \\
+      $\tau$ = 0.3 & 0.82 (0.78, 0.93) & 0.01  ( -0.04, 0.06) & -0.01 ( -0.07, 0.05) & -0.06 ( -0.16, -0.01) \\
+      $\tau$ = 0.5 & 0.88 (0.84, 1.00) & 0.02  ( -0.06, 0.06) & 0.02  ( -0.08, 0.06) & -0.03 ( -0.13, 0.02 ) \\
+      $\tau$ = 0.7 & 0.99 (0.92, 1.07) & 0.00  ( -0.05, 0.08) & -0.00 ( -0.07, 0.06) & -0.04 ( -0.12, 0.01 ) \\
+      $\tau$ = 0.9 & 1.02 (0.98, 1.16) & 0.05  ( -0.06, 0.11) & 0.04  ( -0.05, 0.12) & 0.00  ( -0.10, 0.06 ) \\
       \bottomrule
     \end{tabular}
   \end{center}
@@ -744,7 +692,7 @@ fit test to check the model fit.
 
 
 
-\appendix 
+\appendix
 \section{Identifiability}
 \label{sec:iden}
 First consider univariate case with two patterns. Suppose $y$ is
@@ -882,7 +830,7 @@ say if there exists $\beta_{11}^{'}$ and $\beta_{10}^{'}$, such that
   \Delta + R_1 + x\beta_x + \beta_{11}y_1 = \Delta^{'} + R_1^{'} + x\beta_{x}^{'} + \beta_{11}^{'}y_1\\
   \Delta - R_1 - x\beta_x + \beta_{10}y_1 = \Delta^{'} - R_1^{'} -
   x\beta_{x}^{'} + \beta_{10}^{'}y_1
-\end{align*} 
+\end{align*}
 still by substracting two equations, we have $R_1 = R_1^{'}$ and
 $\beta_x = \beta_x^{'}$. Considering $\Delta$ is determined by
 integrating out $y_1$, such that matching the two sides of the above
@@ -983,7 +931,7 @@ when $j = 1$,
 
 \end{document}
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: t
-%%% End: 
+%%% End:

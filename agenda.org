@@ -15,8 +15,9 @@
 * 2013-05-16
 
 ** TODO revise paper
-   SCHEDULED: <2013-05-23 Thu 13:00>
+   DEADLINE: <2013-06-03 Mon 15:00> SCHEDULED: <2013-05-23 Thu 13:00>
 ** TODO paper style for polya tree too
+   DEADLINE: <2013-06-03 Mon 15:00>
 
 * 2013-05-07
 
