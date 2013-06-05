@@ -1,4 +1,5 @@
-## Time-stamp: <liuminzhao 06/05/2013 16:16:50>
+#!/bin/Rscript
+## Time-stamp: <liuminzhao 06/05/2013 16:24:50>
 ## bootstrap on tours data
 ## weight2 and weight3
 ## scaled by 1/100
@@ -48,11 +49,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   R <- 1 - as.numeric(is.na(dat$w3))
   y[is.na(y[,2]),2] <- 0
 
-  mod1 <- BiQRGradient(y, R, X, tau = 0.05, method = 'heter2')
-  mod3 <- BiQRGradient(y, R, X, tau = 0.3, method = 'heter2')
-  mod5 <- BiQRGradient(y, R, X, tau = 0.5, method = 'heter2')
-  mod7 <- BiQRGradient(y, R, X, tau = 0.7, method = 'heter2')
-  mod9 <- BiQRGradient(y, R, X, tau = 0.95, method = 'heter2')
+  mod1 <- BiQRGradient(y, R, X, tau = 0.05, niter = 500, method = 'heter2')
+  mod3 <- BiQRGradient(y, R, X, tau = 0.3, niter = 500, method = 'heter2')
+  mod5 <- BiQRGradient(y, R, X, tau = 0.5, niter = 500, method = 'heter2')
+  mod7 <- BiQRGradient(y, R, X, tau = 0.7, niter = 500, method = 'heter2')
+  mod9 <- BiQRGradient(y, R, X, tau = 0.95, niter = 500, method = 'heter2')
 
   coef1 <- mysummary(mod1)
   coef3 <- mysummary(mod3)
