@@ -1,6 +1,6 @@
 c===========================================================
-c$$$  
-C$$$  Time-stamp: <liuminzhao 04/21/2013 15:31:47>
+c$$$
+C$$$  Time-stamp: <liuminzhao 06/05/2013 13:25:21>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c===========================================================
@@ -11,7 +11,7 @@ C        TARGET DELTA EQUATION 1
 CCCCCCCCCCCCCCCCCCCC
 
       SUBROUTINE TargetEqn1H2f(delta,gamma,beta,sigma,tau,p,x,f,xdim)
-      
+
       implicit none
       integer xdim, i
       real*8 delta, gamma(xdim), beta(xdim), sigma(2), tau, p, x(xdim)
@@ -19,7 +19,7 @@ CCCCCCCCCCCCCCCCCCCC
 
 C     OTHER C FUNCTION
       real*8 pnrm
-      
+
 C     TEMP
       real*8 quan, lp
 
@@ -33,8 +33,8 @@ C     TEMP
       f=tau-p*pnrm(quan-delta - lp,0.d0,sigma(1),1,0)-
      &     (1-p)*pnrm(quan-delta+lp,0.d0,sigma(2),1,0)
 
-      return 
-      end 
+      return
+      end
 
 CCCCCCCCCCCCCCCCCCCC
 C     SOLVE DELTA 1
@@ -50,16 +50,16 @@ C     TEMP
 
       real*8 a, b, fa, fb, m, fm, tol
 
-C     INITIAL 
-      
-      a = -100 
-      b = 100 
+C     INITIAL
+
+      a = -100
+      b = 100
       fa = 0
       fb = 0
       m = (a + b)/2
       fm = 0
       tol = 0.00001
-      
+
       sigma(1) = 0
       sigma(2) = 0
 
@@ -91,12 +91,12 @@ C     INITIAL
       end do
 
       root = m
-      return 
-      end 
+      return
+      end
 
 
 CCCCCCCCCCCCCCCCCCCC
-C TARGET EQN FOR DELTA2     
+C TARGET EQN FOR DELTA2
 CCCCCCCCCCCCCCCCCCCC
 
       subroutine targeteqn2h2f(delta2, gamma2, beta1, beta2, h, sigma1,
@@ -126,17 +126,17 @@ CCCCCCCCCCCCCCCCCCCC
       end do
 
       if (beta22 .ne. 0) then
-         p1=pnrm(((-delta2+ gamma2lp+beta2lp
-     &        )/beta22-(delta1+beta1lp ))/
+         p1=pnrm(((-delta2+ gamma2lp
+     &        )/beta22-(delta1+beta1lp))/
      &        sigma1(1)/sqrt(
      &        sigma2(1)**2/
      &        sigma1(1)**2/beta22**2+1),
      &        0.d0,1.d0,1,0)
-      else 
-         p1=pnrm((gamma2lp-delta2+ beta2lp 
+      else
+         p1=pnrm((gamma2lp-delta2
      &        )/sigma2(1), 0.d0, 1.d0, 1, 0)
       end if
-      
+
       if (beta2(3) .ne. 0) then
          p2=pnrm(((-delta2+gamma2lp - beta2lp
      &        )/beta2(3)-(delta1-beta1lp ))/
@@ -147,7 +147,7 @@ CCCCCCCCCCCCCCCCCCCC
       else
          p2=pnrm((gamma2lp -delta2-beta2lp
      &        )/sigma2(2), 0.d0, 1.d0, 1, 0)
-      end if 
+      end if
 
       if (beta22 < 0) then
          p1 = 1 - p1
@@ -159,12 +159,12 @@ CCCCCCCCCCCCCCCCCCCC
 
       f = tau - p * p1 - (1 - p) * p2
 
-      return 
+      return
       end
 
 
 CCCCCCCCCCCCCCCCCCCC
-C SOLVE DELTA2     
+C SOLVE DELTA2
 CCCCCCCCCCCCCCCCCCCC
 
       subroutine solvedelta2h2f(param, tau, x, delta1, root,xdim)
@@ -176,15 +176,15 @@ CCCCCCCCCCCCCCCCCCCC
       real*8 tau, x(xdim), delta1, root
       real*8 a, b, fa, fb, m, fm, tol
       integer i, j
-C     INITIAL 
-      
-      a = -100 
-      b = 100 
+C     INITIAL
+
+      a = -100
+      b = 100
       fa = 0
       fb = 0
       m = (a + b)/2
       fm = 0
-      tol = 0.00001      
+      tol = 0.00001
 
       sigma1(1) = 0
       sigma1(2) = 0
@@ -230,12 +230,12 @@ C     INITIAL
       end do
 
       root = m
-      return 
-      end 
+      return
+      end
 
 
 CCCCCCCCCCCCCCCCCCCC
-C NEGLOGLIKELIHOOD     
+C NEGLOGLIKELIHOOD
 CCCCCCCCCCCCCCCCCCCC
 
       subroutine negloglikelihoodh2(y, R, x, delta1, delta2,
@@ -261,7 +261,7 @@ CCCCCCCCCCCCCCCCCCCC
          beta2(i) = param(5*xdim + i)
          alpha11(i) = param(2*xdim + i)
          alpha01(i) = param(3*xdim + i)
-         alpha12(i) = param(6*xdim + i)         
+         alpha12(i) = param(6*xdim + i)
       end do
       beta2(xdim + 1) = param(8*xdim + 1)
       h = param(8*xdim + 2)
@@ -286,17 +286,17 @@ CCCCCCCCCCCCCCCCCCCC
          if (R(i) .eq. 1) then
             nll=nll+dnrm(y(i,1),delta1(i)+beta1lp
      &           ,exp(sigma1(1)),1)
-     &           +dnrm(y(i,2),delta2(i)-beta2lp + 
+     &           +dnrm(y(i,2),delta2(i)-beta2lp +
      &           y(i,1)*beta22,
      &           exp(sigma2(1)),1)+log(p)
          else
             nll=nll+dnrm(y(i,1),delta1(i)-beta1lp
-     &           ,exp(sigma1(2)),1) 
+     &           ,exp(sigma1(2)),1)
      &           + log(1 - p)
          end if
       end do
       nll = -nll
-      return 
+      return
       end
 
 
@@ -322,7 +322,7 @@ CCCCCCCCCCCCCCCCCCCC
 
       do i = 1, 8*xdim + 3
          if (.not. ((i>5*xdim.and.i.le.6*xdim).or.
-     &        (i>7*xdim.and.i.le.8*xdim).or.i.eq.8*xdim+2)) 
+     &        (i>7*xdim.and.i.le.8*xdim).or.i.eq.8*xdim+2))
      &        then
             do j = 1, 8*xdim+3
                param1(j) = param(j)
@@ -331,7 +331,7 @@ CCCCCCCCCCCCCCCCCCCC
             param1(i) = param(i) + epsilon
             param2(i) = param(i) - epsilon
 
-            do j = 1,n 
+            do j = 1,n
                do k = 1, xdim
                   tmpx(k) = x(j, k)
                end do
@@ -349,15 +349,15 @@ CCCCCCCCCCCCCCCCCCCC
      &           ,param2,n,ll2,xdim)
 
             pp(i) = (ll1 - ll2)/2/epsilon
-         end if 
+         end if
       end do
       return
       end
 
-    
+
 
 CCCCCCCCCCCCCCCCCCCC
-C MAIN FUNCTION     
+C MAIN FUNCTION
 CCCCCCCCCCCCCCCCCCCC
 
       subroutine BiQRGradientH2f(y,R,x,tau,n,niter,param,paramsave,xdim)
@@ -387,7 +387,7 @@ CCCCCCCCCCCCCCCCCCCC
       iter = 1
       nll0 = 0
 
-      do i = 1, niter 
+      do i = 1, niter
          do j = 1, 8*xdim + 4
             paramsave(i, j) = 0
          end do
@@ -405,7 +405,7 @@ CCCCCCCCCCCCCCCCCCCC
                pp(i) = 0
             else if (ppp(i)*pp(i) .eq. 0) then
                if (pp(i) .eq. 0.d0) then
-                  param(i) = param(i) 
+                  param(i) = param(i)
                else
                   param(i) = param(i) - alpha(i)*pp(i)/abs(pp(i))
                end if
@@ -442,18 +442,17 @@ C     PROGRESS BAR
 CCCCCCCCCCCCCCCCCCCC
 
       subroutine progress(j, n)
- 
+
       implicit none
       integer(kind=4) :: j,k,n
       character(len=18) :: bar="\r???% |          |"
- 
+
       write(unit=bar(2:4),fmt="(i3)") 100*j/n
       do k = 1, j*10/n
          bar(7+k:7+k)="*"
       enddo
- 
+
       write(*,'(a)',advance='no') bar
- 
+
       return
       end
-
