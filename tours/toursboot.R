@@ -1,5 +1,5 @@
 #!/bin/Rscript
-## Time-stamp: <liuminzhao 06/05/2013 16:24:50>
+## Time-stamp: <liuminzhao 06/05/2013 16:41:23>
 ## bootstrap on tours data
 ## weight2 and weight3
 ## scaled by 1/100
@@ -16,6 +16,7 @@ TOURS <- read.csv('~/Documents/qrmissing/tours/tours.csv')
 TOURS <- subset(TOURS, RACE==1 | RACE==3)
 weight2 <- TOURS$wtkg2
 weight3 <- TOURS$wtkg3
+age <- TOURS$AGE
 trt <- TOURS$TREATMENT
 race3 <- as.numeric(TOURS$RACE == 3)
 age_center <- (age-mean(age))/sd(age)

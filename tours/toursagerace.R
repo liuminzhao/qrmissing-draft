@@ -1,4 +1,5 @@
-## Time-stamp: <liuminzhao 06/05/2013 16:16:38>
+#!/bin/Rscript
+## Time-stamp: <liuminzhao 06/06/2013 13:29:17>
 ## manipulate data TOURS
 ## 2013/06/05 focus on AGE and RACE
 rm(list=ls())
@@ -88,7 +89,7 @@ library(xtable)
 print(xtable(coefw2))
 print(xtable(coefw3))
 
-write.table(rbind(coefw2, coefw3), 'ageresult.txt')
+write.table(rbind(coefw2, coefw3), 'ageresult.txt', row.names=FALSE)
 
 ####################
 
