@@ -43,9 +43,9 @@ interest as compared to mean regression.  The dependence between upper
 or lower quantiles of the response variable and the covariates
 typically vary differentially relative to that of the mean. This is
 often of interest in econometrics, educational studies, biomedical
-studies, and environment studies (\citep{yu2001},
-\citep{buchinsky1994}, \citep{buchinsky1998}, \citep{he1998},
-\citep{koenker1999}, \citep{wei2006}, \citep{yu2003}). A comprehensive
+studies, and environment studies \citep{yu2001,
+buchinsky1994,buchinsky1998,he1998,
+koenker1999,wei2006,yu2003}. A comprehensive
 review of applications of quantile regression was presented in
 \citep{koenker2005}.
 
@@ -80,8 +80,8 @@ Tree prior in median regression, which is more robust in terms of
 multimodality and skewness. Other recent approaches include quantile
 pyramid priors, mixture of Dirichlet process priors of multivariate
 normal distributions and infinite mixture of Gaussian densities which
-put quantile constraints on the residuals (\citep{hjort2007},
-\citep{hjort2009}, \citep{kottas2009}, \citep{reich2010}).
+put quantile constraints on the residuals \citep{hjort2007,
+hjort2009, kottas2009,reich2010}.
 
 However, above methods focus on complete data without missingness.
 There are few more articles about quantile regression with
@@ -156,26 +156,30 @@ be the densities of response $\bm Y$ given follow-up time $S=k$ and $S
 We adopt a pattern mixture model to deal with missingness.  Without
 loss of clarity, we suppress the subscript $i$ for subject
 $i$. Specify the conditional distribution as:
-\begin{align}
-  & \pr_k(y_1) = \textrm{N} (\Delta_1 + \bm x_1^T \bm \beta_1^{(k)},
-  \exp (\bm x_{1}^T \bm \alpha_1^{(k)} ) ), k = 1, \ldots, J, \label{eq:model}\\
-  &\pr_k(y_j|y_1, \ldots, y_{j-1}) =
-  \begin{cases}
-    \textrm{N} \big (\Delta_j + \bm x_{j}^T \bm h_{j}^{(k)} + \bm
-    y_{1:(j-1)}^T \bm \beta_{y,j-1}^{(k)},
-    \exp (\bm x_{j}^T \bm \alpha_j^{(k)} ) \big), & k < j ;  \nonumber \\
-    \textrm{N} \big (\Delta_j + \bm y_{1:(j-1)}^T \bm
-    \beta_{y,j-1}^{(\geq j)},
-    \exp (\bm x_{j}^T \bm \alpha_j^{(\geq j)} ) \big), & k \geq j ; \nonumber \\
-  \end{cases}, \text{ for } 2 \leq j \leq J, \nonumber \\
-  &S| \bm x_j \sim \textrm{Multinomial}(1, \bm \pi), \nonumber
-\end{align}
-where $\bm \pi = (\pi_1, \ldots, \pi_J)$ could depend on covariates,
-$\bm x_j$ is a $p \times 1$ covariates vector, $\bm y_{1:(j-1)} =
-(y_1, \ldots, y_{j-1})^T, \bm \beta_{y, j-1}^{(k)} = \big(\beta_{y_1,
-  j-1}^{(k)}, \ldots, \beta_{y_{j-1}, j-1}^{(k)} \big)^T$ and $\bm
-\alpha_j^{(k)}$ is a $p \times 1$ vector controlling heterogeneity of
-response component $j$ under follow up time $S = k$.
+\begin{equation}
+  \label{eq:model}
+  \left.  \begin{aligned}
+      & \pr_k(y_1) = \textrm{N} (\Delta_1 + \bm x_1^T \bm \beta_1^{(k)},
+      \exp (\bm x_{1}^T \bm \alpha_1^{(k)} ) ), k = 1, \ldots, J,\\
+      &\pr_k(y_j|\bm y_{j-1}) =
+      \begin{cases}
+        \textrm{N} \big (\Delta_j + \bm x_{j}^T \bm h_{j}^{(k)} + \bm
+        y_{1:(j-1)}^T \bm \beta_{y,j-1}^{(k)},
+        \exp (\bm x_{j}^T \bm \alpha_j^{(k)} ) \big), & k < j ;  \\
+        \textrm{N} \big (\Delta_j + \bm y_{1:(j-1)}^T \bm
+        \beta_{y,j-1}^{(\geq j)},
+        \exp (\bm x_{j}^T \bm \alpha_j^{(\geq j)} ) \big), & k \geq j ;  \\
+      \end{cases}, \text{ for } 2 \leq j \leq J,  \\
+      &S| \bm x_j \sim \textrm{Multinomial}(1, \bm \pi),
+    \end{aligned} \right\}
+\end{equation}
+where $\bm y_{j-1} = (y_1, \ldots, y_{j-1}), \bm \pi = (\pi_1, \ldots,
+\pi_J)$ could depend on covariates, $\bm x_j$ is a $p \times 1$
+covariates vector, $\bm y_{1:(j-1)} = (y_1, \ldots, y_{j-1})^T, \bm
+\beta_{y, j-1}^{(k)} = \big(\beta_{y_1, j-1}^{(k)}, \ldots,
+\beta_{y_{j-1}, j-1}^{(k)} \big)^T$ and $\bm \alpha_j^{(k)}$ is a $p
+\times 1$ vector controlling heterogeneity of response component $j$
+under follow up time $S = k$.
 
 We model the heterogeneity parameters $\bm \alpha_j$ inside the
 exponential because there is no restriction on those heterogeneity
@@ -214,8 +218,8 @@ For identifiability, we need another set of restrictions,
 \begin{align*}
   & \sum_{k=1}^J \beta_{l1}^{(k)} = 0, l = 1,\ldots, p,
 \end{align*}
-where $\bm \beta_1^{(k)} = (\beta_{11}, \ldots,
-\beta_{p1})^{(k)T}$. Further details on these restrictions can be
+where $\bm \beta_1^{(k)} = (\beta_{11}^{(k)}, \ldots,
+\beta_{p1}^{(k)})^{T}$. Further details on these restrictions can be
 found in appendix \ref{sec:iden}.
 
 \subsection{Missing Data Mechanism and Sensitivity Analysis}
@@ -302,7 +306,7 @@ parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
     An integral of a normal CDF with mean $b$ and standard deviation
     $a$ over another normal distribution with mean $\mu$ and standard
     deviation $\sigma$ can be simplified to a closed form in terms of
-    another normal CDF:
+    normal CDF:
     \begin{equation}
       \label{eq:lem}
       \int \Phi \left( \frac{x-b}{a} \right) d\Phi(x; \mu, \sigma)  =
@@ -320,18 +324,18 @@ parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
   To solve equation (\ref{eq:deltaeqn2}), we propose a recursive
   approaches:
 
-  For the first multiple integral in equation (\ref{eq:deltaeqn2}), apply
-lemma \ref{sec:lemma} once, we have:
+  For example, as to the first multiple integral in equation
+  (\ref{eq:deltaeqn2}), apply lemma \ref{sec:lemma} once, we have:
   \begin{align*}
     \prob (Y_j \leq \bm x^T \bm \gamma_j | S = 1) & = \int\dots\int
     \prob (Y_j \leq \bm x^T\bm \gamma_j | S=1, \bm x, Y_{j-1}, \ldots, Y_1)\\
     & \quad  dF(Y_{j-1}|S=1, Y_{j-2}, \ldots, Y_1) \cdots dF(Y_2|S=1, Y_1) d F (Y_1 | S = 1), \\
-& = \int\dots\int
-    \Phi \left( \frac{\bm x^T \bm \gamma_j - \mu_{j|1, \ldots, j-1}(y_{j-1})}{\sigma_{j|1, \ldots, j-1}} \right) \\
-& \quad dF(Y_{j-1}|S=1, Y_{j-2}, \ldots, Y_1) \cdots dF(Y_2|S=1, Y_1) d F (Y_1 | S = 1), \\
     & = \int\dots\int
-    \Phi \left( \frac{y_{j-2} - b^{*}}{a^{*}} \right)
-dF(Y_{j-2}|S=1, Y_{j-3}, \ldots, Y_1) \cdots d F (Y_1 | S = 1).
+    \Phi \left( \frac{\bm x^T \bm \gamma_j - \mu_{j|1, \ldots, j-1}(y_{j-1})}{\sigma_{j|1, \ldots, j-1}} \right) \\
+    & \quad dF(Y_{j-1}|S=1, Y_{j-2}, \ldots, Y_1) \cdots dF(Y_2|S=1, Y_1) d F (Y_1 | S = 1), \\
+    & = \int\dots\int \Phi \left( \frac{y_{j-2} - b^{*}}{a^{*}}
+    \right) dF(Y_{j-2}|S=1, Y_{j-3}, \ldots, Y_1) \cdots d F (Y_1 | S
+    = 1).
   \end{align*}
 
   Therefore, by recursively applying lemma \ref{sec:lemma} $j-1$
@@ -367,6 +371,11 @@ has to be calculated for each subject and component, as well as
 partial derivatives for each parameter. Because it is computational
 expensive, we compile fortran within R for speed.
 
+For an example of 500 bivariate outcomes and 4 covariates, it takes
+about 11 seconds for 70 iterations to get convergence. It is under R
+version 2.15.3 (2013-03-01) \citep{R} and platform:
+x86\_64-apple-darwin9.8.0/x86\_64 (64-bit).
+
 Details about the maximization algorithm are presented in the Appendix
 \ref{sec:agda}.
 
@@ -381,7 +390,7 @@ posterior distribution. Denote all the parameters (including
 sensitivity parameters) to sample as :
 \begin{displaymath}
   \bm \xi = \left( \bm \gamma_1, \bm \gamma_2, \ldots, \gamma_J,
-    \bm \beta_{j*}^{(k)}, \bm \alpha_j^{(k)}
+   \bm h_{j}^{(k)}, \bm \beta_{j,j-1}^{(k)}, \bm \alpha_j^{(k)}
     \text{ for } k = 1, \ldots, J, j = 1, \ldots, J \right).
 \end{displaymath}
 Comma separated parameters are marked to sample as a block in block
@@ -413,24 +422,20 @@ updating parameters are:
   samples are all similar to $\bm \gamma_j$.
 \end{itemize}
 
-Computation is still expensive due to need to calculate $\Delta$ and
-likelihood in each iteration. Compiled language is recommended to
-implement the algorithm.
-
 \section{Simulation Study}
 \label{sec:simulation}
 In this section, we compared the performance of our proposed model in
 section \ref{sec:settings} with the \textit{rq} function in
 \textit{quantreg} R package. The \textit{rq} function minimizes the
-target function $\sum_{i=1}^n \rho_{\tau} (y_i - \bm x_i^T \bm \beta)$
+loss (check) function $\sum_{i=1}^n \rho_{\tau} (y_i - \bm x_i^T \bm \beta)$
 in terms of $\bm \beta$ and does not assign any distribution
 assumptions, where the loss function $\rho_{\tau} (u) = u(\tau - I(u <
 0))$.
 
-We conducted two groups of datasets and tested both approaches under
+We conducted three groups of datasets and tested both approaches under
 MCAR, MAR and MNAR assumptions. The simulation study included 1000
 data sets. Each data set consists 200 bivariate observations $\bm Y_i
-= (Y_{i1}, Y_{i2})$ for $i = 1, \ldots, 200$. $Y_{i1}$ was always
+= (Y_{i1}, Y_{i2})$ for $i = 1, \ldots, 200$. $Y_{i1}$ were always
 observed, while some of $Y_{i2}$ were missing. Covariates $x$ were
 sampled from uniform (0,2). We sampled $\bm Y_i$ from:
 
@@ -451,16 +456,16 @@ sampled from uniform (0,2). We sampled $\bm Y_i$ from:
   1 \sim \textrm{N}(3-x, 1) $.
 \end{enumerate}
 
-For all cases, $\pr (R = 1) = 0.5$.  When $R = 0$, $Y_{i2}$ is not
+For all cases, $\prob (R = 1) = 0.5$.  When $R = 0$, $Y_{i2}$ is not
 observed, so $\pr(Y_{i2}| R = 0, y_{i1})$ is not identifiable from
 observed data. Here we assume the missingness mechanism is MCAR in
 case \ref{sim:mcar}, MAR in case \ref{sim:mar} and MNAR in case
 \ref{sim:mnar}.
 
-Under MAR assumption, we fix sensitivity parameter $\bm \xi_s =
+Under MCAR and MAR assumption, we fix sensitivity parameter $\bm \xi_s =
 (0,0,0,0,0)$ as discussed in section \ref{sec:sa} for our proposed
 model. For \textit{rq} function from \textit{quantreg} R package,
-because only $Y_{i2}| R = 1$ is observed, quantile regression for
+because only $Y_{i2}|R = 1$ is observed, quantile regression for
 $Y_{i2}$ can only be fit from the information of $Y_{i2}|R = 1$ vs
 $x$.
 
@@ -585,76 +590,81 @@ people to manage their weights in long term. After finishing the
 six-month program, participants were randomly assigned to three
 treatments groups: face-to-face counseling, telephone counseling and
 control group. Their weights were recorded at the beginning of the
-trial as baseline, 6 months ($Y_1$) and 18 months ($Y_2$) after the
-trial separately. In this article, we were interested in the how the
-weights at the sixth month and the eighteenth month changed with
+trial as baseline, the 6th month ($Y_1$) and the 18th month ($Y_2$)
+after the trial separately. In this article, we were interested in how
+the weights at the sixth month and the eighteenth month changed with
 covariates for various quantiles. The regressors of interest includes
-AGE (PUT RANGE HERE), RACE (black and white). Weights at the sixth
-month ($Y_1$) were always observed and 13 out of 224 observations
-(6\%) contained missing $Y_2$. All weights are scaled by 1/100 for
+AGE (50-75), RACE (black and white). Weights at the sixth month
+($Y_1$) were always observed and 13 out of 224 observations (6\%)
+contained missing $Y_2$. All weights are scaled by 1/100 for
 computation stability.
 
-We  fitted quantile regression  for bivariate  responses
-$\bm Y_i = (Y_{i1}, Y_{i2})$ together for
-quantiles (5\%, 30\%, 50\%, 70\%, 95\%). Covariates are AGE
-and RACE, and we assume their effects are additive.
-We fit 1,000 bootstraps to obtain the
-95\% confidence intervals.
+We fitted quantile regression for bivariate responses $\bm Y_i =
+(Y_{i1}, Y_{i2})$ together for quantiles (5\%, 30\%, 50\%, 70\%,
+95\%). Covariates are AGE and RACE, and we assume their effects are
+additive.  We fit 1,000 bootstraps to obtain the 95\% confidence
+intervals.
 
-Figure \ref{fig:tours} is the boxplot of weights vs treatments and
-races.
+Figure \ref{fig:tours} is the scatterplot and boxplot of weights vs
+age and races.
 
 \begin{figure}[htb]
   \centerline{\includegraphics[scale =
-    0.6]{/Users/liuminzhao/Documents/qrmissing/tours/weight-plot}}
-  \caption[]{\label{fig:tours} Boxplot of weights at 6th month
-    (weight2) and 18th months (weight3) vs treatments (M, O, T) and
-    race (black:1, white:3)}
+    0.6]{/Users/liuminzhao/Documents/qrmissing/tours/weight-plot-age}}
+  \caption[]{\label{fig:tours} Scatterplot and boxplot of weights at
+    6th month ($Y_1$) and 18th month ($Y_2$) vs Age (50-75)and race
+    (black, white)}
 \end{figure}
 
-Estimates are presented in Table \ref{tab:w2}. For weight at 18th month,
-quantile estimates show there is no significant difference for three
-treatment group through all the quantiles, because all 95 \%
-confidence intervals include 0. However, when comparing weights from
-two races, weights at 6th month from race 3 are generally lower than
-ones from race 1. Estimates of race 3 effect to weights quantiles 10\%
-up to 70\% are all significantly away from zero (negative). However,
-for top weights of two races (90\% quantile), the difference is not
-significant.
+Estimates are presented in Table \ref{tab:w2}. For weights of
+participants after completing the six-month program, quantile
+estimates show that weights of white people are generally lower than
+ones of black people, because for all quantiles, the estimates of race
+are negative. For extreme quantiles (5\% and 95\%), the difference is
+small and not significant . However, when comparing the weights for
+quantiles 30\%, 50\% and 70\%, white people tend to weight less
+ than black people significantly. The discrepancies are 8kg, 7kg, and
+8kg separately. Meanwhile, weights of participants show obvious
+heterogeneity among different ages. Participants tend to have less
+weight when their ages are larger. The trend is for all quantiles, but
+is again small and not significant.
+
 
 \begin{table}[ht]
   \renewcommand{\arraystretch}{1.3}
   \begin{center}
-    \caption{Marginal quantile regression coefficients for
-      Weight2}\label{tab:w2}
+    \caption{Marginal quantile regression coefficients for weight of
+      participants after 6 and 18 months. Weight measurement is scaled
+      by 1/100.}\label{tab:w2}
     \vspace{10pt}
-    \begin{tabular}{rrrrr}
+    \begin{tabular}{rrrr}
       \toprule
-      & Intercept         & Trt.O                & Trt.T                & Race.3                \\
+      & Intercept            & Age(Centered)          & White                  \\
       \hline
-      Weight2      &                   &                      &                      &                       \\
-      $\tau$ = 0.1 & 0.80 (0.70, 0.86) & 0.01  ( -0.04, 0.07) & -0.01 ( -0.06, 0.06) & -0.13 ( -0.19, -0.04) \\
-      $\tau$ = 0.3 & 0.83 (0.79, 0.92) & 0.04  ( -0.02, 0.07) & 0.02  ( -0.04, 0.05) & -0.07 ( -0.16, -0.03) \\
-      $\tau$ = 0.5 & 0.85 (0.82, 0.98) & 0.05  ( -0.03, 0.09) & 0.04  ( -0.06, 0.07) & -0.03 ( -0.14, 0.00 ) \\
-      $\tau$ = 0.7 & 0.95 (0.89, 1.03) & 0.03  ( -0.02, 0.10) & 0.02  ( -0.04, 0.08) & -0.04 ( -0.12, 0.00 ) \\
-      $\tau$ = 0.9 & 0.98 (0.94, 1.11) & 0.07  ( -0.02, 0.14) & 0.06  ( -0.02, 0.14) & -0.01 ( -0.10, 0.05 ) \\
-      Weight3      &                   &                      &                      &                       \\
-      $\tau$ = 0.1 & 0.78 (0.38, 0.84) & -0.01 ( -0.07, 0.06) & -0.04 ( -0.10, 0.04) & -0.13 ( -0.18, -0.02) \\
-      $\tau$ = 0.3 & 0.82 (0.78, 0.93) & 0.01  ( -0.04, 0.06) & -0.01 ( -0.07, 0.05) & -0.06 ( -0.16, -0.01) \\
-      $\tau$ = 0.5 & 0.88 (0.84, 1.00) & 0.02  ( -0.06, 0.06) & 0.02  ( -0.08, 0.06) & -0.03 ( -0.13, 0.02 ) \\
-      $\tau$ = 0.7 & 0.99 (0.92, 1.07) & 0.00  ( -0.05, 0.08) & -0.00 ( -0.07, 0.06) & -0.04 ( -0.12, 0.01 ) \\
-      $\tau$ = 0.9 & 1.02 (0.98, 1.16) & 0.05  ( -0.06, 0.11) & 0.04  ( -0.05, 0.12) & 0.00  ( -0.10, 0.06 ) \\
+      Weight after 6 months                                                         \\
+      5\%  & 0.65  (0.34 , 0.73 ) & -0.03 ( -0.10 , 0.06 ) & -0.02 ( -0.48 , 0.18 ) \\
+      30\% & 0.86  (0.79 , 0.90 ) & -0.02 ( -0.03 , 0.00 ) & -0.08 ( -0.12 , -0.01) \\
+      50\% & 0.92  (0.87 , 0.97 ) & -0.01 ( -0.03 , 0.01 ) & -0.07 ( -0.12 , -0.02) \\
+      70\% & 1.00  (0.94 , 1.05 ) & -0.01 ( -0.04 , 0.02 ) & -0.08 ( -0.13 , -0.01) \\
+      95\% & 1.12  (1.08 , 1.26 ) & -0.01 ( -0.06 , 0.05 ) & -0.03 ( -0.14 , 0.12 ) \\
+      Weight after 18 months                                                        \\
+      5\%  & 0.10  (-0.01, 0.64 ) & -0.00 ( -0.05 , 0.01 ) & -0.02 ( -0.19 , 0.22 ) \\
+      30\% & 0.84  (0.77 , 0.88 ) & -0.02 ( -0.04 , -0.00) & -0.06 ( -0.11 , 0.01 ) \\
+      50\% & 0.92  (0.87 , 0.98 ) & -0.02 ( -0.04 , 0.01 ) & -0.06 ( -0.11 , -0.00) \\
+      70\% & 1.02  (0.94 , 1.06 ) & -0.01 ( -0.04 , 0.02 ) & -0.06 ( -0.12 , 0.01 ) \\
+      95\% & 1.15  (1.09 , 1.25 ) & -0.01 ( -0.05 , 0.04 ) & -0.02 ( -0.13 , 0.05 ) \\
       \bottomrule
     \end{tabular}
   \end{center}
 \end{table}
 
-For weights at 18th month (weight3), we have similar
-conclusions. Confidence intervals of treatment effects on weight3 for
-all quantiles (10\% up to 90\%) include zero. But after 18 months,
-weights of patients from race 3 are significantly lower than ones from
-race 1 only for lower quantiles (10\% to 30\%). They are not
-significantly different for quantiles (50\% to 90\%).
+For weights at 18th month after baseline, we have similar
+conclusions. White people still have less weight than black people for
+all quantiles, but the magnitude is smaller than that at 6th month.
+The differences are 6kg, 6kg and 6kg instead of 8kg, 7kg and 8kg for
+quantiles 30\%, 50\% and 70\%. It still shows a decreasing trend of
+weights over ages.  However, none of them shows significance for the
+weight difference.
 
 \section{Discussion}
 \label{sec:discussion}
@@ -690,158 +700,155 @@ fit test to check the model fit.
 % \bibliographystyle{abbrev}
 \bibliography{qr-missing-reference}
 
-
-
 \appendix
 \section{Identifiability}
 \label{sec:iden}
-First consider univariate case with two patterns. Suppose $y$ is
-univariate and there are two patterns $R = 1$ and $R = 0$.
+First suppose $y$ is univariate and there are two patterns $R = 1$ and
+$R = 0$.
 
 Before going forward to quantile regression, first we consider
 identifiability problem in mean regression.
 
 Consider a pattern mixture model:
-\begin{align*}
-  y | R = 1 & \sim N(\Delta + R_1 , \sigma_1) \\
-  y | R = 0 & \sim N(\Delta + R_0, \sigma_0) \\
-  \prob (R = 1) & = \pi \\
-  E (y ) & = \theta
-\end{align*}
+\begin{align}
+  Y | R = 1 & \sim N(\Delta + \mu_1 , \sigma_1), \label{eq:app1} \\
+  Y | R = 0 & \sim N(\Delta + \mu_0, \sigma_0), \nonumber\\
+  \prob (R = 1) & = \pi, \nonumber\\
+  E (y ) & = \theta. \nonumber
+\end{align}
 Thus by iterated expectation, we have
 \begin{align*}
-  \theta = \Delta + R_1\pi + R_0(1-\pi) \\
-  \Delta = \theta - \pi R_1 - (1 - \pi)R_0
+  \theta = \Delta + \mu_1\pi + \mu_0(1-\pi) , \\
+  \Delta = \theta - \pi \mu_1 - (1 - \pi)\mu_0.
 \end{align*}
-We can see $\Delta$ is deterministic by $\theta, R_1, R_0$. If plugged
-in likelihood, we have
+We can see $\Delta$ is determined by $\theta, \mu_1, \mu_0$. Plugging
+in (\ref{eq:app1}) , we have
 \begin{align*}
-  y | R = 1 & \sim N(\theta + (1 - \pi)R_1 - (1 - \pi)R_0, \sigma_1) \\
-  y | R = 0 & \sim N(\theta - \pi R_1 + \pi R_0, \sigma_0)
+  Y| R = 1 & \sim N(\theta + (1 - \pi)\mu_1 - (1 - \pi)\mu_0, \sigma_1), \\
+  Y| R = 0 & \sim N(\theta - \pi \mu_1 + \pi \mu_0, \sigma_0).
 \end{align*}
-Denote $\xi_1 = (\theta , R_1, R_0)$, and if $\xi_2 = (\theta, R_1+ 1,
-R_0+1)$, both parameters lead to the same distribution of $\pr(y, R) =
-\pr(y|R)\pr(R)$. Therefore, $\xi$ is not identifiable.  If we put
-constraints on $R_1$ and $R_0$, for example $R_0 = -R_1$, then
+Denote $\xi_1 = (\theta , \mu_1, \mu_0)$, and if $\xi_2 = (\theta,
+\mu_1+ c, \mu_0+c)$, both groups of parameters lead to the same
+distribution of $\pr(y, R) = \pr(y|R)\pr(R)$. Therefore, $\xi$ is not
+identifiable.  If we put constraints on $\mu_1$ and $\mu_0$, for
+example $\mu_0 = 0$, then
 \begin{align*}
-  y | R = 1 & \sim N(\theta + 2(1 - \pi)R_1 , \sigma_1) \\
-  y | R = 0 & \sim N(\theta - 2\pi R_1 , \sigma_0)
+  Y | R = 1 & \sim N(\theta + \mu_1 , \sigma_1), \\
+  Y | R = 0 & \sim N(\theta , \sigma_0).
 \end{align*}
-thus it is identifiable. If $\xi_2 \neq \xi_1$ , then $\pr_2(y, R)
-\neq \pr_1(y, R)$.
+Thus $\bm \xi = (\theta, \mu_1)$ is identifiable. If $\xi_2 \neq
+\xi_1$ , then $\pr_2(y, R) \neq \pr_1(y, R)$.
 
-Secondly, we consider quantile regression for pattern mixture model:
+Secondly, we consider quantile regression for a pattern mixture model:
 \begin{align*}
-  y | R = 1 & \sim N(\Delta + R_1 , \sigma_1) \\
-  y | R = 0 & \sim N(\Delta + R_0, \sigma_0) \\
-  \prob (R = 1) & = \pi \\
-  \pr (y \leq \theta ) & = \tau
+  Y | R = 1 & \sim N(\Delta + \mu_1 , \sigma_1) ,\\
+  Y | R = 0 & \sim N(\Delta + \mu_0, \sigma_0) ,\\
+  \prob (R = 1) & = \pi ,\\
+  \pr (Y \leq \theta ) & = \tau,
 \end{align*}
-where $\theta$ is the quantile estimate of interest and we does not
-include covariates so far. We will show $\bm \xi = (\theta, R_1, R_0)
-$ is not identifiable.
+where $\theta$ is the quantile estimate of interest . We again show
+$\bm \xi = (\theta, \mu_1, \mu_0) $ is not identifiable.
 
-Again by iterated expectation, we have
+Again by iterated expectations, we have
 \begin{align*}
-  \tau = \pi \Phi \left( \frac{\theta - \Delta - R_1}{\sigma_1}
+  \tau = \pi \Phi \left( \frac{\theta - \Delta - \mu_1}{\sigma_1}
   \right) + (1 - \pi) \Phi \left( \frac{\theta - \Delta -
-      R_0}{\sigma_0} \right)
+      \mu_0}{\sigma_0} \right).
 \end{align*}
-thus $\Delta$ is again deterministic by other parameters:
+Thus $\Delta$ is again determined by the other parameters:
 \begin{align*}
-  \Delta = h(\theta, R_1, R_0, \sigma_1, \sigma_0 , \pi, \tau)
+  \Delta = h(\theta, \mu_1, \mu_0, \sigma_1, \sigma_0 , \pi, \tau).
 \end{align*}
-To show $\bm \xi = (\theta, R_1, R_0, \sigma_1, \sigma_0)$ is not
+To show $\bm \xi = (\theta, \mu_1, \mu_0, \sigma_1, \sigma_0)$ is not
 identifiable, we need to find $\bm \xi^{'} \neq \bm \xi$, such that
 $\pr(y|R) = \pr^{'}(y|R)$. If the last equation holds, then we must
 have $\sigma_1^{'} = \sigma_1, \sigma_0^{'} = \sigma_0$, thus we still
-need to find $\theta^{'} , R_1^{'}, R_0^{'}$ such that
+need to find $\theta^{'} , \mu_1^{'}, \mu_0^{'}$ such that
 \begin{align*}
-  h(\bm \xi) + R_1 & = h(\bm \xi^{'}) + R_1^{'} \\
-  h(\bm \xi) + R_0 & = h(\bm \xi^{'}) + R_0^{'}
+  h(\bm \xi) + \mu_1 & = h(\bm \xi^{'}) + \mu_1^{'} ,\\
+  h(\bm \xi) + \mu_0 & = h(\bm \xi^{'}) + \mu_0^{'}.
 \end{align*}
-By substracting previous equations, we have $R_1^{'}- R_0^{'} = R_1-
-R_0$, thus denote $R_1^{'} = R_1 + \delta$ and $R_0^{'} = R_0 +
-\delta$, and let $\theta^{'} = \theta$ such that
+By substracting previous equations, we have $\mu_1^{'}- \mu_0^{'} =
+\mu_1- \mu_0$. Denote $\mu_1^{'} = \mu_1 + \delta$ and $\mu_0^{'} =
+\mu_0 + \delta$, and let $\theta^{'} = \theta$ such that
 \begin{align*}
-  \Delta^{'} = h(\theta^{'}, R_1, R_0, \sigma_1, \sigma_0, \delta) =
-  h(\bm \xi) - \delta = \Delta - \delta
+  \Delta^{'} = h(\theta^{'}, \mu_1, \mu_0, \sigma_1, \sigma_0, \delta)
+  = h(\bm \xi) - \delta = \Delta - \delta.
 \end{align*}
-then the new parameter $\bm \xi^{'}$ yields the same distribution with
-one from $\bm \xi$. Therefore $\bm \xi$ is not identifiable.
+Then the new parameter $\bm \xi^{'}$ yields the same distribution as
+$\bm \xi$. Therefore $\bm \xi$ is not identifiable.
 
-Instead, if we put constraint, for example $R_1 = -R_0$, then by
-calculation, $\pr(y|R;\bm \xi) = \pr(y|R; \bm \xi^{'})$ yields $\bm
-\xi = \bm \xi^{'}$.
+If we use a constraint, for example $\mu_1 = -\mu_0$, then
+$\pr(y|R;\bm \xi) = \pr(y|R; \bm \xi^{'})$ yields $\bm \xi = \bm
+\xi^{'}$.
 
-Now consider the case with covariates. Suppose the model is
+Now consider the situation with covariates. Suppose the model is
 \begin{align*}
-  y | R = 1, x & \sim N(\Delta + R_1 + \beta_{x1} x , \sigma_1) \\
-  y | R = 0, x & \sim N(\Delta - R_1 + \beta_{x0} x, \sigma_0) \\
-  \prob (R = 1) & = \pi \\
-  \pr (y \leq \gamma_0 + \gamma_1 x ) & = \tau
+  Y | R = 1, x & \sim N(\Delta + \mu_1 + \beta_{x1} x , \sigma_1) ,\\
+  Y | R = 0, x & \sim N(\Delta - \mu_1 + \beta_{x0} x, \sigma_0) ,\\
+  \prob (R = 1) & = \pi ,\\
+  \pr (Y \leq \gamma_0 + \gamma_1 x ) & = \tau.
 \end{align*}
-Still $\Delta$ can be determined by
+$\Delta$ can still be determined by
 \begin{align*}
-  \Delta = h(x, \gamma_0, \gamma_1, R_1, \beta_{x1}, \beta_{x0},
-  \sigma_1, \sigma_0, \pi , \tau)
+  \Delta = h(x, \gamma_0, \gamma_1, \mu_1, \beta_{x1}, \beta_{x0},
+  \sigma_1, \sigma_0, \pi , \tau).
 \end{align*}
-We want to show parameter $\bm \xi = (\gamma_0, \gamma_1, R_1,
+We want to show the parameter $\bm \xi = (\gamma_0, \gamma_1, \mu_1,
 \beta_{x1}, \beta_{x0}, \sigma_1, \sigma_0, \pi )$ is not identifiable
 by finding $\bm \xi^{'} \neq \bm \xi$, but $\pr (y | R; \bm \xi) = \pr
-(y | R; \bm \xi^{'})$. Still if the last equation holds, first we have
-$\sigma_1^{'} = \sigma_1, \sigma_0^{'} = \sigma_0$, then to equate the
+(y | R; \bm \xi^{'})$. If the last equation holds, we have
+$\sigma_1^{'} = \sigma_1, \sigma_0^{'} = \sigma_0$, and to equate the
 two means, we have
 \begin{align*}
-  \Delta + R_1 + \beta_{x1} x & = \Delta^{'} + R_1^{'} + \beta_{x1}^{'}x \\
-  \Delta - R_1 + \beta_{x0} x & = \Delta^{'} - R_1^{'} +
-  \beta_{x0}^{'}x
+  \Delta + \mu_1 + \beta_{x1} x & = \Delta^{'} + \mu_1^{'} + \beta_{x1}^{'}x ,\\
+  \Delta - \mu_1 + \beta_{x0} x & = \Delta^{'} - \mu_1^{'} +
+  \beta_{x0}^{'}x.
 \end{align*}
 By substracting the two equations, we have
 \begin{align*}
-  2R_1 + (\beta_{x1} - \beta_{x0}) x = 2R_1^{'} + (\beta_{x1}^{'} -
-  \beta_{x0}^{'}) x
+  2\mu_1 + (\beta_{x1} - \beta_{x0}) x = 2\mu_1^{'} + (\beta_{x1}^{'}
+  - \beta_{x0}^{'}) x,
 \end{align*}
-which holds for all $x$. Thus $R_1 = R_1^{'}$ and $(\beta_{x1} -
+which holds for all $x$. Thus $\mu_1 = \mu_1^{'}$ and $(\beta_{x1} -
 \beta_{x0}) = (\beta_{x1}^{'} - \beta_{x0}^{'})$. Then let
 \begin{align*}
-  \beta_{x1}^{'} =  \beta_{x1} + \delta\\
-  \beta_{x0}^{'} = \beta_{x0} + \delta
+  \beta_{x1}^{'} =  \beta_{x1} + \delta, \\
+  \beta_{x0}^{'} = \beta_{x0} + \delta,
 \end{align*}
-and all the other parameters in $\bm \xi^{'}$ keep the same, we can
+and keep all the other parameters in $\bm \xi^{'}$ the same. We can
 still have the same distribution of $y|R; \bm \xi$ but with different
-$\bm \xi$. Therefore, $\bm \xi$ is not identifiable, especially for
-$\beta_{x1} $ and $\beta_{x0}$. One solution is to restrict
-$\beta_{x1} = - \beta_{x0}$ to make all the parameters identifiable.
+$\bm \xi$. Therefore, $\bm \xi$ is not identifiable One solution is to
+restrict $\beta_{x1} = - \beta_{x0}$ or $\beta_{x1} = 0$.
 
 Now consider the bivariate $(y_1, y_2)$ case, and we focus on the
-identifiability issue especially on $y_2|y_1$. Suppose the model is
+identifiability issue especially $y_2|y_1$. Suppose the model is
 \begin{align*}
-  y_2 | y_1, x, R = 1 \sim N(\Delta + R_1 + x\beta_{x1} + \beta_{11}y_1, \sigma_1) \\
-  y_2 | y_1, x, R = 0 \sim N(\Delta - R_1 - x\beta_{x1} +
-  \beta_{10}y_1, \sigma_0)
+  Y_2 | y_1, x, R = 1 \sim N(\Delta + \mu_1 + x\beta_{x1} + \beta_{11}y_1, \sigma_1), \\
+  Y_2 | y_1, x, R = 0 \sim N(\Delta - \mu_1 - x\beta_{x1} +
+  \beta_{10}y_1, \sigma_0).
 \end{align*}
 Here $R$ stands for two different patterns, and missingness is not
 considered.
 
-we are wondering if $\beta_{11}$ and $\beta_{10}$ are identifiable,
-say if there exists $\beta_{11}^{'}$ and $\beta_{10}^{'}$, such that
+Regarding the identifiability of $\beta_{11}$ and $\beta_{10}$ ,
+assume there exists $\beta_{11}^{'}$ and $\beta_{10}^{'}$, such that
 \begin{align*}
-  \Delta + R_1 + x\beta_x + \beta_{11}y_1 = \Delta^{'} + R_1^{'} + x\beta_{x}^{'} + \beta_{11}^{'}y_1\\
-  \Delta - R_1 - x\beta_x + \beta_{10}y_1 = \Delta^{'} - R_1^{'} -
-  x\beta_{x}^{'} + \beta_{10}^{'}y_1
+  \Delta + \mu_1 + x\beta_x + \beta_{11}y_1 = \Delta^{'} + \mu_1^{'} + x\beta_{x}^{'} + \beta_{11}^{'}y_1, \\
+  \Delta - \mu_1 - x\beta_x + \beta_{10}y_1 = \Delta^{'} - \mu_1^{'} -
+  x\beta_{x}^{'} + \beta_{10}^{'}y_1.
 \end{align*}
-still by substracting two equations, we have $R_1 = R_1^{'}$ and
-$\beta_x = \beta_x^{'}$. Considering $\Delta$ is determined by
-integrating out $y_1$, such that matching the two sides of the above
-equation for coefficient of $y_1$, we must have $\beta_{11} =
-\beta_{11}^{'}$ and $\beta_{10} = \beta_{10}^{'}$, therefore, $\bm
-\xi$ is identifiable.
+By substracting two equations, we have $\mu_1 = \mu_1^{'}$ and
+$\beta_x = \beta_x^{'}$. Since $\Delta$ is determined by integrating
+out $y_1$, such that matching the two sides of the above equation for
+coefficient of $y_1$, we must have $\beta_{11} = \beta_{11}^{'}$ and
+$\beta_{10} = \beta_{10}^{'}$, therefore, $\bm \xi$ is identifiable.
 
-For identifiability issue in heterogeneous model described in section
-[ref], it is easy to show there is no trouble with heterogeneity
-parameters $\alpha$, analog to the linear model case. For the other
-parameters, it can be found similar to the above discussion.
+For identifiability issue with the heterogeneous model described in
+section \ref{sec:settings}, it is easy to show there is no trouble
+with the heterogeneity parameters $\alpha$, analogous to the linear
+model case. For the other parameters, it can be found similar to the
+above development.
 
 \section{Proof of Lemma \ref{sec:lemma}}
 \label{sec:proof}
