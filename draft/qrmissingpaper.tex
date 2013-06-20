@@ -37,97 +37,90 @@
 
 \section{Introduction}
 
-Quantile regression is a simple way to study the relationship between
+Quantile regression is used to study the relationship between a
 response and covariates when one (or several) quantiles are of
-interest as compared to mean regression.  The dependence between upper
-or lower quantiles of the response variable and the covariates
-typically vary differentially relative to that of the mean. This is
-often of interest in econometrics, educational studies, biomedical
-studies, and environment studies \citep{yu2001,
-buchinsky1994,buchinsky1998,he1998,
-koenker1999,wei2006,yu2003}. A comprehensive
-review of applications of quantile regression was presented in
-\citep{koenker2005}.
+interest as opposed to mean regression.  The dependence between upper
+or lower quantiles of the response variable and the covariates often
+vary differentially relative to that of the mean. How quantiles depend
+on covariates is of interest in econometrics, educational studies,
+biomedical studies, and environment studies \citep{yu2001,
+  buchinsky1994,buchinsky1998,he1998, koenker1999,wei2006,yu2003}. A
+comprehensive review of applications of quantile regression was
+presented in \citet{koenker2005}.
 
-Unlike mean regression, quantile regression is more robust to outliers
-and provides more information about how covariates affect
-quantiles. For example, as a summary statistic of data, median is more
-robust than the mean in the presence of outliers.  In addition, mean
-regression only focus on the change of covariates on the mean, while
-quantile regression can offer a more complete description of the
-conditional distribution of the response. Different effects of
-covariates can be assumed for different quantiles.
+Quantile regression is more robust to outliers than mean regression
+and provides information about how covariates affect quantiles, which
+offers a more complete description of the conditional distribution of
+the response. Different effects of covariates can be assumed for
+different quantiles.
 
 The traditional frequentist approach was proposed by
-\citep{koenker1978} for a single quantile with estimators derived by
+\citet{koenker1978} for a single quantile with estimators derived by
 minimizing a loss function. The popularity of this approach is due to
 its computational efficiency, well-developed asymptotic properties,
 and straightforward extensions to simultaneous quantile regression and
 random effect models. However, asymptotic inference may not be
-accurate for small sample sizes.
+accurate for small sample sizes and not naturally extend to missing
+data.
 
-Bayesian approaches offer exact inference. Motivated by the loss
-(check) function, \citep{yu2001} proposed an asymmetric Laplace
-distribution for the error term, such that maximizing the posterior
-distribution is equivalent to minimizing the check function. Other
-than parametric Bayesian approaches, some semiparametric methods have
-been proposed for median regression. \citep{walker1999} used a diffuse
-finite \polya{} Tree prior for the error term. \citep{kottas2001}
-modeled the error by two families of median zero distribution using a
-mixture Dirichlet process priors, which is very useful for unimodal
-error distributions. \citep{hanson2002} adopted mixture of \polya{}
-Tree prior in median regression, which is more robust in terms of
+Bayesian approaches offer exact inference in small samples. Motivated
+by the loss (check) function, \citet{yu2001} proposed an asymmetric
+Laplace distribution for the error term, such that maximizing the
+posterior distribution is equivalent to minimizing the check function.
+Semiparametric methods have been proposed for median
+regression. \citet{walker1999} used a diffuse finite \polya{} Tree
+prior for the error term. \citet{kottas2001} modeled the error by two
+families of median zero distribution using a mixture Dirichlet process
+priors, which is very useful for unimodal error
+distributions. \citet{hanson2002} adopted mixture of \polya{} Tree
+prior in median regression, which is more robust in terms of
 multimodality and skewness. Other recent approaches include quantile
 pyramid priors, mixture of Dirichlet process priors of multivariate
 normal distributions and infinite mixture of Gaussian densities which
-put quantile constraints on the residuals \citep{hjort2007,
-hjort2009, kottas2009,reich2010}.
+put quantile constraints on the residuals \citep{hjort2007, hjort2009,
+  kottas2009,reich2010}.
 
-However, above methods focus on complete data without missingness.
-There are few more articles about quantile regression with
-missingness.  \citep{yuan2010} introduced a Bayesian quantile
-regression approach for longitudinal data with nonignorable missing
-data. They used random effects to explain the within-subject
-correlation and applied a $l_2$ penalty in the traditional quantile
-regression check function to shrink toward the common population
-values. However, the quantile regression coefficients are conditional
-on the random effects, which is not of interest if we are looking into
-the marginal relationship.  \citep{wei2012} proposed a multiple
-imputation method for quantile regression model when there are some
-covariates missing at random. They impute the missing covariates by
-specifying the its conditional density given observed covariates and
-outcomes, which comes from the estimated conditional quantile
-regression and specification of conditional density of missing
-covariates given observed ones.  Therefore, their model fully use the
-whole dataset and have more efficiency. However, they put more focus
-on the missing covariates rather than missing outcomes, which is of
-more interested.  \cite{bottai2013} illustrated a new imputation
-method by estimated conditional quantiles of missing outcomes given
-observed data. Their approach does not make distribution
-assumptions. Their method also has advantages as robustness to
-outliers and invariance to transformations.  \citep{roy2008} proposed
-a pattern mixture model for data with nonignorable dropout, which
-borrowed idea from \citep{heagerty1999}.  But their methods examine
-the marginal covariate effects on the mean. We will use these ideas
-for quantile regression models.
+The above methods focus on complete data without missingness.  There
+are a few more articles about quantile regression with missingness.
+\citet{yuan2010} introduced a Bayesian quantile regression approach
+for longitudinal data with nonignorable missing data. They used random
+effects to explain the within-subject correlation and applied a $l_2$
+penalty in the traditional quantile regression check function to
+shrink toward the common population values. However, the quantile
+regression coefficients are conditional on the random effects, which
+is not of interest if we are looking into the marginal relationship.
+\citet{wei2012} proposed a multiple imputation method for quantile
+regression model when there are some covariates missing at
+random. They impute the missing covariates by specifying the its
+conditional density given observed covariates and outcomes, which
+comes from the estimated conditional quantile regression and
+specification of conditional density of missing covariates given
+observed ones.  However, they put more focus on the missing covariates
+rather than missing outcomes.  \citet{bottai2013} illustrated a new
+imputation method by estimated conditional quantiles of missing
+outcomes given observed data. Their approach does not make
+distribution assumptions. Their method also has advantages as
+robustness to outliers and invariance to transformations.
+\citet{roy2008} proposed a pattern mixture model for data with
+nonignorable dropout, which borrowed idea from \citet{heagerty1999}.
+But their methods examine the marginal covariate effects on the
+mean. We will use these ideas for quantile regression models.
 
-
-
-The structure of this article is as below: first, we introduce a
-quantile regression methods to deal with monotone nonignorable dropout
-in general case in section \ref{sec:model}, including sensitivity
-analysis and computational details.  We use simulation studies to
-demonstrate the performance of our algorithm in section
-\ref{sec:simulation}. We apply our approach on data from a recent
-clinical trial in section \ref{sec:real}. Finally, discussion and
-conclusions are in section \ref{sec:discussion}.
+The structure of this article is as follows. First, we introduce a
+quantile regression method to address monotone nonignorable dropout
+missingness in section \ref{sec:model}, including sensitivity analysis
+and computational details.  We use simulation studies to evaluate the
+performance of the model in section \ref{sec:simulation}. We apply our
+approach to data from a recent clinical trial in section
+\ref{sec:real}. Finally, discussion and conclusions are in section
+\ref{sec:discussion}.
 
 \section{Model}
 \label{sec:model}
 
-In this section, we first introduce some notations on monotone
-dropout, then describe our proposed quantile regression model in
-section \ref{sec:settings}. We provide more details on MAR and MNAR
+In this section, we first introduce some notation
+, then describe our proposed quantile regression model in
+section \ref{sec:settings}. We provide details on MAR and MNAR
 and computation in sections \ref{sec:sa} and \ref{sec:computation}.
 
 Under monotone dropout, without loss of generality, denote $S_i \in
@@ -153,68 +146,64 @@ be the densities of response $\bm Y$ given follow-up time $S=k$ and $S
 
 \subsection{Mixture Model Specification}
 \label{sec:settings}
-We adopt a pattern mixture model to deal with missingness.  Without
-loss of clarity, we suppress the subscript $i$ for subject
-$i$. Specify the conditional distribution as:
+We adopt a pattern mixture model to jointly model the response and
+missingness.  Let the subscript $i$ stand for subject $i$. Specify the
+conditional distribution as:
 \begin{equation}
   \label{eq:model}
   \left.  \begin{aligned}
-      & \pr_k(y_1) = \textrm{N} (\Delta_1 + \bm x_1^T \bm \beta_1^{(k)},
-      \exp (\bm x_{1}^T \bm \alpha_1^{(k)} ) ), k = 1, \ldots, J,\\
-      &\pr_k(y_j|\bm y_{j-1}) =
+      & \pr_k(y_{i1}) = \textrm{N} (\Delta_{i1} + \bm x_{i1}^T \bm \beta_1^{(k)},
+      \exp (\bm x_{i1}^T \bm \alpha_1^{(k)} ) ), k = 1, \ldots, J,\\
+      &\pr_k(y_{ij}|\bm y_{i1:i(j-1)}) =
       \begin{cases}
-        \textrm{N} \big (\Delta_j + \bm x_{j}^T \bm h_{j}^{(k)} + \bm
-        y_{1:(j-1)}^T \bm \beta_{y,j-1}^{(k)},
-        \exp (\bm x_{j}^T \bm \alpha_j^{(k)} ) \big), & k < j ;  \\
-        \textrm{N} \big (\Delta_j + \bm y_{1:(j-1)}^T \bm
+        \textrm{N} \big (\Delta_{ij} + \bm x_{ij}^T \bm h_{j}^{(k)} +
+        \bm y_{i1:i(j-1)}^T \bm \beta_{y,j-1}^{(k)},
+        \exp (\bm x_{ij}^T \bm \alpha_j^{(k)} ) \big), & k < j ;  \\
+        \textrm{N} \big (\Delta_{ij} + \bm y_{i1:i(j-1)}^T \bm
         \beta_{y,j-1}^{(\geq j)},
-        \exp (\bm x_{j}^T \bm \alpha_j^{(\geq j)} ) \big), & k \geq j ;  \\
+        \exp (\bm x_{ij}^T \bm \alpha_j^{(\geq j)} ) \big), & k \geq j ;  \\
       \end{cases}, \text{ for } 2 \leq j \leq J,  \\
-      &S| \bm x_j \sim \textrm{Multinomial}(1, \bm \pi),
+      &S_{ij} = k| \bm x_{ij} \sim \textrm{Multinomial}(1, \bm \pi),
     \end{aligned} \right\}
 \end{equation}
-where $\bm y_{j-1} = (y_1, \ldots, y_{j-1}), \bm \pi = (\pi_1, \ldots,
-\pi_J)$ could depend on covariates, $\bm x_j$ is a $p \times 1$
-covariates vector, $\bm y_{1:(j-1)} = (y_1, \ldots, y_{j-1})^T, \bm
+where $\bm y_{i1:i(j-1)} = (y_{i1}, \ldots, y_{i(j-1)})^T, \bm \pi =
+(\pi_1, \ldots, \pi_J)$,$\bm h_j^{(k)} = (h_{j1}^{(k)}, \ldots,
+h_{jp}^{(k)})$, $\bm x_j$ is a $p \times 1$ covariate vector, $\bm
 \beta_{y, j-1}^{(k)} = \big(\beta_{y_1, j-1}^{(k)}, \ldots,
 \beta_{y_{j-1}, j-1}^{(k)} \big)^T$ and $\bm \alpha_j^{(k)}$ is a $p
-\times 1$ vector controlling heterogeneity of response component $j$
-under follow up time $S = k$.
+\times 1$ vector controlling heterogeneity of conditional variance of
+response component $j$.
 
-We model the heterogeneity parameters $\bm \alpha_j$ inside the
-exponential because there is no restriction on those heterogeneity
-parameters, therefore it is computationally more stable under both
-frequentist and Bayesian framework.
-
-In (\ref{eq:model}) , $\Delta_j$ are functions of $\tau, \bm x_j$ and
-other parameters and are determined by
+In (\ref{eq:model}), $\Delta_{ij}$ are functions of $\tau, \bm
+x_{ij}, \bm \alpha_j$ and other parameters and are determined by the
+marginal quantile regressions,
 \begin{align}
   \label{eq:deltaeqn1}
-  \tau = \prob (Y_j \leq \bm x_j^T \bm \gamma_j ) = \sum_{k=1}^J
-  \pi_k\prob_k (Y_j \leq \bm x_j^T \bm \gamma_j ),
+  \tau = \prob (Y_{ij} \leq \bm x_{ij}^T \bm \gamma_j ) = \sum_{k=1}^J
+  \pi_k\prob_k (Y_{ij} \leq \bm x_{ij}^T \bm \gamma_j ),
 \end{align}
 for $j = 1$ and
 \begin{align}\label{eq:deltaeqn2}
-  \tau &= \prob (Y_j \leq \bm x_j^{T} \bm \gamma_j ) = \sum_{k=1}^J
-  \pi_k\prob_k (Y_j \leq \bm x_j^{T} \bm \gamma_j ) \\
-  & = \sum_{k=1}^J \pi_k \int\cdots \int \prob_k (Y_j \leq \bm x_j^{T}
-  \bm \gamma_j |y_1,\ldots,
-  y_{j-1}) \pr_k (y_{j-1}| y_1, \ldots, y_{j-2})  \nonumber \\
-  & \quad \cdots \pr_k (y_{2}| y_1) \pr_k(y_1) dy_{j-1}\cdots
-  dy_1. \nonumber
+  \tau &= \prob (Y_{ij} \leq \bm x_{ij}^{T} \bm \gamma_j ) =
+  \sum_{k=1}^J
+  \pi_k\prob_k (Y_{ij} \leq \bm x_{ij}^{T} \bm \gamma_j ) \\
+  & = \sum_{k=1}^J \pi_k \int\cdots \int \prob_k (Y_{ij} \leq \bm
+  x_{ij}^{T} \bm \gamma_j |y_{i1},\ldots,
+  y_{i(j-1)}) \pr_k (y_{i(j-1)}| y_{i1}, \ldots, y_{i(j-2)})  \nonumber \\
+  & \quad \cdots \pr_k (y_{i2}| y_{i1}) \pr_k(y_{i1})
+  dy_{i(j-1)}\cdots dy_{i1}. \nonumber
 \end{align}
 for $j = 2, \ldots, J$. More computational details will be given in
 section \ref{sec:computation}.
 
-The idea is to model the marginal quantile regression coefficients
-directly, then to involve them in the likelihood through restrictions
-in the mixture model, and finally to estimate them using likelihood
-methods. The mixture patterns and heterogeneity between subjects allow
-the marginal quantile regression coefficients to differ by quantiles
-. Otherwise, the quantile lines would be parallel to each other for
-different quantiles.
+The idea is to model the marginal quantile regressions directly, then
+to embed them in the likelihood through restrictions in the mixture
+model. The mixture model and heterogeneity of variance between
+subjects allows the marginal quantile regression coefficients to
+differ by quantiles. Otherwise, the quantile lines would be parallel
+to each other.
 
-For identifiability, we need another set of restrictions,
+For identifiability, we apply the following restrictions,
 \begin{align*}
   & \sum_{k=1}^J \beta_{l1}^{(k)} = 0, l = 1,\ldots, p,
 \end{align*}
@@ -225,17 +214,16 @@ found in appendix \ref{sec:iden}.
 \subsection{Missing Data Mechanism and Sensitivity Analysis}
 \label{sec:sa}
 
-In our mixture model (\ref{eq:model}), \citep{molen1998} shows MAR
-holds if and only if, for each $j \geq 2$ and $k < j$:
+In the mixture model in (\ref{eq:model}), MAR holds \citep{molen1998}
+if and only if, for each $j \geq 2$ and $k < j$:
 \begin{equation}
   \label{eq:molen}
   \pr_k(y_j|y_1, \ldots, y_{j-1}) = \pr_{\geq j}(y_j|y_1, \ldots, y_{j-1}).
 \end{equation}
-
-When $2 \leq j \leq J, k < j$, $Y_j$ is not observed, thus $\bm
+When $2 \leq j \leq J$ and $k < j$, $Y_j$ is not observed, thus $\bm
 h_j^{(k)}$ and $\bm \alpha_j^{(k)}$, $ \bm \beta_{y, j-1}^{(k)} =
-\big(\beta_{y_1,j}^{(k)}, \ldots, \beta_{y_{j-1},j-1}^{(k)} \big)^T, k
-< j$ can not be identified from the observed data. Denote
+\big(\beta_{y_1,j}^{(k)}, \ldots, \beta_{y_{j-1},j-1}^{(k)} \big)^T $
+can not be identified from the observed data. Denote
 \begin{align*}
   \bm \alpha_j^{(k)} &= \bm \alpha_j^{(\geq j)} + \bm \delta_{j}^{(k)}, \\
   \bm \beta_{y, j-1}^{(k)} &= \bm \beta_{y, j-1}^{(\geq j)} + \bm
@@ -244,22 +232,26 @@ h_j^{(k)}$ and $\bm \alpha_j^{(k)}$, $ \bm \beta_{y, j-1}^{(k)} =
 where $\bm \delta_j^{(k)} = \big( \delta_{1j}^{(k)}, \ldots,
 \delta_{pj}^{(k)} \big)$ and $\bm \eta_{j-1}^{(k)} = \big(
 \eta_{y_1,j-1}^{(k)}, \ldots, \eta_{y_{j-1}, j-1}^{(k)} \big)$ for $k
-< j$, then $\bm \xi_s = ( \bm h_j^{(k)} , \bm \eta_{j-1}^{(k)}, \bm
-\delta_j^{(k)})$ could be a group of sensitivity parameters, where $k
-< j, 2 \leq j \leq J $.
+< j$. Then $\bm \xi_s = ( \bm h_j^{(k)}, \bm \eta_{j-1}^{(k)}, \bm
+\delta_j^{(k)})$ is a set of sensitivity parameters \citep{dh2008},
+where $k < j, 2 \leq j \leq J $.
 
 When $\bm \xi_s = \bm \xi_{s0} = \bm 0$, MAR holds. If $\bm \xi_s$ is
-fixed at $\bm \xi_s \neq \bm \xi_{s0}$, the missing mechanism is MNAR.
+fixed at $\bm \xi_s \neq \bm \xi_{s0}$, the missingness mechanism is
+MNAR.
 
-For fully Bayesian inference, We put priors on $(\bm \xi_s, \bm
-\xi_m)$ ($\bm \xi_m$ are identifiable parameters) as :
+For fully Bayesian inference, We can put independent priors on $(\bm
+\xi_s, \bm \xi_m)$ as :
 \begin{displaymath}
-  p(\bm \xi_s, \bm \xi_m) = p(\bm \xi_s) p(\bm \xi_m).
+  p(\bm \xi_s, \bm \xi_m) = p(\bm \xi_s) p(\bm \xi_m),
 \end{displaymath}
+where $\bm \xi_m = \big(\bm \gamma_j, \bm \beta_{y, j-1}^{(\geq j)}, \bm
+\alpha_j^{(\geq j)}, \bm \pi \big)$.
+
 If we assume MAR with no uncertainty, the prior of $\bm \xi_s$ is
-$\pr(\bm \xi_s = \bm 0) = 1$. Sensitivity analysis can be executed
-through putting a set of priors on $\bm \xi_s$ to check the effect of
-priors on the posterior inference about quantile regression
+$\pr(\bm \xi_s = \bm 0) \equiv 1$. Sensitivity analysis can be
+executed by putting point mass priors on $\bm \xi_s$ to examine the
+effect of priors on the posterior inference about quantile regression
 coefficients $\bm \gamma_{ij}^{\tau}$. For example, if MAR is assumed
 with uncertainty, priors can be assigned as $\textrm{E}(\bm \xi_s) =
 \bm \xi_{s0} = \bm 0$ with $\textrm{Var}(\bm \xi_s) \neq \bm 0$. If we
@@ -273,18 +265,19 @@ uncertainty, then priors could be $\textrm{E}(\bm \xi_s) =
 \subsection{Computation}
 \label{sec:computation}
 
-In section \ref{sec:deltacal} , we provide details on  calculating
-$\Delta_{ij}$ in  (\ref{eq:model}) for $j = 1, \ldots, J$ . Then
-we show how to obtain maximum likelihood estimates using an adaptive
-gradient descent algorithm in section \ref{sec:mle}. Finally, we present
-a MCMC  sampling algorithm  for Bayesian interface in section \ref{sec:bayesian}.
+In section \ref{sec:deltacal}, we provide details on calculating
+$\Delta_{ij}$ in (\ref{eq:model}) for $j = 1, \ldots, J$. Then we
+show how to obtain maximum likelihood estimates using an adaptive
+gradient descent algorithm in section \ref{sec:mle}. Finally, we
+present a MCMC sampling algorithm for Bayesian inference in section
+\ref{sec:bayesian}.
 
 \subsubsection{Calculation of $\Delta$ }
 \label{sec:deltacal}
 From equation (\ref{eq:deltaeqn1}) and (\ref{eq:deltaeqn2}),
-$\Delta_{ij}$ depends on subject covariates $\bm x_i$, thus
-$\Delta_{ij}$ needs to be calculated for each subject generally. We
-now illustrate how to calculate $\Delta_{ij}$ given all the other
+$\Delta_{ij}$ depends on subject-specific covariates $\bm x_i$, thus
+$\Delta_{ij}$ needs to be calculated for each subject. We now
+illustrate how to calculate $\Delta_{ij}$ given all the other
 parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
 
 \begin{itemize}
@@ -313,7 +306,7 @@ parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
       \begin{cases}
         1- \Phi \left( \frac{b-\mu}{\sigma} \big / \sqrt{\frac{a^2}{\sigma^2}+1} \right) & a > 0, \\
         \Phi \left( \frac{b-\mu}{\sigma} \big /
-          \sqrt{\frac{a^2}{\sigma^2}+1} \right) & a < 0 ,
+          \sqrt{\frac{a^2}{\sigma^2}+1} \right) & a < 0,
       \end{cases}
     \end{equation}
     where $\Phi(x; \mu, \sigma)$ stands for a CDF of normal
@@ -322,10 +315,8 @@ parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
   Proof of \ref{sec:lemma} is in Appendix \ref{sec:proof}.
 
   To solve equation (\ref{eq:deltaeqn2}), we propose a recursive
-  approaches:
-
-  For example, as to the first multiple integral in equation
-  (\ref{eq:deltaeqn2}), apply lemma \ref{sec:lemma} once, we have:
+  approach. For the first multiple integral in equation
+  (\ref{eq:deltaeqn2}), apply lemma \ref{sec:lemma} once to obtain:
   \begin{align*}
     \prob (Y_j \leq \bm x^T \bm \gamma_j | S = 1) & = \int\dots\int
     \prob (Y_j \leq \bm x^T\bm \gamma_j | S=1, \bm x, Y_{j-1}, \ldots, Y_1)\\
@@ -338,69 +329,71 @@ parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
     = 1).
   \end{align*}
 
-  Therefore, by recursively applying lemma \ref{sec:lemma} $j-1$
-  times, each multiple integral in equation (\ref{eq:deltaeqn2}) can
-  be simplified to single normal CDF. Thus it can be solved again
-  using standard numerical root-find method for $\Delta_{ij}$.
+  Then, by recursively applying lemma \ref{sec:lemma} $(j-1)$ times,
+  each multiple integral in equation (\ref{eq:deltaeqn2}) can be
+  simplified to single normal CDF. Thus it can be solved using
+  standard numerical root-find method for $\Delta_{ij}$ as for $j =
+  1$.
 
 \end{itemize}
 
 \subsubsection{Maximum Likelihood Estimation}
 \label{sec:mle}
 
-The observed likelihood for $\bm y_i = (y_1, \ldots, y_k)$ with
+The observed data likelihood for an individual $\bm y_i$ with
 follow-up time $S = k$ is
 \begin{align} \label{eq:ll} L_i(\bm \xi| \bm y_i, S_{i} = k) & =
   \pi_k\pr_k (y_k | y_1, \ldots, y_{k-1})
-  \pr_k (y_{k-1}|y_1, \ldots, y_{k-2}) \cdots \pr_{k} (y_1) \\
+  \pr_k (y_{k-1}|y_1, \ldots, y_{k-2}) \cdots \pr_{k} (y_1), \\
   & = \pi_k \pr_{\geq k} (y_k | y_1, \ldots, y_{k-1}) \pr_{\geq k-1}
-  (y_{k-1}|y_1, \ldots, y_{k-2}) \cdots \pr_{k} (y_1) \nonumber
+  (y_{k-1}|y_1, \ldots, y_{k-2}) \cdots \pr_{k} (y_1), \nonumber
 \end{align}
+where $\bm y_i = (y_1, \ldots, y_k)$.
 
 We use an adaptive gradient descent algorithm to compute the maximum
 likelihood estimates \citep{ried1993}. Denote $J(\bm \xi) = - \log L =
-- \log \sum_{i = 1}^n L_i$.  Then to maximize likelihood is equivalent
-to minimize the target function $J(\bm \xi)$. Under MAR assumption, we
-fix $\bm \xi_s = \bm 0$, while under MNAR assumption, $\bm \xi_s $ can
-be chosen to assume there is an intercept shift between the
-conditional distributions of $Y_{j}| Y_{1}, \ldots, Y_{j-1}, S$, or
-there is heterogeneity between those distributions.
+- \log \sum_{i = 1}^n L_i$.  Then maximizing the likelihood is
+equivalent to minimize the target function $J(\bm \xi)$. Under an MAR
+assumption, we fix $\bm \xi_s = \bm 0$, while under MNAR assumption,
+$\bm \xi_s $ can be chosen as desired.
 
-During each step in adaptive gradient descent algorithm, $\Delta_{ij}$
-has to be calculated for each subject and component, as well as
-partial derivatives for each parameter. Because it is computational
-expensive, we compile fortran within R for speed.
+During each step of the algorithm, $\Delta_{ij}$ has to be calculated
+for each subject and at each time, as well as partial derivatives for
+each parameter.
 
-For an example of 500 bivariate outcomes and 4 covariates, it takes
-about 11 seconds for 70 iterations to get convergence. It is under R
-version 2.15.3 (2013-03-01) \citep{R} and platform:
-x86\_64-apple-darwin9.8.0/x86\_64 (64-bit).
+As an example of the speed of the algorithm, for 500 bivariate
+outcomes and 4 covariates, it takes about 11 seconds for 70 iterations
+to get convergence using R version 2.15.3 (2013-03-01) \citep{R} and
+platform: x86\_64-apple-darwin9.8.0/x86\_64 (64-bit). Main parts of
+the algorithm are coded in Fortran such as calculation of numerical
+derivatives and log-likelihood to quicken computation.
 
-Details about the maximization algorithm are presented in the Appendix
-\ref{sec:agda}.
+Further details about the maximization algorithm are presented in
+Appendix \ref{sec:agda}.
 
 \subsubsection{Bayesian Framework}
 \label{sec:bayesian}
 
-Under a Bayesian framework, we  put priors on the parameters
-$\bm \xi$ and make exact inference.
-
-We use a  block Gibbs sampling method to draw samples from the
+For a Bayesian inference, we specify priors on the parameters $\bm
+\xi$ and use a block Gibbs sampling method to draw samples from the
 posterior distribution. Denote all the parameters (including
 sensitivity parameters) to sample as :
 \begin{displaymath}
-  \bm \xi = \left( \bm \gamma_1, \bm \gamma_2, \ldots, \gamma_J,
-   \bm h_{j}^{(k)}, \bm \beta_{j,j-1}^{(k)}, \bm \alpha_j^{(k)}
-    \text{ for } k = 1, \ldots, J, j = 1, \ldots, J \right).
+  \bm \xi_m = \left( \bm \gamma_1, \bm \gamma_2, \ldots, \gamma_J,
+    \bm \beta_{y,j-1}^{(\geq j)}, \bm \alpha_j^{(\geq j)}
+    \text{ for } j = 1, \ldots, J \right),
+  \bm \xi_s = \left( \bm h_j^{(k)}, \bm \eta_{j-1}^{(k)}, \bm \delta_j^{(k)}
+    \text{ for } k = 1, \ldots, j; 2 \leq j \leq J \right).
 \end{displaymath}
-Comma separated parameters are marked to sample as a block in block
-Gibbs sampling.  All updates require Metropolis-Hasting
-algorithm.
+Comma separated parameters are marked to sample as a block.  Updates
+of $\bm \xi_m$ require Metropolis-Hasting algorithm, while $\bm \xi_s$
+samples are drawn directly from priors as desired for missingness
+mechanism assumptions.
 
 As mentioned in section \ref{sec:sa}, MAR or MNAR assumptions are
-adopted via specific priors. For example, if MAR is assumed with no
-uncertainty, then $ \bm \xi _s= \bm 0$ with probability 1. Details for
-updating parameters are:
+implemented via specific priors. For example, if MAR is assumed with
+no uncertainty, then $ \bm \xi _s= \bm 0$ with probability 1. Details
+for updating parameters are:
 
 \begin{itemize}
 \item $\bm \gamma_{1} $: Use Metropolis-Hasting algorithm.
@@ -409,124 +402,97 @@ updating parameters are:
     distribution;
   \item Based on the new candidate parameter $\bm \xi^c$, calculate
     candidate $\Delta_{i1}^c$ for each subject $i$ as we described in
-    section \ref{sec:deltacal}. If $S > 1$ for corresponding subject
-    $i$, update candidate $\Delta_{ij}^c, j \geq 2$ as well because
-    $\Delta_{ij}, j \geq 2$ depend on $\Delta_{i1}$. (For $S = 1$, we
-    only need to update $\Delta_{i1}^c$);
+    section \ref{sec:deltacal}. If $S > 1$ for subject $i$, update
+    candidate $\Delta_{ij}^c, j \geq 2$ as well since $\Delta_{ij}, j
+    \geq 2$ depends on $\Delta_{i1}$. (For $S = 1$, we only need to
+    update $\Delta_{i1}^c$);
   \item Plug in $\Delta_{i1}^c$ or ($\Delta_{i1}^c, \Delta_{ij}^c, j
     \geq 2$) in likelihood (\ref{eq:ll}) to get candidate likelihood;
-  \item Obtain Metropolis-Hasting ratio, move the chain or keep the
-    previous one.
+  \item Compute Metropolis-Hasting ratio, and accept the candidate
+    value or keep the previous value.
   \end{enumerate}
-\item For the rest of the parameters, algorithms for updating the
-  samples are all similar to $\bm \gamma_j$.
+\item For the rest of the identifiable parameters, algorithms for
+  updating the samples are all similar to $\bm \gamma_j$.
+\item For sensitivity parameters, because we do not get any
+  information from the data, we sample them from priors, which are
+  specified from the missingness mechanism assumptions.
 \end{itemize}
 
 \section{Simulation Study}
 \label{sec:simulation}
 In this section, we compared the performance of our proposed model in
 section \ref{sec:settings} with the \textit{rq} function in
-\textit{quantreg} R package. The \textit{rq} function minimizes the
-loss (check) function $\sum_{i=1}^n \rho_{\tau} (y_i - \bm x_i^T \bm \beta)$
-in terms of $\bm \beta$ and does not assign any distribution
-assumptions, where the loss function $\rho_{\tau} (u) = u(\tau - I(u <
-0))$.
+\textit{quantreg} R package \citep{quantreg}. The \textit{rq} function
+minimizes the loss (check) function $\sum_{i=1}^n \rho_{\tau} (y_i -
+\bm x_i^T \bm \beta)$ in terms of $\bm \beta$, where the loss function
+$\rho_{\tau} (u) = u(\tau - I(u < 0))$ and does not make any
+distributional assumptions.
 
-We conducted three groups of datasets and tested both approaches under
-MCAR, MAR and MNAR assumptions. The simulation study included 1000
-data sets. Each data set consists 200 bivariate observations $\bm Y_i
-= (Y_{i1}, Y_{i2})$ for $i = 1, \ldots, 200$. $Y_{i1}$ were always
-observed, while some of $Y_{i2}$ were missing. Covariates $x$ were
-sampled from uniform (0,2). We sampled $\bm Y_i$ from:
+We considered two scenarios corresponding to MAR and MNAR
+assumptions. For each scenario, we simulated 1000 data sets. For each
+set there are 200 bivariate observations $\bm Y_i = (Y_{i1}, Y_{i2})$
+for $i = 1, \ldots, 200$. $Y_{i1}$ were always observed, while some of
+$Y_{i2}$ were missing. A single covariate $x$ was sampled from
+Uniform(0,2). The two models for the full data response $\bm Y_i$
+were:
 
 \begin{enumerate}
-\item \label{sim:mcar} $ ( Y_{i1}, Y_{i2}) |R = 1 \sim \textrm{N}
-  \big( (1 + x, 1 - x), (\sigma_1 = 1, \rho = 0 , \sigma_2 = 1)
-  \big)$, $ Y_{i1} | R = 0 \sim \textrm{N}(-1-x, 1) $, $ Y_{i2} | R =
-  1 \sim \textrm{N}(1-x, 1) $;
-
 \item \label{sim:mar} $ Y_{i1} |R = 1 \sim N ( 2 + x, 1 + 0.5x)$, $
   Y_{i2} | R = 1, y_{i1} \sim N(1 - x - 1/2y_{i1}, 1) $, $ Y_{i1}| R=
   0 \sim N(-2 - x, 1 + 0.5x) $, $ Y_{i2}| R= 0, y_{i1} \sim N(1 - x -
   1/2y_{i1}, 1)$;
 
 \item \label{sim:mnar} $ ( Y_{i1}, Y_{i2}) |R = 1 \sim \textrm{N}
-  \big( ( 1 + x, 1 - x), (\sigma_1 = 1, \rho = 0 , \sigma_2 = 1)
+  \big( ( 1 + x, 1 - x), (\sigma_1 = 1, \rho = 0, \sigma_2 = 1)
   \big)$, $ Y_{i1} | R = 0 \sim \textrm{N}(-1-x, 1) $, $ Y_{i2} | R =
-  1 \sim \textrm{N}(3-x, 1) $.
+  1 \sim \textrm{N}(3-x, 1) $,
 \end{enumerate}
+where $\textrm{N}\big( (\mu_1, \mu_2), (\sigma_1, \rho, \sigma_2)
+\big)$ stands for bivariate normal distribution with two marginal
+normal distribution $\textrm{N}(\mu_1, \sigma_1)$, $\textrm{N}(\mu_2,
+\sigma_2)$ and correlation $\rho$.
 
 For all cases, $\prob (R = 1) = 0.5$.  When $R = 0$, $Y_{i2}$ is not
 observed, so $\pr(Y_{i2}| R = 0, y_{i1})$ is not identifiable from
-observed data. Here we assume the missingness mechanism is MCAR in
-case \ref{sim:mcar}, MAR in case \ref{sim:mar} and MNAR in case
-\ref{sim:mnar}.
+observed data. The missingness mechanism is MAR in case \ref{sim:mar}
+and MNAR in case \ref{sim:mnar}.
 
-Under MCAR and MAR assumption, we fix sensitivity parameter $\bm \xi_s =
-(0,0,0,0,0)$ as discussed in section \ref{sec:sa} for our proposed
-model. For \textit{rq} function from \textit{quantreg} R package,
-because only $Y_{i2}|R = 1$ is observed, quantile regression for
-$Y_{i2}$ can only be fit from the information of $Y_{i2}|R = 1$ vs
-$x$.
+Under MAR assumption, the sensitivity parameter $\bm \xi_s$ is fixed
+at $(0,0,0,0,0)$ as discussed in section \ref{sec:sa}. For \textit{rq}
+function from \textit{quantreg} R package, because only $Y_{i2}|R = 1$
+is observed, the quantile regression for $Y_{i2}$ can only be fit from
+the information of $Y_{i2}|R = 1$ vs $x$.
 
 Under MNAR scenario, we fixed $\bm \xi_s$ at the true value $(2, 0, 0,
 0, 0)$, assuming there was an intercept shift between distribution of
 $Y_{i2}|Y_{i1}, R = 1$ and $Y_{i2}|Y_{i1}$, $R = 0$.
 
-For each dataset in both scenario, we fit quantile regression for
-quantiles $\tau =$ 0.1, 0.3, 0.5, 0.7, 0.9.
+For each dataset, we fit quantile regression for quantiles $\tau =$
+0.1, 0.3, 0.5, 0.7, 0.9.
 
-Parameter estimations were evaluated by mean squared error (MSE),
+Parameter estimates were evaluated by mean squared error (MSE),
 \begin{equation*}
   \text{MSE} (\gamma_{ij}) = \frac{1}{1000} \sum_{k = 1}^{1000}
   \left( \hat{\gamma}_{ij}^{(k)}  - \gamma_{ij}\right)^2,
 \end{equation*}
 where $\gamma_{ij}$ is the true value for quantile regression
-coefficient, $\hat{\gamma}_{ij}^{(k)}$ is the estimates in $k$-th
-simulated dataset ($(\gamma_{01}, \gamma_{11})$ for $Y_{i1}$,
-$(\gamma_{02}, \gamma_{12})$ for $Y_{i2}$).
+coefficient, $\hat{\gamma}_{ij}^{(k)}$ is the maximum likelihood
+estimates in $k$-th simulated dataset ($(\gamma_{01}, \gamma_{11})$
+for $Y_{i1}$, $(\gamma_{02}, \gamma_{12})$ for $Y_{i2}$).
 
 Simulation results show estimates from our algorithm are closer to the
-true value for all quantiles from 0.1 to 0.9. Table \ref{tab:sim},
-\ref{tab:simh2} and \ref{tab:sim2} list the MSE for coefficients
-estimates of quantile 0.1, 0.3, 0.5, 0.7, 0.9 under MCAR, MAR and MNAR
-assumptions.  They show that our proposed method has smaller MSE than
-\textit{rq} function in all cases, even if the missingness is
-MCAR. When data are missing at random, our method provides larger
-gains over \textit{rq} method, because \textit{quantreg} does not
-consider the missingness mechanism. The difference in MSE becomes
-larger for the upper quantiles because $Y_2 |R = 0$ tends to be larger
-than $Y_2 | R = 1$; therefore, the \textit{rq} method only using the
-observed $Y_2$ yields larger bias for upper quantile when estimating
-the marginal quantile estimates.  For the same reason, under MNAR
-assumption, 'quantreg' method led to tremendous MSE and our proposed
-method were much closer to the true value.
-
-\begin{table}
-  \renewcommand{\arraystretch}{1.3}
-  \centering
-  \caption{Simulation result: MSE for coefficients estimates of quantiles
-    0.1, 0.3, 0.5, 0.7, 0.9 under MCAR scenario. $(\gamma_{01}, \gamma_{11})$
-    are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$
-    are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq'
-    function in R package 'quantreg'.}
-  \vspace{10pt}
-  \begin{tabular}{rrrrrrrrrrr}
-    \toprule
-    & \multicolumn{ 10}{c}{MAR} \\
-    \cline{2-11}
-    &  \multicolumn{2}{c}{0.1} &  \multicolumn{2}{c}{0.3} &  \multicolumn{2}{c}{0.5}
-    &  \multicolumn{2}{c}{0.7} &  \multicolumn{2}{c}{0.9} \\
-    \cline{2-11}
-    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ    & MM & RQ \\
-    \hline
-    $\gamma_{01}$ &  0.05 &0.09& 0.04  &0.10 &0.03 &0.24 &0.04 &0.10 &0.05 &0.10 \\
-    $\gamma_{11}$ &  0.03 &0.07&  0.02 &0.08 &0.58 &0.74 &0.03 &0.08 &0.03 &0.07 \\
-    $\gamma_{02}$ & 0.04  &0.12&  0.05 &0.07 &0.04 &0.06 &0.05 &0.07 &0.05 &0.11 \\
-    $\gamma_{12}$ &  0.03 & 0.09& 0.03 &0.05 &0.03 &0.05 &0.03 &0.05 &0.03 &0.09 \\
-    \bottomrule
-  \end{tabular}  \label{tab:sim}
-\end{table}
+true value for all quantiles from 0.1 to 0.9. Table \ref{tab:simh2}
+and \ref{tab:sim2} present the MSE for coefficients estimates of
+quantile 0.1, 0.3, 0.5, 0.7, 0.9 under MAR and MNAR assumptions.  They
+show that our proposed method has smaller MSE than \textit{rq}
+function in all cases. When data are missing at random, our method
+provides larger gains over \textit{rq} method, because
+\textit{quantreg} does not consider the missingness mechanism. The
+difference in MSE becomes larger for the upper quantiles because $Y_2
+|R = 0$ tends to be larger than $Y_2 | R = 1$; therefore, the
+\textit{rq} method using only the observed $Y_2$ yields larger bias
+for upper quantiles.  For the same reason, under the MNAR assumption,
+'quantreg' method led to much larger MSEs than our proposed method.
 
 \begin{table}[ht]
   \renewcommand{\arraystretch}{1.3}
@@ -580,85 +546,68 @@ method were much closer to the true value.
   \end{tabular}  \label{tab:sim2}
 \end{table}
 
-
 \section{Real Data Analysis}
 \label{sec:real}
-We apply our quantile regression approach on TOURS data from a weight
-management clinical trial \citep{perri2008extended}.  This trial aimed
-to test whether a lifestyle modification program was effective to help
-people to manage their weights in long term. After finishing the
-six-month program, participants were randomly assigned to three
-treatments groups: face-to-face counseling, telephone counseling and
-control group. Their weights were recorded at the beginning of the
-trial as baseline, the 6th month ($Y_1$) and the 18th month ($Y_2$)
-after the trial separately. In this article, we were interested in how
-the weights at the sixth month and the eighteenth month changed with
-covariates for various quantiles. The regressors of interest includes
-AGE (50-75), RACE (black and white). Weights at the sixth month
-($Y_1$) were always observed and 13 out of 224 observations (6\%)
-contained missing $Y_2$. All weights are scaled by 1/100 for
-computation stability.
+We apply our quantile regression approach to data from TOURS, a weight
+management clinical trial \citep{perri2008extended}.  This trial was
+designed to test whether a lifestyle modification program could
+effectively help people to manage their weights in long term. After
+finishing the six-month program, participants were randomly assigned
+to three treatments groups: face-to-face counseling, telephone
+counseling and control group. Their weights were recorded at baseline
+($Y_0$), 6 months ($Y_1$) and 18 months ($Y_2$) after the trial. Here,
+we are interested in how the distribution of weights at six months and
+eighteenth months change with covariates. The regressors of interest
+include AGE (50-75), RACE (black and white) and weights at baseline
+($Y_0$). Weights at the six months ($Y_1$) were always observed and 13
+out of 224 observations (6\%) were missing at 18 months ($Y_2$). All
+weights were scaled by 1/100 for computation stability.
 
-We fitted quantile regression for bivariate responses $\bm Y_i =
-(Y_{i1}, Y_{i2})$ together for quantiles (5\%, 30\%, 50\%, 70\%,
-95\%). Covariates are AGE and RACE, and we assume their effects are
-additive.  We fit 1,000 bootstraps to obtain the 95\% confidence
-intervals.
-
-Figure \ref{fig:tours} is the scatterplot and boxplot of weights vs
-age and races.
-
-\begin{figure}[htb]
-  \centerline{\includegraphics[scale =
-    0.6]{/Users/liuminzhao/Documents/qrmissing/tours/weight-plot-age}}
-  \caption[]{\label{fig:tours} Scatterplot and boxplot of weights at
-    6th month ($Y_1$) and 18th month ($Y_2$) vs Age (50-75)and race
-    (black, white)}
-\end{figure}
+We fitted regression models for bivariate responses $\bm Y_i =
+(Y_{i1}, Y_{i2})$ for quantiles (5\%, 30\%, 50\%, 70\%, 95\%).  We fit
+1,000 bootstraps to obtain the 95\% confidence intervals.
 
 Estimates are presented in Table \ref{tab:w2}. For weights of
-participants after completing the six-month program, quantile
-estimates show that weights of white people are generally lower than
-ones of black people, because for all quantiles, the estimates of race
-are negative. For extreme quantiles (5\% and 95\%), the difference is
-small and not significant . However, when comparing the weights for
-quantiles 30\%, 50\% and 70\%, white people tend to weight less
- than black people significantly. The discrepancies are 8kg, 7kg, and
-8kg separately. Meanwhile, weights of participants show obvious
-heterogeneity among different ages. Participants tend to have less
-weight when their ages are larger. The trend is for all quantiles, but
-is again small and not significant.
-
+participants at six months, weights of white people are generally
+lower than ones of black people, because for all quantiles, the
+coefficients of race are negative. For the extreme quantiles (5\% and
+95\%), the difference is small and not significant. However, when
+comparing the weights for quantiles 30\%, 50\% and 70\%, white people
+tend to weight significantly less than black people. The differences
+are 8kg, 7kg, and 8kg separately. Meanwhile, weights of participants
+show obvious heterogeneity by age. Participants tend to have less
+weight when older. The trend is for all quantiles, but the effect is
+again small and not significant.
 
 \begin{table}[ht]
   \renewcommand{\arraystretch}{1.3}
   \begin{center}
-    \caption{Marginal quantile regression coefficients for weight of
-      participants after 6 and 18 months. Weight measurement is scaled
-      by 1/100.}\label{tab:w2}
+    \caption{Estimated marginal quantile regression coefficients with
+      95\% confidence interval for weight of participants at 6 and 18
+      months. Weight measurement is scaled by 1/100.}\label{tab:w2}
     \vspace{10pt}
     \begin{tabular}{rrrr}
       \toprule
       & Intercept            & Age(Centered)          & White                  \\
       \hline
-      Weight after 6 months                                                         \\
-      5\%  & 0.65  (0.34 , 0.73 ) & -0.03 ( -0.10 , 0.06 ) & -0.02 ( -0.48 , 0.18 ) \\
-      30\% & 0.86  (0.79 , 0.90 ) & -0.02 ( -0.03 , 0.00 ) & -0.08 ( -0.12 , -0.01) \\
-      50\% & 0.92  (0.87 , 0.97 ) & -0.01 ( -0.03 , 0.01 ) & -0.07 ( -0.12 , -0.02) \\
-      70\% & 1.00  (0.94 , 1.05 ) & -0.01 ( -0.04 , 0.02 ) & -0.08 ( -0.13 , -0.01) \\
-      95\% & 1.12  (1.08 , 1.26 ) & -0.01 ( -0.06 , 0.05 ) & -0.03 ( -0.14 , 0.12 ) \\
-      Weight after 18 months                                                        \\
-      5\%  & 0.10  (-0.01, 0.64 ) & -0.00 ( -0.05 , 0.01 ) & -0.02 ( -0.19 , 0.22 ) \\
-      30\% & 0.84  (0.77 , 0.88 ) & -0.02 ( -0.04 , -0.00) & -0.06 ( -0.11 , 0.01 ) \\
-      50\% & 0.92  (0.87 , 0.98 ) & -0.02 ( -0.04 , 0.01 ) & -0.06 ( -0.11 , -0.00) \\
-      70\% & 1.02  (0.94 , 1.06 ) & -0.01 ( -0.04 , 0.02 ) & -0.06 ( -0.12 , 0.01 ) \\
-      95\% & 1.15  (1.09 , 1.25 ) & -0.01 ( -0.05 , 0.04 ) & -0.02 ( -0.13 , 0.05 ) \\
+      Weight at 6 months                                                         \\
+      5\%  & 0.65  (0.34, 0.73 ) & -0.03 ( -0.10, 0.06 ) & -0.02 ( -0.48, 0.18 ) \\
+      30\% & 0.86  (0.79, 0.90 ) & -0.02 ( -0.03, 0.00 ) & -0.08 ( -0.12, -0.01) \\
+      50\% & 0.92  (0.87, 0.97 ) & -0.01 ( -0.03, 0.01 ) & -0.07 ( -0.12, -0.02) \\
+      70\% & 1.00  (0.94, 1.05 ) & -0.01 ( -0.04, 0.02 ) & -0.08 ( -0.13, -0.01) \\
+      95\% & 1.12  (1.08, 1.26 ) & -0.01 ( -0.06, 0.05 ) & -0.03 ( -0.14, 0.12 ) \\
+      Weight at 18 months                                                        \\
+      5\%  & 0.10  (-0.01, 0.64 ) & -0.00 ( -0.05, 0.01 ) & -0.02 ( -0.19, 0.22 ) \\
+      30\% & 0.84  (0.77, 0.88 ) & -0.02 ( -0.04, -0.00) & -0.06 ( -0.11, 0.01 ) \\
+      50\% & 0.92  (0.87, 0.98 ) & -0.02 ( -0.04, 0.01 ) & -0.06 ( -0.11, -0.00) \\
+      70\% & 1.02  (0.94, 1.06 ) & -0.01 ( -0.04, 0.02 ) & -0.06 ( -0.12, 0.01 ) \\
+      95\% & 1.15  (1.09, 1.25 ) & -0.01 ( -0.05, 0.04 ) & -0.02 ( -0.13, 0.05 ) \\
       \bottomrule
     \end{tabular}
   \end{center}
 \end{table}
 
-For weights at 18th month after baseline, we have similar
+For weights at 18 months after baseline, we have similar
 conclusions. White people still have less weight than black people for
 all quantiles, but the magnitude is smaller than that at 6th month.
 The differences are 6kg, 6kg and 6kg instead of 8kg, 7kg and 8kg for
@@ -670,28 +619,29 @@ weight difference.
 \label{sec:discussion}
 
 In this paper, we have developed a marginal quantile regression model
-for data with monotone dropout missingness. We use a pattern mixture
-model to explain the missing mechanism. Here marginal quantile
-regression coefficients are of interest instead of coefficients
-conditional on random effects as in \citep{yuan2010}. In addition, our
-approach allows non-parallel quantile lines over different quantiles
-via modeling the mixture distribution and heterogeneity of variance.
+for data with monotone missingness. We use a pattern mixture model to
+jointly model the full data response and missingness. Here marginal
+quantile regression coefficients are of interest instead of
+coefficients conditional on random effects as in \citet{yuan2010}. In
+addition, our approach allows non-parallel quantile lines over
+different quantiles via the mixture distribution and heterogeneity of
+variance.
 
 Our method allows the missingness to be MNAR.  We illustrated how to
 put informative priors for Bayesian inference and how to find
-sensitivity parameters allow different missing data mechanisms .  The
-recursive integration algorithm simplifies computation and can be
+sensitivity parameters to allow different missing data mechanisms.
+The recursive integration algorithm simplifies computation and can be
 easily implemented even in high dimension.  Simulation study
 demonstrates that our approach has smaller MSE than the traditional
 frequentist method and it allows for MAR and MNAR missingness.
 
 Our model assumes a multivariate normal distribution for each
 component in the pattern mixture model, which might be too
-restrictive. It is possible to replace them with a semi-parametric
-model, for example, the Dirichlet process or \polya{} tree.  It would
-also be interesting to assume that mixture probabilities depend on
-covariates. Our future work will also include proposing a goodness of
-fit test to check the model fit.
+restrictive. It is possible to replace that with a semi-parametric
+model, for example, the Dirichlet process mixture or \polya{} tree.
+It would also be interesting to allow mixture probabilities depend on
+covariates. Our future work will also include development of a
+goodness of fit test to the model fit.
 
 \section{Acknowledgments}
 
@@ -711,42 +661,42 @@ identifiability problem in mean regression.
 
 Consider a pattern mixture model:
 \begin{align}
-  Y | R = 1 & \sim N(\Delta + \mu_1 , \sigma_1), \label{eq:app1} \\
+  Y | R = 1 & \sim N(\Delta + \mu_1, \sigma_1), \label{eq:app1} \\
   Y | R = 0 & \sim N(\Delta + \mu_0, \sigma_0), \nonumber\\
   \prob (R = 1) & = \pi, \nonumber\\
   E (y ) & = \theta. \nonumber
 \end{align}
 Thus by iterated expectation, we have
 \begin{align*}
-  \theta = \Delta + \mu_1\pi + \mu_0(1-\pi) , \\
+  \theta = \Delta + \mu_1\pi + \mu_0(1-\pi), \\
   \Delta = \theta - \pi \mu_1 - (1 - \pi)\mu_0.
 \end{align*}
 We can see $\Delta$ is determined by $\theta, \mu_1, \mu_0$. Plugging
-in (\ref{eq:app1}) , we have
+in (\ref{eq:app1}), we have
 \begin{align*}
   Y| R = 1 & \sim N(\theta + (1 - \pi)\mu_1 - (1 - \pi)\mu_0, \sigma_1), \\
   Y| R = 0 & \sim N(\theta - \pi \mu_1 + \pi \mu_0, \sigma_0).
 \end{align*}
-Denote $\xi_1 = (\theta , \mu_1, \mu_0)$, and if $\xi_2 = (\theta,
+Denote $\xi_1 = (\theta, \mu_1, \mu_0)$, and if $\xi_2 = (\theta,
 \mu_1+ c, \mu_0+c)$, both groups of parameters lead to the same
 distribution of $\pr(y, R) = \pr(y|R)\pr(R)$. Therefore, $\xi$ is not
 identifiable.  If we put constraints on $\mu_1$ and $\mu_0$, for
 example $\mu_0 = 0$, then
 \begin{align*}
-  Y | R = 1 & \sim N(\theta + \mu_1 , \sigma_1), \\
-  Y | R = 0 & \sim N(\theta , \sigma_0).
+  Y | R = 1 & \sim N(\theta + \mu_1, \sigma_1), \\
+  Y | R = 0 & \sim N(\theta, \sigma_0).
 \end{align*}
 Thus $\bm \xi = (\theta, \mu_1)$ is identifiable. If $\xi_2 \neq
-\xi_1$ , then $\pr_2(y, R) \neq \pr_1(y, R)$.
+\xi_1$, then $\pr_2(y, R) \neq \pr_1(y, R)$.
 
 Secondly, we consider quantile regression for a pattern mixture model:
 \begin{align*}
-  Y | R = 1 & \sim N(\Delta + \mu_1 , \sigma_1) ,\\
-  Y | R = 0 & \sim N(\Delta + \mu_0, \sigma_0) ,\\
-  \prob (R = 1) & = \pi ,\\
+  Y | R = 1 & \sim N(\Delta + \mu_1, \sigma_1),\\
+  Y | R = 0 & \sim N(\Delta + \mu_0, \sigma_0),\\
+  \prob (R = 1) & = \pi,\\
   \pr (Y \leq \theta ) & = \tau,
 \end{align*}
-where $\theta$ is the quantile estimate of interest . We again show
+where $\theta$ is the quantile estimate of interest. We again show
 $\bm \xi = (\theta, \mu_1, \mu_0) $ is not identifiable.
 
 Again by iterated expectations, we have
@@ -757,15 +707,15 @@ Again by iterated expectations, we have
 \end{align*}
 Thus $\Delta$ is again determined by the other parameters:
 \begin{align*}
-  \Delta = h(\theta, \mu_1, \mu_0, \sigma_1, \sigma_0 , \pi, \tau).
+  \Delta = h(\theta, \mu_1, \mu_0, \sigma_1, \sigma_0, \pi, \tau).
 \end{align*}
 To show $\bm \xi = (\theta, \mu_1, \mu_0, \sigma_1, \sigma_0)$ is not
 identifiable, we need to find $\bm \xi^{'} \neq \bm \xi$, such that
 $\pr(y|R) = \pr^{'}(y|R)$. If the last equation holds, then we must
 have $\sigma_1^{'} = \sigma_1, \sigma_0^{'} = \sigma_0$, thus we still
-need to find $\theta^{'} , \mu_1^{'}, \mu_0^{'}$ such that
+need to find $\theta^{'}, \mu_1^{'}, \mu_0^{'}$ such that
 \begin{align*}
-  h(\bm \xi) + \mu_1 & = h(\bm \xi^{'}) + \mu_1^{'} ,\\
+  h(\bm \xi) + \mu_1 & = h(\bm \xi^{'}) + \mu_1^{'},\\
   h(\bm \xi) + \mu_0 & = h(\bm \xi^{'}) + \mu_0^{'}.
 \end{align*}
 By substracting previous equations, we have $\mu_1^{'}- \mu_0^{'} =
@@ -784,15 +734,15 @@ $\pr(y|R;\bm \xi) = \pr(y|R; \bm \xi^{'})$ yields $\bm \xi = \bm
 
 Now consider the situation with covariates. Suppose the model is
 \begin{align*}
-  Y | R = 1, x & \sim N(\Delta + \mu_1 + \beta_{x1} x , \sigma_1) ,\\
-  Y | R = 0, x & \sim N(\Delta - \mu_1 + \beta_{x0} x, \sigma_0) ,\\
-  \prob (R = 1) & = \pi ,\\
+  Y | R = 1, x & \sim N(\Delta + \mu_1 + \beta_{x1} x, \sigma_1),\\
+  Y | R = 0, x & \sim N(\Delta - \mu_1 + \beta_{x0} x, \sigma_0),\\
+  \prob (R = 1) & = \pi,\\
   \pr (Y \leq \gamma_0 + \gamma_1 x ) & = \tau.
 \end{align*}
 $\Delta$ can still be determined by
 \begin{align*}
   \Delta = h(x, \gamma_0, \gamma_1, \mu_1, \beta_{x1}, \beta_{x0},
-  \sigma_1, \sigma_0, \pi , \tau).
+  \sigma_1, \sigma_0, \pi, \tau).
 \end{align*}
 We want to show the parameter $\bm \xi = (\gamma_0, \gamma_1, \mu_1,
 \beta_{x1}, \beta_{x0}, \sigma_1, \sigma_0, \pi )$ is not identifiable
@@ -801,7 +751,7 @@ by finding $\bm \xi^{'} \neq \bm \xi$, but $\pr (y | R; \bm \xi) = \pr
 $\sigma_1^{'} = \sigma_1, \sigma_0^{'} = \sigma_0$, and to equate the
 two means, we have
 \begin{align*}
-  \Delta + \mu_1 + \beta_{x1} x & = \Delta^{'} + \mu_1^{'} + \beta_{x1}^{'}x ,\\
+  \Delta + \mu_1 + \beta_{x1} x & = \Delta^{'} + \mu_1^{'} + \beta_{x1}^{'}x,\\
   \Delta - \mu_1 + \beta_{x0} x & = \Delta^{'} - \mu_1^{'} +
   \beta_{x0}^{'}x.
 \end{align*}
@@ -831,7 +781,7 @@ identifiability issue especially $y_2|y_1$. Suppose the model is
 Here $R$ stands for two different patterns, and missingness is not
 considered.
 
-Regarding the identifiability of $\beta_{11}$ and $\beta_{10}$ ,
+Regarding the identifiability of $\beta_{11}$ and $\beta_{10}$,
 assume there exists $\beta_{11}^{'}$ and $\beta_{10}^{'}$, such that
 \begin{align*}
   \Delta + \mu_1 + x\beta_x + \beta_{11}y_1 = \Delta^{'} + \mu_1^{'} + x\beta_{x}^{'} + \beta_{11}^{'}y_1, \\
@@ -855,7 +805,7 @@ above development.
 \begin{itemize}
 \item Denote
   \begin{displaymath}
-    I(a,b) = \int \Phi \left( \frac{x-b}{a} \right)\phi(x) dx ,
+    I(a,b) = \int \Phi \left( \frac{x-b}{a} \right)\phi(x) dx,
   \end{displaymath}
   where $\Phi$ is the standard normal cdf and $\phi$ is the standard
   normal pdf and $a > 0$.
@@ -914,26 +864,25 @@ above development.
   Algorithm}
 \label{sec:agda}
 
-See section \ref{sec:mle} for notations.
+See section \ref{sec:mle} for notation.
 
-The likelihood can be maximized via the following algorithms:
+The likelihood can be maximized via the following algorithm:
 \begin{enumerate}
-\item Initialize $\bm \xi$
+\item initialize $\bm \xi$
 \item \label{item:der} calculate $\partial J(\bm \xi) / \partial
   \xi_j$ for all $j$,
 \item update $\bm \xi$ by adaptive gradient descent algorithm
   described in \citep{ried1993} for all $j$
 \item evaluate new $J(\bm \xi)$
-\item if the amount of descent of $J ( \bm \xi)$ is great than certain
-  number, say $10^{-3}$, then go back to step \ref{item:der} and
+\item if the amount of descent of $J ( \bm \xi)$ is greater than a
+  certain cutoff, then go back to step \ref{item:der} and
   repeat. Otherwise, algorithm converges.
 \end{enumerate}
 
 We can use numerical approximation to calculate $\partial J(\bm
-\xi)/\partial \xi_j$ in algorithm step \ref{item:der}. For example,
-when $j = 1$,
+\xi)/\partial \xi_j$ in step \ref{item:der}. For example, for $j = 1$,
 \begin{displaymath}
-  \frac{\partial J(\bm \xi)}{\partial \xi_1} \approx \frac{J(\xi_1 + \epsilon, \xi_2, \ldots) - J(\xi_1 - \epsilon, \xi_2 , \ldots)}{2\epsilon}.
+  \frac{\partial J(\bm \xi)}{\partial \xi_1} \approx \frac{J(\xi_1 + \epsilon, \xi_2, \ldots) - J(\xi_1 - \epsilon, \xi_2, \ldots)}{2\epsilon}.
 \end{displaymath}
 
 \end{document}
