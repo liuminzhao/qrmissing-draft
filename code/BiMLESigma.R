@@ -1,27 +1,40 @@
-## Time-stamp: <liuminzhao 04/24/2013 16:44:02>
+## Time-stamp: <liuminzhao 06/24/2013 14:52:30>
 ## WRAP UP BiMLESigma.f
 
 dyn.load('~/Documents/qrmissing/code/BiMLESigma.so')
 dyn.load('~/Documents/qrmissing/code/BiMLESigmaH1.so')
 dyn.load('~/Documents/qrmissing/code/BiMLESigmaH2.so')
-BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]), method = 'homo'){
+BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]), method = 'heter2'){
+  ## LOAD SHARED LIBRARY
+  if (method == 'heter2') {
+    if (!is.loaded('BiMLESigmaH2.so')) {
+      if (file.exists('BiMLESigmaH2.so')) {
+        dyn.load('BiMLESigmaH2.so')
+      } else {
+        if (file.exists('~/Documents/qrmissing/code/BiMLESigmaH2.so')) {
+          dyn.load("~/Documents/qrmissing/code/BiMLESigmaH2.so")
+        } else stop('no shared library found.')
+      }
+    }
+  }
+
   n <- length(R)
   if (method == 'homo') {
     param <- rep(0, 14)
-    param[1] = 0 
-    param[2] = 0 
-    param[3] = 0 
-    param[4] = 0 
-    param[5] = 1 
-    param[6] = 1 
-    param[7] = 0 
-    param[8] = 0 
+    param[1] = 0
+    param[2] = 0
+    param[3] = 0
+    param[4] = 0
+    param[5] = 1
+    param[6] = 1
+    param[7] = 0
+    param[8] = 0
     param[9] = sp[1]
     param[10]= sp[2]
-    param[11]= sp[3] 
-    param[12]= 1 
+    param[11]= sp[3]
+    param[12]= 1
     param[13]= sp[4]
-    param[14]= 0.5 
+    param[14]= 0.5
 
     paramsave <- matrix(0, niter, 15)
     mod <- .Fortran("BiQRGradientf",
@@ -36,20 +49,20 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
                     )
   } else if (method == 'heter1') {
     param <- rep(0, 18)
-    param[1] = 0 
-    param[2] = 0 
-    param[3] = 0 
-    param[4] = 0 
-    param[5] = 1 
-    param[6] = 1 
-    param[7] = 0 
-    param[8] = 0 
+    param[1] = 0
+    param[2] = 0
+    param[3] = 0
+    param[4] = 0
+    param[5] = 1
+    param[6] = 1
+    param[7] = 0
+    param[8] = 0
     param[9] = sp[1]
     param[10]= sp[2]
-    param[11]= sp[3] 
-    param[12]= 1 
+    param[11]= sp[3]
+    param[12]= 1
     param[13]= sp[4]
-    param[14]= 0.5 
+    param[14]= 0.5
     param[15]= 0
     param[16]= 0
     param[17]= 0
