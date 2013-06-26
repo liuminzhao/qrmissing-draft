@@ -1,4 +1,5 @@
-##' Time-stamp: <liuminzhao 06/24/2013 16:08:28>
+#!/bin/Rscript
+##' Time-stamp: <liuminzhao 06/26/2013 17:31:59>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
@@ -117,3 +118,23 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 write.table(result, file = "sim-t-error.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-t-MAR", text="done", address="liuminzhao@gmail.com")
+
+
+###############
+## AFTER SIM; GET SUMMARY
+###############
+
+result <- read.table('sim-t-error.txt')
+trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
+trueq <- rep(trueq, 2)
+mse <- rep(0, 40)
+for (i in 1:40){
+  mse[i] <- mean((result[,i] - trueq[i])^2)
+}
+
+mseh2 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
+mserq <- rbind(matrix(mse[21:30], 2, 5), matrix(mse[31:40], 2, 5))
+print(mseh2)
+print(mserq)
+print(xtable(mseh2))
+print(xtable(mserq))
