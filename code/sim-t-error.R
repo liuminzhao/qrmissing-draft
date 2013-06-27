@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 06/26/2013 17:31:59>
+##' Time-stamp: <liuminzhao 06/27/2013 15:19:44>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
@@ -16,51 +16,6 @@ options(cores = 8)
 set.seed(1)
 
 
-###############
-## TRUE VALUE
-###############
-
-quan1 <- function(y, x, tau){
-  return(tau - .5*pt(y - 1- x, df = 3) - .5*pt(y+1+x,df = 3))
-}
-
-SolveQuan1 <- function(x, tau){
-  uniroot(quan1, c(-30, 30), x = x, tau = tau)$root
-}
-
-x <- seq(0, 2, len = 100)
-y15 <- sapply(x, function(x) SolveQuan1(x, 0.5))
-y19 <- sapply(x, function(x) SolveQuan1(x, 0.9))
-y17 <- sapply(x, function(x) SolveQuan1(x, 0.7))
-y13 <- sapply(x, function(x) SolveQuan1(x, 0.3))
-y11 <- sapply(x, function(x) SolveQuan1(x, 0.1))
-
-q11 <- lm(y11~x)$coef
-q13 <- lm(y13~x)$coef
-q15 <- lm(y15~x)$coef
-q17 <- lm(y17~x)$coef
-q19 <- lm(y19~x)$coef
-
-quan2 <- function(y, x, tau){
-  return(tau - .5*pt(y - 1.5- 1.5*x, df = 3) - .5*pt(y - 0.5 - 0.5*x,df = 3))
-}
-
-SolveQuan2 <- function(x, tau){
-  uniroot(quan2, c(-30, 30), x = x, tau = tau)$root
-}
-
-x <- seq(0, 2, len = 100)
-y25 <- sapply(x, function(x) SolveQuan2(x, 0.5))
-y29 <- sapply(x, function(x) SolveQuan2(x, 0.9))
-y27 <- sapply(x, function(x) SolveQuan2(x, 0.7))
-y23 <- sapply(x, function(x) SolveQuan2(x, 0.3))
-y21 <- sapply(x, function(x) SolveQuan2(x, 0.1))
-
-q21 <- lm(y21~x)$coef
-q23 <- lm(y23~x)$coef
-q25 <- lm(y25~x)$coef
-q27 <- lm(y27~x)$coef
-q29 <- lm(y29~x)$coef
 
 ###############
 ## PARAMETER
@@ -123,6 +78,52 @@ sendEmail(subject="simulation-t-MAR", text="done", address="liuminzhao@gmail.com
 ###############
 ## AFTER SIM; GET SUMMARY
 ###############
+###############
+## TRUE VALUE
+###############
+
+quan1 <- function(y, x, tau){
+  return(tau - .5*pt(y - 1- x, df = 3) - .5*pt(y+1+x,df = 3))
+}
+
+SolveQuan1 <- function(x, tau){
+  uniroot(quan1, c(-30, 30), x = x, tau = tau)$root
+}
+
+x <- seq(0, 2, len = 100)
+y15 <- sapply(x, function(x) SolveQuan1(x, 0.5))
+y19 <- sapply(x, function(x) SolveQuan1(x, 0.9))
+y17 <- sapply(x, function(x) SolveQuan1(x, 0.7))
+y13 <- sapply(x, function(x) SolveQuan1(x, 0.3))
+y11 <- sapply(x, function(x) SolveQuan1(x, 0.1))
+
+q11 <- lm(y11~x)$coef
+q13 <- lm(y13~x)$coef
+q15 <- lm(y15~x)$coef
+q17 <- lm(y17~x)$coef
+q19 <- lm(y19~x)$coef
+
+quan2 <- function(y, x, tau){
+  return(tau - .5*pt(y - 1.5- 1.5*x, df = 3) - .5*pt(y - 0.5 - 0.5*x,df = 3))
+}
+
+SolveQuan2 <- function(x, tau){
+  uniroot(quan2, c(-30, 30), x = x, tau = tau)$root
+}
+
+x <- seq(0, 2, len = 100)
+y25 <- sapply(x, function(x) SolveQuan2(x, 0.5))
+y29 <- sapply(x, function(x) SolveQuan2(x, 0.9))
+y27 <- sapply(x, function(x) SolveQuan2(x, 0.7))
+y23 <- sapply(x, function(x) SolveQuan2(x, 0.3))
+y21 <- sapply(x, function(x) SolveQuan2(x, 0.1))
+
+q21 <- lm(y21~x)$coef
+q23 <- lm(y23~x)$coef
+q25 <- lm(y25~x)$coef
+q27 <- lm(y27~x)$coef
+q29 <- lm(y29~x)$coef
+
 
 result <- read.table('sim-t-error.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
