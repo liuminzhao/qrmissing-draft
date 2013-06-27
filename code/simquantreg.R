@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 04/01/2013 10:19:24>
+## Time-stamp: <liuminzhao 06/26/2013 17:28:37>
 ## Simulation on quantreg function for bivariate case to compare
 ## MAR and MNAR
 rm(list = ls())
@@ -12,7 +12,7 @@ set.seed(1)
 
 
 ###############
-## TRUE VALUE 
+## TRUE VALUE
 ###############
 
 quan1 <- function(y, x, tau){
@@ -43,7 +43,7 @@ q27 <- c(1 +  qnorm(0.7), -1)
 q29 <- c(1 +  qnorm(0.9), -1)
 
 ###############
-## PARAMETER 
+## PARAMETER
 ###############
 p <- 0.5
 n <- 200
@@ -58,7 +58,7 @@ b12 <- -1
 sigma2 <- 1
 
 ###############
-## SIMULATION 
+## SIMULATION
 ###############
 boot <- 1000
 resultsave <- matrix(0, boot, 20)
