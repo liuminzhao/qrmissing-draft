@@ -17,10 +17,15 @@ set.seed(1)
 n <- 500
 p <- 0.5
 
+b010 <- -4
+b110 <- -4
+b011 <- 1
+b111 <- 1
+
 ###############
 ## SIMULATION
 ###############
-boot <- 8
+boot <- 1000
 
 result <- foreach(icount(boot), .combine = rbind) %dopar% {
   R <- rbinom(n, 1, p)
@@ -34,7 +39,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
       y[i, 1] <- rnorm(1, 1 + x[i], sd = sqrt(8*w[i]/tau))
       y[i, 2] <- rnorm(1, 1 + x[i] + y[i, 1]*1/2, sd = sqrt(6*w[i]/tau))
     } else {
-      y[i, 1] <- rnorm(1, -1 - x[i], sd = sqrt(8*w[i]/tau))
+      y[i, 1] <- rnorm(1, b010 + b110*x[i], sd = sqrt(8*w[i]/tau))
       y[i, 2] <- rnorm(1, 1 + x[i] + y[i, 1]/2, sd = sqrt(6*w[i]/tau))
     }
   }
@@ -61,7 +66,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
            mod1mm[2,], mod3mm[2,], mod5mm[2,], mod7mm[2,], mod9mm[2,], mod1rq, mod2rq)
 }
 
-write.table(result, file = "sim-lp-error.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-lp-error-2.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-lp-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -77,9 +82,8 @@ pLD <- function(x, tau){
   return(ifelse(x < 0, exp(tau * x)/2, 1 - exp(-tau * x)/2))
 }
 
-
 quan1 <- function(y, x, tau, quan){
-  return(quan - .5*pLD(y - 1- x, tau = tau ) - .5*pLD(y+1+x, tau = tau))
+  return(quan - .5*pLD(y - 1- x, tau = tau ) - .5*pLD(y - b010 - b110*x, tau = tau))
 }
 
 SolveQuan1 <- function(x, tau, quan){
@@ -87,7 +91,7 @@ SolveQuan1 <- function(x, tau, quan){
 }
 
 quan2 <- function(y, x, tau, quan){
-  return(quan - .5*pLD(y - 1.5- 1.5*x, tau = tau) - .5*pLD(y - 0.5 - 0.5*x,tau = tau))
+  return(quan - .5*pLD(y - (1 + b011/2 + (1 + b111/2)*x), tau = tau) - .5*pLD(y - (1 + b010/2) - (1 + b110/2)*x,tau = tau))
 }
 
 SolveQuan2 <- function(x, tau, quan){
@@ -119,7 +123,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-lp-error.txt')
+result <- read.table('sim-lp-error-2.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 2)
 mse <- rep(0, 40)
