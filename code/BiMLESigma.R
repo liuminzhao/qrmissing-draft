@@ -1,13 +1,10 @@
-## Time-stamp: <liuminzhao 06/24/2013 14:52:30>
+## Time-stamp: <liuminzhao 06/26/2013 21:53:44>
 ## WRAP UP BiMLESigma.f
 
-dyn.load('~/Documents/qrmissing/code/BiMLESigma.so')
-dyn.load('~/Documents/qrmissing/code/BiMLESigmaH1.so')
-dyn.load('~/Documents/qrmissing/code/BiMLESigmaH2.so')
 BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]), method = 'heter2'){
   ## LOAD SHARED LIBRARY
   if (method == 'heter2') {
-    if (!is.loaded('BiMLESigmaH2.so')) {
+    if (!is.loaded('biqrgradienth2f')) {
       if (file.exists('BiMLESigmaH2.so')) {
         dyn.load('BiMLESigmaH2.so')
       } else {
