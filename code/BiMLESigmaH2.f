@@ -1,64 +1,25 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 06/05/2013 13:25:21>
+C$$$  Time-stamp: <liuminzhao 07/02/2013 10:45:29>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
+c$$$  2013/07/01 change bracket the interval and bisection method
 c===========================================================
-
 
 CCCCCCCCCCCCCCCCCCCC
 C        TARGET DELTA EQUATION 1
 CCCCCCCCCCCCCCCCCCCC
 
-      SUBROUTINE TargetEqn1H2f(delta,gamma,beta,sigma,tau,p,x,f,xdim)
-
-      implicit none
+      real*8 function TargetEqn1H2f(delta,param,tau,x,xdim)
       integer xdim, i
+      real*8 param(8*xdim + 3)
       real*8 delta, gamma(xdim), beta(xdim), sigma(2), tau, p, x(xdim)
-      real*8 ans, f
-
+      real*8 targeteqn1h2f
 C     OTHER C FUNCTION
       real*8 pnrm
 
 C     TEMP
       real*8 quan, lp
-
-      quan = 0
-      lp = 0
-
-      do i = 1, xdim
-         quan = quan + gamma(i) * x(i)
-         lp = lp + beta(i) * x(i)
-      end do
-      f=tau-p*pnrm(quan-delta - lp,0.d0,sigma(1),1,0)-
-     &     (1-p)*pnrm(quan-delta+lp,0.d0,sigma(2),1,0)
-
-      return
-      end
-
-CCCCCCCCCCCCCCCCCCCC
-C     SOLVE DELTA 1
-CCCCCCCCCCCCCCCCCCCC
-      SUBROUTINE SolveDelta1H2f(param, tau, x, root,xdim)
-
-      implicit none
-      integer xdim, i
-      real*8 param(8*xdim + 3)
-      real*8 gamma(xdim), beta(xdim), sigma(2), tau, p, x(xdim), root
-
-C     TEMP
-
-      real*8 a, b, fa, fb, m, fm, tol
-
-C     INITIAL
-
-      a = -100
-      b = 100
-      fa = 0
-      fb = 0
-      m = (a + b)/2
-      fm = 0
-      tol = 0.00001
 
       sigma(1) = 0
       sigma(2) = 0
@@ -74,12 +35,91 @@ C     INITIAL
       sigma(1) = exp(sigma(1))
       sigma(2) = exp(sigma(2))
 
+      quan = 0
+      lp = 0
 
-      call TargetEqn1H2f(m,gamma,beta,sigma,tau, p, x, fm,xdim)
-      call TargetEqn1H2f(b,gamma,beta,sigma,tau, p, x, fb,xdim)
-      call TargetEqn1H2f(a,gamma,beta,sigma,tau, p, x, fa,xdim)
+      do i = 1, xdim
+         quan = quan + gamma(i) * x(i)
+         lp = lp + beta(i) * x(i)
+      end do
+      targeteqn1h2f=tau-p*pnrm(quan-delta - lp,0.d0,sigma(1),1,0)-
+     &     (1-p)*pnrm(quan-delta+lp,0.d0,sigma(2),1,0)
 
-      do while(abs(fm) > tol)
+      return
+      end
+
+CCCCCCCCCCCCCCCCCCCC
+C     BRACKET 1
+CCCCCCCCCCCCCCCCCCCC
+      SUBROUTINE zbrac1(func, x1, x2, success, param, tau, x, xdim)
+      implicit none
+      integer ntry, xdim
+      real*8 x1, x2, func, tau, param(8*xdim + 3), x(xdim)
+      external func
+      real*8 factor
+      integer j
+      real*8 f1, f2
+      logical success
+
+      factor = 1.6
+      ntry = 50
+      f1 = func(x1, param, tau, x, xdim)
+      f2 = func(x2, param, tau, x, xdim)
+      success = .true.
+      do j = 1, ntry
+         if (f1*f2 .lt. 0.) return
+         if (abs(f1).lt.abs(f2)) then
+            x1 = x1 + factor*(x1-x2)
+            f1 = func(x1, param, tau, x, xdim)
+         else
+            x2 = x2 + factor*(x2-x1)
+            f2 = func(x2, param, tau, x, xdim)
+         endif
+      enddo
+      success = .false.
+      return
+      end
+
+CCCCCCCCCCCCCCCCCCCC
+C     SOLVE DELTA 1
+CCCCCCCCCCCCCCCCCCCC
+      real*8 function root1(param, tau, x, xdim)
+
+      integer imax
+      integer xdim, i
+      real*8 param(8*xdim + 3)
+      real*8 tau, x(xdim), root1
+      real*8 targeteqn1h2f
+C     TEMP
+
+      real*8 a, b, fa, fb, m, fm, tol
+      logical success
+      real*8 dx
+
+C     INITIAL
+
+      a = -0.1
+      b = 0.1
+      fa = 0
+      fb = 0
+      m = (a + b)/2
+      fm = 0
+      tol = 0.00001
+      success = .true.
+      imax = 40
+
+      call zbrac1(targeteqn1h2f, a, b, success, param, tau, x, xdim)
+
+      dx = b - a
+
+      fm = TargetEqn1H2f(m, param, tau, x,xdim)
+      fb = TargetEqn1H2f(b, param, tau, x,xdim)
+      fa = TargetEqn1H2f(a, param, tau, x,xdim)
+
+      if (fa*fb .ge. 0) print*, 'root must be bracketed'
+
+      do i = 1, imax
+         dx = dx*0.5
          if (fm * fb < 0) then
             a = m
          else
@@ -87,31 +127,54 @@ C     INITIAL
             fb = fm
          end if
          m = (a + b)/2
-         call TargetEqn1H2f(m,gamma,beta,sigma,tau, p, x, fm,xdim)
+         root1 = m
+         fm = TargetEqn1H2f(m, param, tau, x, xdim)
+         if (abs(dx) .lt. tol .or. abs(fm) .lt. tol) return
       end do
-
-      root = m
-      return
+      print*, 'too many bisections in rootfind'
       end
+
 
 
 CCCCCCCCCCCCCCCCCCCC
 C TARGET EQN FOR DELTA2
 CCCCCCCCCCCCCCCCCCCC
 
-      subroutine targeteqn2h2f(delta2, gamma2, beta1, beta2, h, sigma1,
-     &     sigma2, tau, p, x, delta1, f, xdim)
-      implicit none
+      REAL*8 FUNCTION targeteqn2h2f(delta2, param, tau, x, delta1, xdim)
       integer xdim, i
+      real*8 param(8*xdim + 3)
       real*8 delta2, gamma2(xdim), beta1(xdim), beta2(xdim+1), h
       real*8 sigma1(2), sigma2(2), tau, p, x(xdim), delta1
-      real*8 f
+      real*8 targeteqn2h2f
 
       real*8 pnrm
       real*8 p1, p2
       real*8 beta22
 
       real*8 beta1lp, beta2lp, gamma2lp
+
+      sigma1(1) = 0
+      sigma1(2) = 0
+      sigma2(1) = 0
+      sigma2(2) = 0
+
+      do i = 1, xdim
+         beta1(i) = param(xdim + i)
+         sigma1(1) = sigma1(1) + param(2*xdim + i)*x(i)
+         sigma1(2) = sigma1(2) + param(3*xdim + i)*x(i)
+         gamma2(i) = param(4*xdim + i)
+         beta2(i) = param(5*xdim + i)
+         sigma2(1) = sigma2(1) + param(6*xdim + i)*x(i)
+        sigma2(2) = sigma2(2) + (param(6*xdim + i)+param(7*xdim+i))*x(i)
+      end do
+      beta2(xdim + 1) = param(8*xdim + 1)
+      h = param(xdim*8 + 2)
+      p = param(xdim*8 + 3)
+
+      sigma1(1) = exp(sigma1(1))
+      sigma1(2) = exp(sigma1(2))
+      sigma2(1) = exp(sigma2(1))
+      sigma2(2) = exp(sigma2(2))
 
       beta22 = beta2(xdim+1) + h
 
@@ -157,67 +220,86 @@ CCCCCCCCCCCCCCCCCCCC
          p2 = 1 - p2
       end if
 
-      f = tau - p * p1 - (1 - p) * p2
+      targeteqn2h2f = tau - p * p1 - (1 - p) * p2
 
       return
       end
+
+CCCCCCCCCCCCCCCCCCCC
+C     BRACKET 2
+CCCCCCCCCCCCCCCCCCCC
+      SUBROUTINE zbrac2(func,x1,x2,success,param, tau, x, delta1,xdim)
+      implicit none
+      integer ntry, xdim
+      real*8 x1, x2, func, tau, param(8*xdim + 3), x(xdim), delta1
+      external func
+      real*8 factor
+      integer j
+      real*8 f1, f2
+      logical success
+
+      factor = 1.6
+      ntry = 50
+      f1 = func(x1, param, tau, x, delta1, xdim)
+      f2 = func(x2, param, tau, x, delta1, xdim)
+      success = .true.
+      do j = 1, ntry
+         if (f1*f2 .lt. 0.) return
+         if (abs(f1).lt.abs(f2)) then
+            x1 = x1 + factor*(x1-x2)
+            f1 = func(x1, param, tau, x, delta1, xdim)
+         else
+            x2 = x2 + factor*(x2-x1)
+            f2 = func(x2, param, tau, x, delta1, xdim)
+         endif
+      enddo
+      success = .false.
+      return
+      end
+
+
 
 
 CCCCCCCCCCCCCCCCCCCC
 C SOLVE DELTA2
 CCCCCCCCCCCCCCCCCCCC
 
-      subroutine solvedelta2h2f(param, tau, x, delta1, root,xdim)
-      implicit none
-      integer xdim
+      REAL*8 FUNCTION root2(param, tau, x, delta1, xdim)
+
+      integer xdim, imax
       real*8 param(8*xdim + 3)
-      real*8 gamma1(xdim), beta1(xdim), sigma1(2)
-      real*8 gamma2(xdim), beta2(xdim + 1), sigma2(2), p, h
-      real*8 tau, x(xdim), delta1, root
+      real*8 tau, x(xdim), delta1, root2
       real*8 a, b, fa, fb, m, fm, tol
-      integer i, j
+      integer i
+      real*8 targeteqn2h2f
+
+      logical success
+      real*8 dx
+
 C     INITIAL
 
-      a = -100
-      b = 100
+      a = -0.1
+      b = 0.1
       fa = 0
       fb = 0
       m = (a + b)/2
       fm = 0
       tol = 0.00001
 
-      sigma1(1) = 0
-      sigma1(2) = 0
-      sigma2(1) = 0
-      sigma2(2) = 0
+      success = .true.
+      imax = 40
 
-      do i = 1, xdim
-         gamma1(i) = param(i)
-         beta1(i) = param(xdim + i)
-         sigma1(1) = sigma1(1) + param(2*xdim + i)*x(i)
-         sigma1(2) = sigma1(2) + param(3*xdim + i)*x(i)
-         gamma2(i) = param(4*xdim + i)
-         beta2(i) = param(5*xdim + i)
-         sigma2(1) = sigma2(1) + param(6*xdim + i)*x(i)
-        sigma2(2) = sigma2(2) + (param(6*xdim + i)+param(7*xdim+i))*x(i)
-      end do
-      beta2(xdim + 1) = param(8*xdim + 1)
-      h = param(xdim*8 + 2)
-      p = param(xdim*8 + 3)
+      call zbrac2(targeteqn2h2f,a,b,success,param,tau,x,delta1,xdim)
 
-      sigma1(1) = exp(sigma1(1))
-      sigma1(2) = exp(sigma1(2))
-      sigma2(1) = exp(sigma2(1))
-      sigma2(2) = exp(sigma2(2))
+      dx = b - a
 
-      call targeteqn2h2f(m, gamma2, beta1, beta2,h, sigma1,
-     &     sigma2, tau, p, x, delta1, fm,xdim)
-      call targeteqn2h2f(b, gamma2, beta1, beta2,h, sigma1,
-     &     sigma2, tau, p, x, delta1, fb,xdim)
-      call targeteqn2h2f(a, gamma2, beta1, beta2,h, sigma1,
-     &     sigma2, tau, p, x, delta1, fa,xdim)
+      fm = targeteqn2h2f(m, param, tau, x, delta1,xdim)
+      fb = targeteqn2h2f(b, param, tau, x, delta1,xdim)
+      fa = targeteqn2h2f(a, param, tau, x, delta1,xdim)
 
-      do while(abs(fm) > tol)
+      if (fa*fb .ge. 0) print*, 'root must be bracketed'
+      do  i = 1, imax
+         dx = dx*0.5
          if (fm * fb < 0) then
             a = m
          else
@@ -225,14 +307,13 @@ C     INITIAL
             fb = fm
          end if
          m = (a + b)/2
-         call targeteqn2h2f(m, gamma2, beta1, beta2,h, sigma1,
-     &        sigma2, tau, p, x, delta1, fm,xdim)
+         root2 = m
+         fm = targeteqn2h2f(m, param, tau, x, delta1,xdim)
+         if (abs(dx) .lt. tol .or. abs(fm) .lt. tol) return
       end do
-
-      root = m
+      print*, 'too many bisections in rootfind'
       return
       end
-
 
 CCCCCCCCCCCCCCCCCCCC
 C NEGLOGLIKELIHOOD
@@ -317,6 +398,7 @@ CCCCCCCCCCCCCCCCCCCC
       integer i, j, k
 
       real*8 tmpx(xdim)
+      real*8 root1, root2
 
       epsilon = 0.0003
 
@@ -335,12 +417,10 @@ CCCCCCCCCCCCCCCCCCCC
                do k = 1, xdim
                   tmpx(k) = x(j, k)
                end do
-               call SolveDelta1H2f(param1, tau, tmpx, delta1p(j), xdim)
-               call SolveDelta1H2f(param2, tau, tmpx, delta1m(j),xdim)
-               call solvedelta2h2f(param1,tau,tmpx,delta1p(j),delta2p(j)
-     &              ,xdim)
-               call solvedelta2h2f(param2,tau,tmpx,delta1m(j),delta2m(j)
-     &              ,xdim)
+               delta1p(j) = root1(param1, tau, tmpx, xdim)
+               delta1m(j) = root1(param2, tau, tmpx, xdim)
+               delta2p(j) = root2(param1,tau,tmpx,delta1p(j),xdim)
+               delta2m(j) = root2(param2,tau,tmpx,delta1m(j),xdim)
             end do
 
             call negloglikelihoodh2(y, R, x, delta1p, delta2p
@@ -372,6 +452,7 @@ CCCCCCCCCCCCCCCCCCCC
       real*8 alphamax, alphamin, etap, etam
 
       real*8 tmpx(xdim)
+      real*8 root1, root2
 
       do i = 1, 8*xdim+3
          pp(i) = 0
@@ -419,8 +500,8 @@ CCCCCCCCCCCCCCCCCCCC
             do k = 1, xdim
                tmpx(k) = x(j, k)
             end do
-            call SolveDelta1H2f(param, tau, tmpx, delta1(j),xdim)
-            call solvedelta2h2f(param,tau,tmpx,delta1(j),delta2(j),xdim)
+            delta1(j) = root1(param, tau, tmpx, xdim)
+            delta2(j) = root2(param,tau,tmpx,delta1(j),xdim)
          end do
          call negloglikelihoodh2(y,R,x,delta1, delta2,param,n,nll,xdim)
          dif = abs(nll - nll0)
@@ -429,11 +510,11 @@ CCCCCCCCCCCCCCCCCCCC
             paramsave(iter, i) = param(i)
          end do
          paramsave(iter, 8*xdim+4) = nll
-C         print*, param, '\n' ,pp, '\n', iter
 
          call progress(iter, niter)
          iter = iter + 1
       end do
+      print*, '\n'
       return
       end
 
