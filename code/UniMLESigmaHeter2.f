@@ -1,6 +1,6 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 07/01/2013 16:45:03>
+C$$$  Time-stamp: <liuminzhao 07/01/2013 22:23:49>
 c$$$  Univariate MLE using sigma
 c$$$  Heter by Exponential exp(alpha0 + alpha1*x)
 c===========================================================
@@ -53,7 +53,9 @@ CCCCCCCCCCCCCCCCCCCC
       integer j
       real*8 f1, f2
       logical success
+
       factor = 1.6
+      ntry = 50
       f1 = func(x1, param, x, tau)
       f2 = func(x2, param, x, tau)
       success = .true.
