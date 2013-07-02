@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 07/02/2013 11:39:25>
+## Time-stamp: <liuminzhao 07/02/2013 13:25:14>
 ## WRAP UP BiMLESigma.f
 
 BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]), method = 'heter2'){
@@ -78,15 +78,17 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
                     )
   } else if (method == 'heter2') {
     xdim <- dim(X)[2]
-    lmcoef <- solve(t(X)%*%X)%*%(t(X)%*%y)
+    require(quantreg)
+    lmcoef1 <- coef(rq(y[,1] ~ X[,-1], tau = tau))
+    lmcoef2 <- coef(rq(y[,2][R == 1] ~ X[R == 1,-1], tau = tau))
     param <- rep(0, 8*xdim + 3)
-    param[1:xdim] <- lmcoef[, 1]
-    param[(4*xdim + 1):(5*xdim)] <- lmcoef[, 2]
+    param[1:xdim] <- lmcoef1
+    param[(4*xdim + 1):(5*xdim)] <- lmcoef2
     param[(5*xdim + 1):(6*xdim)] = sp[1:xdim]
     param[(7*xdim + 1):(8*xdim)] = sp[(xdim + 2):(2*xdim + 1)]
     param[8*xdim + 2]= sp[xdim + 1]
     param[8*xdim + 3] = 0.5
-##    print(param)
+    print(param)
     paramsave <- matrix(0, niter, 8*xdim + 4)
     mod <- .Fortran("BiQRGradientH2f",
                     y = as.double(y),

@@ -1,6 +1,6 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 07/02/2013 11:38:21>
+C$$$  Time-stamp: <liuminzhao 07/02/2013 13:02:39>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c$$$  2013/07/01 change bracket the interval and bisection method
@@ -98,8 +98,8 @@ C     TEMP
 
 C     INITIAL
 
-      a = -0.1
-      b = 0.1
+      a = -30
+      b = 30
       fa = 0
       fb = 0
       m = (a + b)/2
@@ -280,8 +280,8 @@ CCCCCCCCCCCCCCCCCCCC
 
 C     INITIAL
 
-      a = -0.1
-      b = 0.1
+      a = -30
+      b = 30
       fa = 0
       fb = 0
       m = (a + b)/2
