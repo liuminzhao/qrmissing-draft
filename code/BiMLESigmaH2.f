@@ -1,6 +1,6 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 07/02/2013 11:22:21>
+C$$$  Time-stamp: <liuminzhao 07/02/2013 11:38:21>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c$$$  2013/07/01 change bracket the interval and bisection method
@@ -444,12 +444,14 @@ CCCCCCCCCCCCCCCCCCCC
 C MAIN FUNCTION
 CCCCCCCCCCCCCCCCCCCC
 
-      subroutine BiQRGradientH2f(y,R,x,tau,n,niter,param,paramsave,xdim)
+      subroutine BiQRGradientH2f(y,R,x,tau,n,niter,param,paramsave,xdim,
+     &     converge)
       implicit none
       integer n, niter, xdim
       integer R(n)
       real*8 param(8*xdim+3), y(n,2), x(n,xdim),tau
       real*8 delta1(n), delta2(n),paramsave(niter,8*xdim+4)
+      logical converge
 
       integer i, iter, j, k
       real*8 dif, nll0, nll,pp(8*xdim+3), alpha(8*xdim+3), ppp(8*xdim+3)
@@ -472,13 +474,15 @@ CCCCCCCCCCCCCCCCCCCC
       iter = 1
       nll0 = 0
 
+      converge = .true.
+
       do i = 1, niter
          do j = 1, 8*xdim + 4
             paramsave(i, j) = 0
          end do
       end do
 
-      do while (dif > 0.00001 .and. iter .le. niter)
+      do while (dif > 0.001 .and. iter .le. niter)
          call PartialH2f(param, tau, x, y, R, n, pp,xdim)
          do i = 1, 8*xdim + 3
             if (pp(i) * ppp(i) > 0) then
@@ -518,6 +522,8 @@ CCCCCCCCCCCCCCCCCCCC
          call progress(iter, niter)
          iter = iter + 1
       end do
+
+      if (iter .ge. niter) converge = .false.
       print*, 'done \n'
       return
       end

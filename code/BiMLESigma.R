@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 06/26/2013 21:53:44>
+## Time-stamp: <liuminzhao 07/02/2013 11:39:25>
 ## WRAP UP BiMLESigma.f
 
 BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]), method = 'heter2'){
@@ -97,7 +97,8 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
                     niter = as.integer(niter),
                     param = as.double(param),
                     paramsave = as.double(paramsave),
-                    xdim = as.integer(xdim)
+                    xdim = as.integer(xdim),
+                    converge = as.logical(TRUE)
                     )
   }
   return(mod)
