@@ -1,6 +1,6 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 07/02/2013 10:45:29>
+C$$$  Time-stamp: <liuminzhao 07/02/2013 11:22:21>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c$$$  2013/07/01 change bracket the interval and bisection method
@@ -109,6 +109,8 @@ C     INITIAL
       imax = 40
 
       call zbrac1(targeteqn1h2f, a, b, success, param, tau, x, xdim)
+
+      if (.not. success) print*, 'fail to bracket delta1'
 
       dx = b - a
 
@@ -290,6 +292,8 @@ C     INITIAL
       imax = 40
 
       call zbrac2(targeteqn2h2f,a,b,success,param,tau,x,delta1,xdim)
+
+      if (.not. success) print*, 'fail to bracket delta2'
 
       dx = b - a
 
@@ -514,7 +518,7 @@ CCCCCCCCCCCCCCCCCCCC
          call progress(iter, niter)
          iter = iter + 1
       end do
-      print*, '\n'
+      print*, 'done \n'
       return
       end
 
