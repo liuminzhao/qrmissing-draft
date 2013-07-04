@@ -1,6 +1,8 @@
 #!/bin/Rscript
 ##' 2013/06/27 simulation on Laplace distribution
+##' 2013/07/04 new simulation
 
+sink('sim-lp-0704-ex.txt')
 rm(list = ls())
 source('BiMLESigma.R')
 source('sendEmail.R')
@@ -16,11 +18,8 @@ set.seed(1)
 ###############
 n <- 500
 p <- 0.5
-
-b010 <- -4
-b110 <- -4
-b011 <- 1
-b111 <- 1
+alpha <- 0.3
+tau <- 1
 
 ###############
 ## SIMULATION
@@ -31,18 +30,17 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   R <- rbinom(n, 1, p)
   x <- runif(n, 0, 2)
   y <- matrix(0, n, 2)
-  tau <- 1
   w <- rgamma(n, 1, rate = tau)
-
   for (i in 1:n){
     if (R[i] == 1){
-      y[i, 1] <- rnorm(1, 1 + x[i], sd = sqrt(8*w[i]/tau))
-      y[i, 2] <- rnorm(1, 1 + x[i] + y[i, 1]*1/2, sd = sqrt(6*w[i]/tau))
+      y[i, 1] <- 10 + x[i] + (1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(8*w[i]/tau))
+      y[i, 2] <- y[i, 1]*1/2 + rnorm(1,sd = sqrt(6*w[i]/tau))*(1 + alpha*x[i])
     } else {
-      y[i, 1] <- rnorm(1, b010 + b110*x[i], sd = sqrt(8*w[i]/tau))
-      y[i, 2] <- rnorm(1, 1 + x[i] + y[i, 1]/2, sd = sqrt(6*w[i]/tau))
+      y[i, 1] <- -10 - x[i] + (1 + alpha*x[i])* rnorm(1, sd = sqrt(8*w[i]/tau))
+      y[i, 2] <- y[i, 1]/2 + rnorm(1, sd = sqrt(6*w[i]/tau))*(1 + alpha*x[i])
     }
   }
+
   X <- matrix(0, n, 2)
   X[,1] <- 1
   X[,2] <- x
@@ -53,11 +51,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   mod7 <- BiQRGradient(y, R, X, tau = 0.7, method = 'heter2')
   mod9 <- BiQRGradient(y, R, X, tau = 0.9, method = 'heter2')
 
-  mod1mm <- mysummary(mod1)
-  mod3mm <- mysummary(mod3)
-  mod5mm <- mysummary(mod5)
-  mod7mm <- mysummary(mod7)
-  mod9mm <- mysummary(mod9)
+  mod1mm <- coef(mod1)
+  mod3mm <- coef(mod3)
+  mod5mm <- coef(mod5)
+  mod7mm <- coef(mod7)
+  mod9mm <- coef(mod9)
 
   mod1rq <- as.vector(rq(y[,1]~x, tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
   mod2rq <- as.vector(rq(y[,2][R==1]~x[R==1], tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
@@ -66,7 +64,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
            mod1mm[2,], mod3mm[2,], mod5mm[2,], mod7mm[2,], mod9mm[2,], mod1rq, mod2rq)
 }
 
-write.table(result, file = "sim-lp-error-2.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-lp-error-3.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-lp-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -76,14 +74,13 @@ sendEmail(subject="simulation-lp-MAR", text="done", address="liuminzhao@gmail.co
 ###############
 ## TRUE VALUE
 ###############
-tau <- 1
 
 pLD <- function(x, tau){
   return(ifelse(x < 0, exp(tau * x)/2, 1 - exp(-tau * x)/2))
 }
 
 quan1 <- function(y, x, tau, quan){
-  return(quan - .5*pLD(y - 1- x, tau = tau ) - .5*pLD(y - b010 - b110*x, tau = tau))
+  return(quan - .5*pLD(y - 10- x, tau = tau/(1 + alpha*x) ) - .5*pLD(y + 10 +x, tau = tau/(1 + alpha*x)))
 }
 
 SolveQuan1 <- function(x, tau, quan){
@@ -91,7 +88,7 @@ SolveQuan1 <- function(x, tau, quan){
 }
 
 quan2 <- function(y, x, tau, quan){
-  return(quan - .5*pLD(y - (1 + b011/2 + (1 + b111/2)*x), tau = tau) - .5*pLD(y - (1 + b010/2) - (1 + b110/2)*x,tau = tau))
+  return(quan - .5*pLD(y - (5 + 0.5*x), tau = tau/(1 + alpha*x)) - .5*pLD(y - (-5 - 0.5*x),tau = tau/(1 + alpha*x)))
 }
 
 SolveQuan2 <- function(x, tau, quan){
@@ -123,7 +120,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-lp-error-2.txt')
+result <- read.table('sim-lp-error-3.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 2)
 mse <- rep(0, 40)
@@ -141,3 +138,5 @@ print(xtable(mserq))
 colnames(mytbl) <- rep(c('MM', 'RQ'), 5)
 
 print(xtable(mytbl))
+cat("Time: ", proc.time()[3] - time, '\n')
+sink()
