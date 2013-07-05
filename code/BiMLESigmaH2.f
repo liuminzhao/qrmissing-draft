@@ -1,6 +1,6 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 07/02/2013 13:02:39>
+C$$$  Time-stamp: <liuminzhao 07/05/2013 10:56:41>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c$$$  2013/07/01 change bracket the interval and bisection method
@@ -482,7 +482,7 @@ CCCCCCCCCCCCCCCCCCCC
          end do
       end do
 
-      do while (dif > 0.001 .and. iter .le. niter)
+      do while (dif > 0.00001 .and. iter .le. niter)
          call PartialH2f(param, tau, x, y, R, n, pp,xdim)
          do i = 1, 8*xdim + 3
             if (pp(i) * ppp(i) > 0) then
