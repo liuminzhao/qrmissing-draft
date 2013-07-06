@@ -1,6 +1,6 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 07/05/2013 10:56:41>
+C$$$  Time-stamp: <liuminzhao 07/05/2013 17:12:21>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c$$$  2013/07/01 change bracket the interval and bisection method
@@ -98,8 +98,8 @@ C     TEMP
 
 C     INITIAL
 
-      a = -30
-      b = 30
+      a = -0.1
+      b = 0.1
       fa = 0
       fb = 0
       m = (a + b)/2
@@ -179,6 +179,7 @@ CCCCCCCCCCCCCCCCCCCC
       sigma2(2) = exp(sigma2(2))
 
       beta22 = beta2(xdim+1) + h
+C     beta22 is for observed group; beta2 is for sensitivity parameter (unobserved)
 
       beta1lp = 0
       beta2lp = 0
@@ -202,12 +203,12 @@ CCCCCCCCCCCCCCCCCCCC
      &        )/sigma2(1), 0.d0, 1.d0, 1, 0)
       end if
 
-      if (beta2(3) .ne. 0) then
+      if (beta2(xdim + 1) .ne. 0) then
          p2=pnrm(((-delta2+gamma2lp - beta2lp
-     &        )/beta2(3)-(delta1-beta1lp ))/
+     &        )/beta2(xdim + 1)-(delta1-beta1lp ))/
      &        sigma1(2)/sqrt(
      &        sigma2(2)**2/
-     &        sigma1(2)**2/beta2(3)**2+1),
+     &        sigma1(2)**2/beta2(xdim + 1)**2+1),
      &        0.d0,1.d0,1,0)
       else
          p2=pnrm((gamma2lp -delta2-beta2lp
@@ -218,7 +219,7 @@ CCCCCCCCCCCCCCCCCCCC
          p1 = 1 - p1
       end if
 
-      if (beta2(3) < 0) then
+      if (beta2(xdim + 1) < 0) then
          p2 = 1 - p2
       end if
 
@@ -280,8 +281,8 @@ CCCCCCCCCCCCCCCCCCCC
 
 C     INITIAL
 
-      a = -30
-      b = 30
+      a = -0.1
+      b = 0.1
       fa = 0
       fb = 0
       m = (a + b)/2
@@ -371,7 +372,7 @@ CCCCCCCCCCCCCCCCCCCC
          if (R(i) .eq. 1) then
             nll=nll+dnrm(y(i,1),delta1(i)+beta1lp
      &           ,exp(sigma1(1)),1)
-     &           +dnrm(y(i,2),delta2(i)-beta2lp +
+     &           +dnrm(y(i,2),delta2(i) +
      &           y(i,1)*beta22,
      &           exp(sigma2(1)),1)+log(p)
          else
@@ -482,7 +483,7 @@ CCCCCCCCCCCCCCCCCCCC
          end do
       end do
 
-      do while (dif > 0.00001 .and. iter .le. niter)
+      do while (dif > 0.0001 .and. iter .le. niter)
          call PartialH2f(param, tau, x, y, R, n, pp,xdim)
          do i = 1, 8*xdim + 3
             if (pp(i) * ppp(i) > 0) then
@@ -524,7 +525,8 @@ CCCCCCCCCCCCCCCCCCCC
       end do
 
       if (iter .ge. niter) converge = .false.
-      print*, 'done \n'
+      if (converge) print*, 'converge \n'
+      if (.not. converge) print*, 'not converge \n'
       return
       end
 
