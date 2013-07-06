@@ -1,7 +1,10 @@
-## Time-stamp: <liuminzhao 04/17/2013 12:51:08>
-## Simulation Bivariate case with MAR using heter2
-## Real MAR , not MCAR
+#!/bin/Rscript
+##' Time-stamp: <liuminzhao 07/05/2013 23:46:08>
+##' Simulation Bivariate case with MAR using heter2
+##' Real MAR , not MCAR
+##' correct heterogeneity parameters
 
+sink('0705.txt')
 rm(list = ls())
 source('BiMLESigma.R')
 source('sendEmail.R')
@@ -12,9 +15,68 @@ registerDoMC()
 options(cores = 8)
 set.seed(1)
 
+###############
+## PARAMETER
+###############
+n <- 500
+p <- 0.5
+alpha <- 0.3
 
 ###############
-## TRUE VALUE 
+## SIMULATION
+###############
+boot <- 8
+count <- rep(0, 5)
+start <- proc.time()[3]
+
+result <- foreach(icount(boot), .combine = rbind) %dopar% {
+  R <- rbinom(n, 1, p)
+  x <- runif(n, 0, 2)
+  y <- matrix(0, n, 2)
+  for (i in 1:n){
+    if (R[i] == 1){
+      y[i, 1] <- 2 + x[i] +(1 + 0.5*x[i])*rnorm(1)
+      y[i, 2] <- 1 - x[i] - 0.5 * y[i, 1] + (1+0.5*x[i])*rnorm(1)
+    } else {
+      y[i, 1] <- -2 - x[i] +(1 + 0.5*x[i])*rnorm(1)
+      y[i, 2] <- 1 - x[i] - 0.5 * y[i, 1] + (1+0.5*x[i])*rnorm(1)
+    }
+  }
+
+  X <- matrix(0, n, 2)
+  X[,1] <- 1
+  X[,2] <- x
+
+  mod1 <- BiQRGradient(y, R, X, tau = 0.1, method = 'heter2')
+  mod3 <- BiQRGradient(y, R, X, tau = 0.3, method = 'heter2')
+  mod5 <- BiQRGradient(y, R, X, tau = 0.5, method = 'heter2')
+  mod7 <- BiQRGradient(y, R, X, tau = 0.7, method = 'heter2')
+  mod9 <- BiQRGradient(y, R, X, tau = 0.9, method = 'heter2')
+
+  mod1mm <- coef(mod1)
+  mod3mm <- coef(mod3)
+  mod5mm <- coef(mod5)
+  mod7mm <- coef(mod7)
+  mod9mm <- coef(mod9)
+
+  count[1] <- count[1] + mod1$converge
+  count[2] <- count[2] + mod3$converge
+  count[3] <- count[3] + mod5$converge
+  count[4] <- count[4] + mod7$converge
+  count[5] <- count[5] + mod9$converge
+
+  mod1rq <- as.vector(rq(y[,1]~x, tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
+  mod2rq <- as.vector(rq(y[,2][R==1]~x[R==1], tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
+
+  ans <- c(mod1mm[1,], mod3mm[1,], mod5mm[1,], mod7mm[1,], mod9mm[1,],
+           mod1mm[2,], mod3m[2,], mod5mm[2,], mod7mm[2,], mod9mm[2,], mod1rq, mod2rq)
+}
+
+write.table(result, file = "0705-result.txt", row.names = F, col.names = F)
+sendEmail(subject="simulation-bi--MAR", text="done", address="liuminzhao@gmail.com")
+
+###############
+## TRUE VALUE
 ###############
 quan2 <- function(y, x, tau){
   return(tau - .5*pnorm(y, 2+x, 1 + 0.5*x) - .5*pnorm(y, -2-x, 1 + 0.5*x))
@@ -25,86 +87,57 @@ SolveQuan2 <- function(x, tau){
 }
 
 quan3 <- function(y, x, tau){
-  return(tau - .5*pnorm(y, -1.5*x, 5/4 + 1/8*x) - .5*pnorm(y, 2-.5*x, 5/4 + 1/8*x))
+  return(tau - .5*pnorm(y, -1.5*x, (1+0.5*x)*sqrt(5/4)) - .5*pnorm(y, 2-.5*x, (1+0.5*x)*sqrt(5/4)))
 }
 
 SolveQuan3 <- function(x, tau){
   uniroot(quan3, c(-30, 30), x = x, tau = tau)$root
 }
 
-xx <- seq(0, 2, len = 100)
-quan <- seq(0.1, 0.9, len= 5)
-qq3 <- sapply(quan, function(t) sapply(xx, function(x) SolveQuan3(x, t)))
-(qest3 <- sapply(quan, function(t) lm(sapply(xx, function(x) SolveQuan3(x, t)) ~ xx)$coef))
-qq2 <- sapply(quan, function(t) sapply(xx, function(x) SolveQuan2(x, t)))
-(qest2 <- sapply(quan, function(t) lm(sapply(xx, function(x) SolveQuan2(x, t)) ~ xx)$coef))
+xsim <- seq(0, 2, len = 100)
+y11 <- sapply(xsim, function(x) SolveQuan1(x, 0.1))
+y13 <- sapply(xsim, function(x) SolveQuan1(x, 0.3))
+y15 <- sapply(xsim, function(x) SolveQuan1(x, 0.5))
+y17 <- sapply(xsim, function(x) SolveQuan1(x, 0.7))
+y19 <- sapply(xsim, function(x) SolveQuan1(x, 0.9))
 
+q11 <- lm(y11~xsim)$coef
+q13 <- lm(y13~xsim)$coef
+q15 <- lm(y15~xsim)$coef
+q17 <- lm(y17~xsim)$coef
+q19 <- lm(y19~xsim)$coef
 
+xsim <- seq(0, 2, len = 100)
+y25 <- sapply(xsim, function(x) SolveQuan2(x, 0.5))
+y29 <- sapply(xsim, function(x) SolveQuan2(x, 0.9))
+y27 <- sapply(xsim, function(x) SolveQuan2(x, 0.7))
+y23 <- sapply(xsim, function(x) SolveQuan2(x, 0.3))
+y21 <- sapply(xsim, function(x) SolveQuan2(x, 0.1))
 
-###############
-## PARAMETER 
-###############
-n <- 500
-p <- 0.5
+q21 <- lm(y21~xsim)$coef
+q23 <- lm(y23~xsim)$coef
+q25 <- lm(y25~xsim)$coef
+q27 <- lm(y27~xsim)$coef
+q29 <- lm(y29~xsim)$coef
 
-
-###############
-## SIMULATION 
-###############
-boot <- 100
-
-result <- foreach(icount(boot), .combine = rbind) %dopar% {
-  R <- rbinom(n, 1, p)
-  x <- runif(n, 0, 2)
-  y <- matrix(0, n, 2)
-  for (i in 1:n){
-    if (R[i] == 1){
-      y[i, 1] <- 2 + x[i] +(1 + 0.5*x[i])*rnorm(1)
-      y[i, 2] <- 1 - x[i] - 0.5 * y[i, 1] + rnorm(1)
-    } else {
-      y[i, 1] <- -2 - x[i] +(1 + 0.5*x[i])*rnorm(1)
-      y[i, 2] <- 1 - x[i] - 0.5 * y[i, 1] + rnorm(1)
-    }
-  }
-
-  mod1 <- BiQRGradient(y, R, x, tau = 0.1, method = 'heter2')$param
-  mod3 <- BiQRGradient(y, R, x, tau = 0.3, method = 'heter2')$param
-  mod5 <- BiQRGradient(y, R, x, tau = 0.5, method = 'heter2')$param
-  mod7 <- BiQRGradient(y, R, x, tau = 0.7, method = 'heter2')$param
-  mod9 <- BiQRGradient(y, R, x, tau = 0.9, method = 'heter2')$param
-
-  mod1rq <- as.vector(rq(y[,1]~x, tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
-  mod2rq <- as.vector(rq(y[,2][R==1]~x[R==1], tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
-  ans <- c(mod1[1:2], mod3[1:2], mod5[1:2], mod7[1:2], mod9[1:2],
-           mod1[7:8], mod3[7:8], mod5[7:8], mod7[7:8], mod9[7:8], mod1rq, mod2rq)
-}
-
-save(result, file = "0417h2.RData")
-sendEmail(subject="simulation--bi-Heter2-MAR", text="done", address="liuminzhao@gmail.com")
-
-trueq <- c(c(qest2), c(qest3))
+result <- read.table('0705-result.txt')
+trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 2)
-mse = rep(0, 40)
+mse <- rep(0, 40)
 for (i in 1:40){
-  mse[i] = mean((result[,i] - trueq[i])^2)
+  mse[i] <- mean((result[,i] - trueq[i])^2, trim = 0.05)
 }
 
 mseh2 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
 mserq <- rbind(matrix(mse[21:30], 2, 5), matrix(mse[31:40], 2, 5))
-print(mseh2)
-print(mserq)
+mytbl <- cbind(mseh2[,1], mserq[,1], mseh2[,2], mserq[,2], mseh2[,3], mserq[,3], mseh2[,4], mserq[,4], mseh2[,5], mserq[,5])
+
 print(xtable(mseh2))
 print(xtable(mserq))
 
-## R > print(mseh2)
-##            [,1]       [,2]       [,3]       [,4]       [,5]
-## [1,] 0.08603033 0.11830813 0.10919735 0.16449038 0.10429721
-## [2,] 0.08955918 0.06691685 0.13636475 0.07675017 0.09921015
-## [3,] 0.07656087 0.06661742 0.06497826 0.12139400 0.24360734
-## [4,] 0.06190360 0.04933893 0.05722029 0.06961475 0.08707117
-## R > print(mserq)
-##           [,1]      [,2]      [,3]      [,4]      [,5]
-## [1,] 0.1475245 0.1931717 1.0750455 0.1880457 0.1452128
-## [2,] 0.1512498 0.1921511 1.1871157 0.1983399 0.1519454
-## [3,] 0.2737565 0.5946287 1.0826260 1.7478138 2.9221457
-## [4,] 0.1680383 0.1253706 0.3297871 0.7473080 0.9648093
+colnames(mytbl) <- rep(c('MM', 'RQ'), 5)
+
+print(xtable(mytbl))
+
+cat("Time: ", proc.time()[3] - start, '\n')
+sink()
