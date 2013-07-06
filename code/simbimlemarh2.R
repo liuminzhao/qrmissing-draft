@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/05/2013 23:46:08>
+##' Time-stamp: <liuminzhao 07/06/2013 00:03:14>
 ##' Simulation Bivariate case with MAR using heter2
 ##' Real MAR , not MCAR
 ##' correct heterogeneity parameters
@@ -69,7 +69,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   mod2rq <- as.vector(rq(y[,2][R==1]~x[R==1], tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
 
   ans <- c(mod1mm[1,], mod3mm[1,], mod5mm[1,], mod7mm[1,], mod9mm[1,],
-           mod1mm[2,], mod3m[2,], mod5mm[2,], mod7mm[2,], mod9mm[2,], mod1rq, mod2rq)
+           mod1mm[2,], mod3mm[2,], mod5mm[2,], mod7mm[2,], mod9mm[2,], mod1rq, mod2rq)
 }
 
 write.table(result, file = "0705-result.txt", row.names = F, col.names = F)
@@ -78,20 +78,20 @@ sendEmail(subject="simulation-bi--MAR", text="done", address="liuminzhao@gmail.c
 ###############
 ## TRUE VALUE
 ###############
-quan2 <- function(y, x, tau){
+quan1 <- function(y, x, tau){
   return(tau - .5*pnorm(y, 2+x, 1 + 0.5*x) - .5*pnorm(y, -2-x, 1 + 0.5*x))
+}
+
+SolveQuan1 <- function(x, tau){
+  uniroot(quan1, c(-30, 30), x = x, tau = tau)$root
+}
+
+quan2 <- function(y, x, tau){
+  return(tau - .5*pnorm(y, -1.5*x, (1+0.5*x)*sqrt(5/4)) - .5*pnorm(y, 2-.5*x, (1+0.5*x)*sqrt(5/4)))
 }
 
 SolveQuan2 <- function(x, tau){
   uniroot(quan2, c(-30, 30), x = x, tau = tau)$root
-}
-
-quan3 <- function(y, x, tau){
-  return(tau - .5*pnorm(y, -1.5*x, (1+0.5*x)*sqrt(5/4)) - .5*pnorm(y, 2-.5*x, (1+0.5*x)*sqrt(5/4)))
-}
-
-SolveQuan3 <- function(x, tau){
-  uniroot(quan3, c(-30, 30), x = x, tau = tau)$root
 }
 
 xsim <- seq(0, 2, len = 100)
