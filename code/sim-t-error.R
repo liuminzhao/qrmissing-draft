@@ -1,11 +1,12 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/02/2013 16:03:30>
+##' Time-stamp: <liuminzhao 07/06/2013 10:30:28>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
 ##' MAR
 ##' 2013/07/02 new t3 error
 
+sink('0706-t.txt')
 rm(list = ls())
 source('BiMLESigma.R')
 source('sendEmail.R')
@@ -27,8 +28,8 @@ alpha <- 0.3
 ## SIMULATION
 ###############
 boot <- 8
-
-time <- proc.time()[3]
+count <- rep(0, 5)
+start <- proc.time()[3]
 
 result <- foreach(icount(boot), .combine = rbind) %dopar% {
   R <- rbinom(n, 1, p)
@@ -64,6 +65,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   mod5mm <- coef(mod5)
   mod7mm <- coef(mod7)
   mod9mm <- coef(mod9)
+  count[1] <- count[1] + mod1$converge
+  count[2] <- count[2] + mod3$converge
+  count[3] <- count[3] + mod5$converge
+  count[4] <- count[4] + mod7$converge
+  count[5] <- count[5] + mod9$converge
 
   mod1rq <- as.vector(rq(y[,1]~x, tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
   mod2rq <- as.vector(rq(y[,2][R==1]~x[R==1], tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
@@ -72,7 +78,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
            mod1mm[2,], mod3mm[2,], mod5mm[2,], mod7mm[2,], mod9mm[2,], mod1rq, mod2rq)
 }
 
-write.table(result, file = "sim-t-error.txt", row.names = F, col.names = F)
+write.table(result, file = "0706-t-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-t-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -124,12 +130,12 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-t-error.txt')
+result <- read.table('0706-t-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 2)
 mse <- rep(0, 40)
 for (i in 1:40){
-  mse[i] <- mean((result[,i] - trueq[i])^2)
+  mse[i] <- mean((result[,i] - trueq[i])^2, trim = 0.05)
 }
 
 mseh2 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
@@ -143,4 +149,6 @@ colnames(mytbl) <- rep(c('MM', 'RQ'), 5)
 
 print(xtable(mytbl))
 
-cat("Time: ", proc.time()[3] - time, '\n')
+cat("Time: ", proc.time()[3] - start, '\n')
+cat("Converged: ", count)
+sink()

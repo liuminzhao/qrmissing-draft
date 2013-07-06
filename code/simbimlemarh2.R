@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/06/2013 00:03:14>
+##' Time-stamp: <liuminzhao 07/06/2013 10:28:33>
 ##' Simulation Bivariate case with MAR using heter2
 ##' Real MAR , not MCAR
 ##' correct heterogeneity parameters
@@ -140,4 +140,5 @@ colnames(mytbl) <- rep(c('MM', 'RQ'), 5)
 print(xtable(mytbl))
 
 cat("Time: ", proc.time()[3] - start, '\n')
+cat("Converged: ", count)
 sink()

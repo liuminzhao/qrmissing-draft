@@ -1,6 +1,6 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 07/05/2013 17:12:21>
+C$$$  Time-stamp: <liuminzhao 07/06/2013 09:22:41>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c$$$  2013/07/01 change bracket the interval and bisection method
@@ -180,6 +180,9 @@ CCCCCCCCCCCCCCCCCCCC
 
       beta22 = beta2(xdim+1) + h
 C     beta22 is for observed group; beta2 is for sensitivity parameter (unobserved)
+C     for observed 1 group, mu1 = delta - beta1*x
+C     for unobserved 2 group, mu1 = delta + beta1*x
+
 
       beta1lp = 0
       beta2lp = 0
