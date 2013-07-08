@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/06/2013 10:28:33>
+##' Time-stamp: <liuminzhao 07/07/2013 14:54:10>
 ##' Simulation Bivariate case with MAR using heter2
 ##' Real MAR , not MCAR
 ##' correct heterogeneity parameters
@@ -20,7 +20,7 @@ set.seed(1)
 ###############
 n <- 500
 p <- 0.5
-alpha <- 0.3
+alpha <- 0.5
 
 ###############
 ## SIMULATION
