@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/07/2013 15:14:29>
+##' Time-stamp: <liuminzhao 07/08/2013 16:16:16>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
@@ -134,25 +134,44 @@ q29 <- lm(y29~xsim)$coef
 result <- read.table('0707-t-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 2)
+
+## MSE
 mse <- rep(0, 40)
 for (i in 1:40){
   mse[i] <- mean((result[,i] - trueq[i])^2, trim = 0.05)
 }
-
 mseh2 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
 mserq <- rbind(matrix(mse[21:30], 2, 5), matrix(mse[31:40], 2, 5))
 mytbl <- cbind(mseh2[,1], mserq[,1], mseh2[,2], mserq[,2], mseh2[,3], mserq[,3], mseh2[,4], mserq[,4], mseh2[,5], mserq[,5])
-
 print(xtable(mseh2))
 print(xtable(mserq))
-
 colnames(mytbl) <- rep(c('MM', 'RQ'), 5)
-
 print(xtable(mytbl))
 
-cat("Time: ", proc.time()[3] - start, '\n')
-cat("Converged: ", count)
+## BIAS
+bias <- rep(0, 40)
+for (i in 1:40){
+##  bias[i] <- mean((result[,i] - trueq[i])/abs(trueq[i]))
+##  bias[i] <- mean((result[,i] - trueq[i])/abs(trueq[i]), trim = 0.05)
+  bias[i] <- mean((result[,i] - trueq[i]), trim = 0.05)
+}
+biash2 <- rbind(matrix(bias[1:10], 2, 5), matrix(bias[11:20], 2, 5))
+biasrq <- rbind(matrix(bias[21:30], 2, 5), matrix(bias[31:40], 2, 5))
+mytbl2 <- cbind(biash2[,1], biasrq[,1], biash2[,2], biasrq[,2], biash2[,3], biasrq[,3], biash2[,4], biasrq[,4], biash2[,5], biasrq[,5])
+colnames(mytbl2) <- rep(c('MM', 'RQ'), 5)
+print(xtable(mytbl2))
 
+## EFFICIENCY
+efficiency <- apply(result[,1:40], 2, var)
+efficiencyh2 <- rbind(matrix(efficiency[1:10], 2, 5), matrix(efficiency[11:20], 2, 5))
+efficiencyrq <- rbind(matrix(efficiency[21:30], 2, 5), matrix(efficiency[31:40], 2, 5))
+mytbl3 <- efficiencyrq/efficiencyh2
+colnames(mytbl3) <- seq(0.1, 0.9, length = 5)
+print(xtable(mytbl3))
+
+cat("Time: ", proc.time()[3] - start, '\n')
+cat("Converged: ")
 count <- result[, 41:45]
 print(apply(count, 2, sum))
+
 sink()
