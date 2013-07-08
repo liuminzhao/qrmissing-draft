@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/07/2013 10:45:50>
+##' Time-stamp: <liuminzhao 07/08/2013 12:43:30>
 ##' bootstrap on tours data
 ##' weight2 and weight3
 ##' scaled by 1/100
@@ -61,11 +61,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   mod7 <- ToursMNAR(y, R, X, tau = 0.7, method = 'heter2', niter = 2000)
   mod9 <- ToursMNAR(y, R, X, tau = 0.95, method = 'heter2', niter = 2000)
 
-  coef1 <- mysummary(mod1)
-  coef3 <- mysummary(mod3)
-  coef5 <- mysummary(mod5)
-  coef7 <- mysummary(mod7)
-  coef9 <- mysummary(mod9)
+  coef1 <- coef(mod1)
+  coef3 <- coef(mod3)
+  coef5 <- coef(mod5)
+  coef7 <- coef(mod7)
+  coef9 <- coef(mod9)
 
   coefw2 <- c(coef1[1,], coef3[1, ], coef5[1, ], coef7[1, ], coef9[1,])
   coefw3 <- c(coef1[2,], coef3[2, ], coef5[2, ], coef7[2, ], coef9[2,])
