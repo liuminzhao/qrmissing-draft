@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 06/22/2013 10:40:54>
+##' Time-stamp: <liuminzhao 07/05/2013 15:43:34>
 ##' manipulate data TOURS
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
@@ -42,26 +42,26 @@ R <- 1 - as.numeric(is.na(weight3))
 dat <- data.frame(weight2, weight3, trt, age_center, age=TOURS$AGE, race = factor(TOURS$RACE), base = weight1)
 
 ## PLOT
-library(ggplot2)
-library(gridExtra)
-ggplot(data = dat, aes(x = age_center, y = weight2)) + geom_point()
-ggplot(data = dat, aes(x = age_center, y = weight3)) + geom_point()
+## library(ggplot2)
+## library(gridExtra)
+## ggplot(data = dat, aes(x = age_center, y = weight2)) + geom_point()
+## ggplot(data = dat, aes(x = age_center, y = weight3)) + geom_point()
 
-box1 <- ggplot(data = dat, aes(x = age, y = weight2*100)) + geom_point()+ ylab('Weight (Kg) at 6 months') + xlab('Age')
-box2 <- ggplot(data = dat, aes(x = age, y = weight3*100)) + geom_point()+ ylab('Weight (Kg) at 18 months') + xlab('Age')
-box3 <- ggplot(data = dat, aes(x = race, y = weight2*100)) + geom_boxplot() + scale_x_discrete(labels=c("Black", "White")) + ylab('Weight (Kg) at 6 months') + xlab('Race')
-box4 <- ggplot(data = dat, aes(race, y = weight3*100)) + geom_boxplot() + ylab('Weight (Kg) at 18 months') + xlab('Race') + scale_x_discrete(labels=c("Black", "White"))
-box5 <- ggplot(data = dat, aes(x = weight1*100, y = weight2*100)) + geom_point() + ylab('Weight (Kg) at 6 months') + xlab('Weight (Kg) at baseline')
-box6 <- ggplot(data = dat, aes(x = weight1*100, y = weight3*100)) + geom_point() + ylab('Weight (Kg) at 18 months') + xlab('Weight (Kg) at baseline')
+## box1 <- ggplot(data = dat, aes(x = age, y = weight2*100)) + geom_point()+ ylab('Weight (Kg) at 6 months') + xlab('Age')
+## box2 <- ggplot(data = dat, aes(x = age, y = weight3*100)) + geom_point()+ ylab('Weight (Kg) at 18 months') + xlab('Age')
+## box3 <- ggplot(data = dat, aes(x = race, y = weight2*100)) + geom_boxplot() + scale_x_discrete(labels=c("Black", "White")) + ylab('Weight (Kg) at 6 months') + xlab('Race')
+## box4 <- ggplot(data = dat, aes(race, y = weight3*100)) + geom_boxplot() + ylab('Weight (Kg) at 18 months') + xlab('Race') + scale_x_discrete(labels=c("Black", "White"))
+## box5 <- ggplot(data = dat, aes(x = weight1*100, y = weight2*100)) + geom_point() + ylab('Weight (Kg) at 6 months') + xlab('Weight (Kg) at baseline')
+## box6 <- ggplot(data = dat, aes(x = weight1*100, y = weight3*100)) + geom_point() + ylab('Weight (Kg) at 18 months') + xlab('Weight (Kg) at baseline')
 
 ## scat1 <- ggplot(data = dat, aes(x = age_center, y = weight2, color = race)) + geom_point()
 ## scat2 <- ggplot(data = dat, aes(x = age_center, y = weight3, color = race)) + geom_point()
 ## scat3 <- ggplot(data = dat, aes(x = age_center, y = weight2, color = race)) + geom_point()
 ## scat4 <- ggplot(data = dat, aes(x = age_center, y = weight3, color = race)) + geom_point()
 
-pdf('weight-age-race-base.pdf')
-sds <- grid.arrange(box1, box2, box3, box4, box5, box6, nrow = 2, ncol = 3)
-dev.off()
+## pdf('weight-age-race-base.pdf')
+## sds <- grid.arrange(box1, box2, box3, box4, box5, box6, nrow = 2, ncol = 3)
+## dev.off()
 
 
 ###############
@@ -77,11 +77,11 @@ mod5 <- BiQRGradient(y, R, X, tau = 0.5, method = 'heter2')
 mod7 <- BiQRGradient(y, R, X, tau = 0.7, method = 'heter2')
 mod9 <- BiQRGradient(y, R, X, tau = 0.95, method = 'heter2')
 
-coef1 <- mysummary(mod1)
-coef3 <- mysummary(mod3)
-coef5 <- mysummary(mod5)
-coef7 <- mysummary(mod7)
-coef9 <- mysummary(mod9)
+coef1 <- coef(mod1)
+coef3 <- coef(mod3)
+coef5 <- coef(mod5)
+coef7 <- coef(mod7)
+coef9 <- coef(mod9)
 
 coefw2 <- rbind(coef1[1,], coef3[1, ], coef5[1, ], coef7[1, ], coef9[1,])
 coefw3 <- rbind(coef1[2,], coef3[2, ], coef5[2, ], coef7[2, ], coef9[2,])
@@ -96,4 +96,4 @@ library(xtable)
 print(xtable(coefw2))
 print(xtable(coefw3))
 
-write.table(rbind(coefw2, coefw3), 'ageracebase.txt', row.names=FALSE)
+## write.table(rbind(coefw2, coefw3), 'ageracebase.txt', row.names=FALSE)
