@@ -1,33 +1,31 @@
 \documentclass[12pt]{article}
+\title{Quantile Regression in the Presence of Monotone Missingness}
+\date{\today}
+\author{}
 \usepackage{amsmath}
 \usepackage[round]{natbib}
-\usepackage{geometry}
+\usepackage[verbose,letterpaper,tmargin=1in,bmargin=.75in,lmargin=.75in,rmargin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{mathpazo}
 \usepackage{mathrsfs}
 \usepackage{bm}
 \usepackage[colorlinks,linkcolor=red,anchorcolor=blue,citecolor=blue]{hyperref}
 \usepackage{amsthm}
-\geometry{verbose,letterpaper,tmargin=1in,bmargin=.75in,lmargin=.75in,rmargin=1in}
 \usepackage{booktabs}
-
-\title{Quantile Regression in the Presence of Monotone Missingness}
-\date{\today}
-\author{}
-
 \newtheorem{thm}{Theorem}[section]
 \newtheorem{deff}[thm]{Definition}
 \newtheorem{rmk}[thm]{Remark}
-% \newtheorem{prf}[thm]{Proof}
+\newtheorem{prf}[thm]{Proof}
 \newtheorem{cor}[thm]{Corollary}
 \newtheorem{emp}[thm]{Example}
 \newtheorem{lem}[thm]{Lemma}
 \newtheorem{pps}[thm]{Proposition}
-
 \newcommand{\iid}{\stackrel{\text{i.i.d}}{\sim}}
 \DeclareMathOperator{\pr}{p}
 \DeclareMathOperator{\prob}{Pr}
 \newcommand{\polya}{P\'{o}lya}
+\newcommand{\yobs}{\bm y_{\text{obs}}}
+\newcommand{\ymis}{\bm y_{\text{mis}}}
 
 \begin{document}
 \maketitle
@@ -60,14 +58,14 @@ minimizing a loss function. The popularity of this approach is due to
 its computational efficiency, well-developed asymptotic properties,
 and straightforward extensions to simultaneous quantile regression and
 random effect models. However, asymptotic inference may not be
-accurate for small sample sizes and not naturally extend to missing
-data.
+accurate for small sample sizes and the approach does not naturally
+extend to missing data.
 
 Bayesian approaches offer exact inference in small samples. Motivated
 by the loss (check) function, \citet{yu2001} proposed an asymmetric
 Laplace distribution for the error term, such that maximizing the
 posterior distribution is equivalent to minimizing the check function.
-Semiparametric methods have been proposed for median
+Also semiparametric methods have been proposed for median
 regression. \citet{walker1999} used a diffuse finite \polya{} Tree
 prior for the error term. \citet{kottas2001} modeled the error by two
 families of median zero distribution using a mixture Dirichlet process
@@ -77,34 +75,45 @@ prior in median regression, which is more robust in terms of
 multimodality and skewness. Other recent approaches include quantile
 pyramid priors, mixture of Dirichlet process priors of multivariate
 normal distributions and infinite mixture of Gaussian densities which
-put quantile constraints on the residuals \citep{hjort2007, hjort2009,
+place quantile constraints on the residuals \citep{hjort2007, hjort2009,
   kottas2009,reich2010}.
 
-The above methods focus on complete data without missingness.  There
-are a few more articles about quantile regression with missingness.
-\citet{yuan2010} introduced a Bayesian quantile regression approach
-for longitudinal data with nonignorable missing data. They used random
-effects to explain the within-subject correlation and applied a $l_2$
-penalty in the traditional quantile regression check function to
-shrink toward the common population values. However, the quantile
-regression coefficients are conditional on the random effects, which
-is not of interest if we are looking into the marginal relationship.
-\citet{wei2012} proposed a multiple imputation method for quantile
-regression model when there are some covariates missing at
-random. They impute the missing covariates by specifying the its
-conditional density given observed covariates and outcomes, which
-comes from the estimated conditional quantile regression and
-specification of conditional density of missing covariates given
-observed ones.  However, they put more focus on the missing covariates
-rather than missing outcomes.  \citet{bottai2013} illustrated a new
-imputation method by estimated conditional quantiles of missing
-outcomes given observed data. Their approach does not make
-distribution assumptions. Their method also has advantages as
-robustness to outliers and invariance to transformations.
+The above methods focus on complete data.  There are a few
+articles about quantile regression with missingness.  \citet{wei2012}
+proposed a multiple imputation method for quantile regression model
+when there are some covariates missing at random. They impute the
+missing covariates by specifying its conditional density given
+observed covariates and outcomes, which comes from the estimated
+conditional quantile regression and specification of conditional
+density of missing covariates given observed ones.  However, they put
+more focus on the missing covariates rather than missing outcomes.
+\citet{bottai2013} illustrated an  imputation method using estimated
+conditional quantiles of missing outcomes given observed data. Their
+approach does not make distribution assumptions.
+They assumed the missing data mechanism is ignorable.
+
+For MNAR, \citet{yuan2010} introduced a Bayesian quantile regression
+approach for longitudinal data with nonignorable missing data. They
+used random effects to explain the within-subject correlation and
+applied a $l_2$ penalty in the traditional quantile regression check
+function to shrink toward the common population values. However, the
+quantile regression coefficients are conditional on the random
+effects, which is not of interest if we are looking into the marginal
+relationship.
+
+Pattern mixture models are proposed to effectively address missing
+data traced back to \citet{rubin1977}. Later mixture models are
+extended to handle informative dropout in longitudinal data. For
+discrete dropout time scenario, \citet{little1993, little1994}
+proposed a general method by introducing a finite mixture of
+multivariate distribution for longitudinal data. When there are lots
+of dropout categories, \citet{roy2003, roy2008} proposed to group them
+by latent classes and to assume mixtures over those groups.
+
 \citet{roy2008} proposed a pattern mixture model for data with
-nonignorable dropout, which borrowed idea from \citet{heagerty1999}.
+nonignorable dropout, borrowing ideas from \citet{heagerty1999}.
 But their methods examine the marginal covariate effects on the
-mean. We will use these ideas for quantile regression models.
+mean. We will use related ideas for quantile regression models.
 
 The structure of this article is as follows. First, we introduce a
 quantile regression method to address monotone nonignorable dropout
@@ -147,36 +156,64 @@ be the densities of response $\bm Y$ given follow-up time $S=k$ and $S
 \subsection{Mixture Model Specification}
 \label{sec:settings}
 We adopt a pattern mixture model to jointly model the response and
-missingness.  Let the subscript $i$ stand for subject $i$. Specify the
-conditional distribution as:
+missingness \citep{little1994, dh2008}. Mixture models factor the
+joint distribution of response and missingness as
+\begin{displaymath}
+  \pr (\bm y, \bm S, |\bm x, \bm \omega) = \pr (\bm y|\bm S, \bm x, \bm \omega) \pr (\bm S | \bm x, \bm \omega).
+\end{displaymath}
+Thus the full-data response follows the distribution is given by
+\begin{displaymath}
+  \pr (\bm y | \bm x, \bm \omega) = \sum_{S \in \mathcal{S}} \pr(\bm y| \bm S, \bm x, \bm \theta) \pr (\bm S | \bm x, \bm \phi),
+\end{displaymath}
+where $\mathcal{S}$ is the sample space for dropout time $S$ and the
+parameter vector $\bm \omega$ is partitioned as $(\bm \theta, \bm
+\phi)$.
+
+Furthermore, the conditional distribution of response within patterns
+can be decomposed as
+\begin{displaymath} \pr (\yobs, \ymis | \bm S, \bm \theta) = \pr
+  (\ymis|\yobs, \bm S, \bm \theta_E) \pr (\yobs | \bm S, \bm
+  \theta_O),
+\end{displaymath}
+where $\bm \theta_E$ indexes the parameters in an extrapolation
+distribution, $\bm \theta_O$ indexes parameters in distributions of
+observed data.
+
+We assume models within pattern to be multivariate normal
+distributions and specify a sequential model parametrization. Let the
+subscript $i$ stand for subject $i$. Specify the conditional
+distribution as:
 \begin{equation}
   \label{eq:model}
   \left.  \begin{aligned}
       & \pr_k(y_{i1}) = \textrm{N} (\Delta_{i1} + \bm x_{i1}^T \bm \beta_1^{(k)},
       \exp (\bm x_{i1}^T \bm \alpha_1^{(k)} ) ), k = 1, \ldots, J,\\
-      &\pr_k(y_{ij}|\bm y_{i1:i(j-1)}) =
+      &\pr_k(y_{ij}|\bm y_{ij^{-}}) =
       \begin{cases}
         \textrm{N} \big (\Delta_{ij} + \bm x_{ij}^T \bm h_{j}^{(k)} +
-        \bm y_{i1:i(j-1)}^T \bm \beta_{y,j-1}^{(k)},
+        \bm y_{ij^{-}}^T \bm \beta_{y,j-1}^{(k)},
         \exp (\bm x_{ij}^T \bm \alpha_j^{(k)} ) \big), & k < j ;  \\
-        \textrm{N} \big (\Delta_{ij} + \bm y_{i1:i(j-1)}^T \bm
+        \textrm{N} \big (\Delta_{ij} + \bm y_{ij^{-}}^T \bm
         \beta_{y,j-1}^{(\geq j)},
         \exp (\bm x_{ij}^T \bm \alpha_j^{(\geq j)} ) \big), & k \geq j ;  \\
       \end{cases}, \text{ for } 2 \leq j \leq J,  \\
       &S_{ij} = k| \bm x_{ij} \sim \textrm{Multinomial}(1, \bm \pi),
     \end{aligned} \right\}
 \end{equation}
-where $\bm y_{i1:i(j-1)} = (y_{i1}, \ldots, y_{i(j-1)})^T, \bm \pi =
+where $\bm y_{ij^{-}} = (y_{i1}, \ldots, y_{i(j-1)})^T, \bm \pi =
 (\pi_1, \ldots, \pi_J)$,$\bm h_j^{(k)} = (h_{j1}^{(k)}, \ldots,
 h_{jp}^{(k)})$, $\bm x_j$ is a $p \times 1$ covariate vector, $\bm
 \beta_{y, j-1}^{(k)} = \big(\beta_{y_1, j-1}^{(k)}, \ldots,
 \beta_{y_{j-1}, j-1}^{(k)} \big)^T$ and $\bm \alpha_j^{(k)}$ is a $p
 \times 1$ vector controlling heterogeneity of conditional variance of
-response component $j$.
+response component $j$. We specify the model as in (\ref{eq:model}) to
+allow MAR to exist and have multivariate normal distribution within
+patterns \citep{wang2011}. More details are presented in section
+\ref{sec:sa}.
 
-In (\ref{eq:model}), $\Delta_{ij}$ are functions of $\tau, \bm
-x_{ij}, \bm \alpha_j$ and other parameters and are determined by the
-marginal quantile regressions,
+In (\ref{eq:model}), $\Delta_{ij}$ are functions of $\tau, \bm x_{ij},
+\bm \alpha_j, \bm \gamma_j$ and other parameters and are determined by
+the marginal quantile regressions,
 \begin{align}
   \label{eq:deltaeqn1}
   \tau = \prob (Y_{ij} \leq \bm x_{ij}^T \bm \gamma_j ) = \sum_{k=1}^J
@@ -193,13 +230,13 @@ for $j = 1$ and
   & \quad \cdots \pr_k (y_{i2}| y_{i1}) \pr_k(y_{i1})
   dy_{i(j-1)}\cdots dy_{i1}. \nonumber
 \end{align}
-for $j = 2, \ldots, J$. More computational details will be given in
+for $j = 2, \ldots, J$. Computational details will be given in
 section \ref{sec:computation}.
 
 The idea is to model the marginal quantile regressions directly, then
 to embed them in the likelihood through restrictions in the mixture
 model. The mixture model and heterogeneity of variance between
-subjects allows the marginal quantile regression coefficients to
+subjects in (\ref{eq:model}) allows the marginal quantile regression coefficients to
 differ by quantiles. Otherwise, the quantile lines would be parallel
 to each other.
 
@@ -214,8 +251,15 @@ found in appendix \ref{sec:iden}.
 \subsection{Missing Data Mechanism and Sensitivity Analysis}
 \label{sec:sa}
 
-In the mixture model in (\ref{eq:model}), MAR holds \citep{molen1998}
-if and only if, for each $j \geq 2$ and $k < j$:
+In general, mixture models are not identified due to insufficient
+information provided by observed data. Specific forms of missingness
+are needed to induce constraints to identify the distributions for
+incomplete patterns, in particular, the extrapolate distribution. In
+this section, we explore ways to embed the missingness mechanism and
+sensitivity parameters in mixture models for our setting.
+
+In the mixture model in (\ref{eq:model}), MAR holds \citep{molen1998,
+  wang2011} if and only if, for each $j \geq 2$ and $k < j$:
 \begin{equation}
   \label{eq:molen}
   \pr_k(y_j|y_1, \ldots, y_{j-1}) = \pr_{\geq j}(y_j|y_1, \ldots, y_{j-1}).
@@ -240,13 +284,13 @@ When $\bm \xi_s = \bm \xi_{s0} = \bm 0$, MAR holds. If $\bm \xi_s$ is
 fixed at $\bm \xi_s \neq \bm \xi_{s0}$, the missingness mechanism is
 MNAR.
 
-For fully Bayesian inference, We can put independent priors on $(\bm
+For fully Bayesian inference, we can put independent priors on $(\bm
 \xi_s, \bm \xi_m)$ as :
 \begin{displaymath}
   p(\bm \xi_s, \bm \xi_m) = p(\bm \xi_s) p(\bm \xi_m),
 \end{displaymath}
-where $\bm \xi_m = \big(\bm \gamma_j, \bm \beta_{y, j-1}^{(\geq j)}, \bm
-\alpha_j^{(\geq j)}, \bm \pi \big)$.
+where $\bm \xi_m = \big(\bm \gamma_j, \bm \beta_{y, j-1}^{(\geq j)},
+\bm \alpha_j^{(\geq j)}, \bm \pi \big)$.
 
 If we assume MAR with no uncertainty, the prior of $\bm \xi_s$ is
 $\pr(\bm \xi_s = \bm 0) \equiv 1$. Sensitivity analysis can be
@@ -261,6 +305,11 @@ $\textrm{E}(\bm \xi_s) = \Delta_{\xi}$, where $\Delta_{\xi} \neq \bm
 uncertainty, then priors could be $\textrm{E}(\bm \xi_s) =
 \Delta_{\xi}$, where $\Delta_{\xi} \neq \bm 0 $ and $\textrm{Var}(\bm
 \xi_s) \neq \bm 0$.
+
+In general, each pattern $S = k$ has its own set of sensitivity
+parameters $\bm \xi_s^{(k)}$. However, to keep the number of
+sensitivity parameters at a manageable level \citep{dh2008}, we assume
+independence of $\bm \xi_s$ does not depend on $S$.
 
 \subsection{Computation}
 \label{sec:computation}
@@ -331,9 +380,9 @@ parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
 
   Then, by recursively applying lemma \ref{sec:lemma} $(j-1)$ times,
   each multiple integral in equation (\ref{eq:deltaeqn2}) can be
-  simplified to single normal CDF. Thus it can be solved using
-  standard numerical root-find method for $\Delta_{ij}$ as for $j =
-  1$.
+  simplified to single normal CDF. Thus it can be solved for
+  $\Delta_{ij}$ using standard numerical root-finding method as for $j
+  = 1$.
 
 \end{itemize}
 
@@ -379,11 +428,12 @@ For a Bayesian inference, we specify priors on the parameters $\bm
 posterior distribution. Denote all the parameters (including
 sensitivity parameters) to sample as :
 \begin{displaymath}
-  \bm \xi_m = \left( \bm \gamma_1, \bm \gamma_2, \ldots, \gamma_J,
-    \bm \beta_{y,j-1}^{(\geq j)}, \bm \alpha_j^{(\geq j)}
-    \text{ for } j = 1, \ldots, J \right),
-  \bm \xi_s = \left( \bm h_j^{(k)}, \bm \eta_{j-1}^{(k)}, \bm \delta_j^{(k)}
-    \text{ for } k = 1, \ldots, j; 2 \leq j \leq J \right).
+  \bm \xi_m = \left\{ \bm \gamma_1, \bm \gamma_2, \ldots, \gamma_J,
+    \bm \beta_{y,j-1}^{(\geq j)}, \bm \alpha_j^{(\geq j)} \right\}
+    \text{ for } j = 1, \ldots, J ,
+  \bm \xi_s = \left\{ \bm h_j^{(k)}, \bm \eta_{j-1}^{(k)}, \bm \delta_j^{(k)}
+\right\}
+    \text{ for } k = 1, \ldots, j; 2 \leq j \leq J.
 \end{displaymath}
 Comma separated parameters are marked to sample as a block.  Updates
 of $\bm \xi_m$ require Metropolis-Hasting algorithm, while $\bm \xi_s$
@@ -415,7 +465,7 @@ for updating parameters are:
   updating the samples are all similar to $\bm \gamma_j$.
 \item For sensitivity parameters, because we do not get any
   information from the data, we sample them from priors, which are
-  specified from the missingness mechanism assumptions.
+  specified based on assumptions about  missingness.
 \end{itemize}
 
 \section{Simulation Study}
@@ -568,16 +618,16 @@ We fitted regression models for bivariate responses $\bm Y_i =
 1,000 bootstraps to obtain the 95\% confidence intervals.
 
 Estimates are presented in Table \ref{tab:w2}. For weights of
-participants at six months, weights of white people are generally
-lower than ones of black people, because for all quantiles, the
-coefficients of race are negative. For the extreme quantiles (5\% and
-95\%), the difference is small and not significant. However, when
-comparing the weights for quantiles 30\%, 50\% and 70\%, white people
-tend to weight significantly less than black people. The differences
-are 8kg, 7kg, and 8kg separately. Meanwhile, weights of participants
-show obvious heterogeneity by age. Participants tend to have less
-weight when older. The trend is for all quantiles, but the effect is
-again small and not significant.
+participants at six months, weights of whites generally lower than
+those of blacks, because for all quantiles, the coefficients of race
+are negative. For the extreme quantiles (5\% and 95\%), the difference
+is small and not significant. However, when comparing the weights for
+quantiles 30\%, 50\% and 70\%, whites tend to weigh significantly less
+than blacks. The differences are 8kg, 7kg, and 8kg
+separately. Meanwhile, weights of participants show obvious
+heterogeneity by age. Participants tend to weigh less when older. The
+trend is for all quantiles, but the effect is again small and not
+significant.
 
 \begin{table}[ht]
   \renewcommand{\arraystretch}{1.3}
@@ -586,34 +636,92 @@ again small and not significant.
       95\% confidence interval for weight of participants at 6 and 18
       months. Weight measurement is scaled by 1/100.}\label{tab:w2}
     \vspace{10pt}
+    \begin{tabular}{rrrrr}
+      \toprule
+      & Intercept            & Age.centered.         & White               & BaseWeight       \\
+      \hline
+      Weight at 6 months                                                                                 \\
+      5\%      & -0.17(-0.55, -0.03)  & 0.01  (-0.04, 0.10)   & -0.02(-0.28, 0.47 ) & 1.00(0.60, 1.17) \\
+      30\%     & -0.00(-0.08, 0.05 )  & 0.00  (-0.00, 0.01)   & -0.04(-0.06, -0.01) & 0.91(0.86, 0.98) \\
+      50\%     & 0.01 (-0.07, 0.08 )  & 0.00  (-0.00, 0.01)   & -0.04(-0.06, -0.02) & 0.92(0.84, 1.00) \\
+      70\%     & 0.02 (-0.03, 0.08 )  & 0.00  (-0.00, 0.01)   & -0.04(-0.05, -0.02) & 0.93(0.88, 0.99) \\
+      95\%     & 0.04 (-0.04, 0.23 )  & 0.00  (-0.02, 0.07)   & -0.03(-0.11, 0.13 ) & 0.97(0.88, 1.12) \\
+      Weight at 18 months                                                                                \\
+      5\%      & -0.18(-0.37, 0.02 )  & -0.00 (-0.02, 0.04)   & -0.00(-0.11, 0.15 ) & 0.86(0.23, 1.05) \\
+      30\%     & 0.05 (-0.10, 0.11 )  & -0.00 (-0.01, 0.01)   & -0.05(-0.07, 0.01 ) & 0.85(0.78, 1.00) \\
+      50\%     & 0.05 (-0.07, 0.14 )  & -0.00 (-0.01, 0.01)   & -0.04(-0.06, -0.01) & 0.89(0.79, 1.01) \\
+      70\%     & 0.05 (-0.02, 0.13 )  & 0.00  (-0.01, 0.01)   & -0.03(-0.05, -0.01) & 0.93(0.85, 1.01) \\
+      95\%     & 0.06 (-0.02, 0.20 )  & 0.00  (-0.01, 0.02)   & -0.02(-0.10, 0.02 ) & 1.01(0.88, 1.12) \\
+      \bottomrule
+    \end{tabular}
     \begin{tabular}{rrrr}
       \toprule
-      & Intercept            & Age(Centered)          & White                  \\
+      & Intercept            & Age(Centered)         & White                                  \\
       \hline
-      Weight at 6 months                                                         \\
-      5\%  & 0.65  (0.34, 0.73 ) & -0.03 ( -0.10, 0.06 ) & -0.02 ( -0.48, 0.18 ) \\
-      30\% & 0.86  (0.79, 0.90 ) & -0.02 ( -0.03, 0.00 ) & -0.08 ( -0.12, -0.01) \\
-      50\% & 0.92  (0.87, 0.97 ) & -0.01 ( -0.03, 0.01 ) & -0.07 ( -0.12, -0.02) \\
-      70\% & 1.00  (0.94, 1.05 ) & -0.01 ( -0.04, 0.02 ) & -0.08 ( -0.13, -0.01) \\
-      95\% & 1.12  (1.08, 1.26 ) & -0.01 ( -0.06, 0.05 ) & -0.03 ( -0.14, 0.12 ) \\
-      Weight at 18 months                                                        \\
-      5\%  & 0.10  (-0.01, 0.64 ) & -0.00 ( -0.05, 0.01 ) & -0.02 ( -0.19, 0.22 ) \\
-      30\% & 0.84  (0.77, 0.88 ) & -0.02 ( -0.04, -0.00) & -0.06 ( -0.11, 0.01 ) \\
-      50\% & 0.92  (0.87, 0.98 ) & -0.02 ( -0.04, 0.01 ) & -0.06 ( -0.11, -0.00) \\
-      70\% & 1.02  (0.94, 1.06 ) & -0.01 ( -0.04, 0.02 ) & -0.06 ( -0.12, 0.01 ) \\
-      95\% & 1.15  (1.09, 1.25 ) & -0.01 ( -0.05, 0.04 ) & -0.02 ( -0.13, 0.05 ) \\
+      Weight at 6 months                                                                           \\
+      5\%  & 0.65  (0.34, 0.73 )  & -0.03 ( -0.10, 0.06 ) & -0.02 ( -0.48, 0.18 )                  \\
+      30\% & 0.86  (0.79, 0.90 )  & -0.02 ( -0.03, 0.00 ) & -0.08 ( -0.12, -0.01)                  \\
+      50\% & 0.92  (0.87, 0.97 )  & -0.01 ( -0.03, 0.01 ) & -0.07 ( -0.12, -0.02)                  \\
+      70\% & 1.00  (0.94, 1.05 )  & -0.01 ( -0.04, 0.02 ) & -0.08 ( -0.13, -0.01)                  \\
+      95\% & 1.12  (1.08, 1.26 )  & -0.01 ( -0.06, 0.05 ) & -0.03 ( -0.14, 0.12 )                  \\
+      Weight at 18 months                                                                          \\
+      5\%  & 0.10  (-0.01, 0.64 ) & -0.00 ( -0.05, 0.01 ) & -0.02 ( -0.19, 0.22 )                  \\
+      30\% & 0.84  (0.77, 0.88 )  & -0.02 ( -0.04, -0.00) & -0.06 ( -0.11, 0.01 )                  \\
+      50\% & 0.92  (0.87, 0.98 )  & -0.02 ( -0.04, 0.01 ) & -0.06 ( -0.11, -0.00)                  \\
+      70\% & 1.02  (0.94, 1.06 )  & -0.01 ( -0.04, 0.02 ) & -0.06 ( -0.12, 0.01 )                  \\
+      95\% & 1.15  (1.09, 1.25 )  & -0.01 ( -0.05, 0.04 ) & -0.02 ( -0.13, 0.05 )                  \\
       \bottomrule
     \end{tabular}
   \end{center}
 \end{table}
 
 For weights at 18 months after baseline, we have similar
-conclusions. White people still have less weight than black people for
-all quantiles, but the magnitude is smaller than that at 6th month.
-The differences are 6kg, 6kg and 6kg instead of 8kg, 7kg and 8kg for
-quantiles 30\%, 50\% and 70\%. It still shows a decreasing trend of
-weights over ages.  However, none of them shows significance for the
-weight difference.
+conclusions. Whites still weigh less than blacks for all quantiles,
+but the magnitude is smaller than that at 6th months.  The differences
+are 6kg, 6kg and 6kg instead of 8kg, 7kg and 8kg for quantiles 30\%,
+50\% and 70\%. There is still a decreasing trend of weight with
+increasing age.  However, none of these parameters are significant.
+
+We also did a sensitivity analysis based on missing not at random
+assumption instead of missing at random for tours data. From previous
+studies of pattern of weight regain after lifestyle treatment
+\citep{jeffery2000, wadden2001, wadden2005}, we set sensitivity
+parameters in distribution of $Y_2|Y_1$ as:
+\begin{displaymath}
+  Y_2  | Y_1, R = 0 \sim N(\Xi + Y_1, \sigma_{2|1}^{(0)}),
+\end{displaymath}
+where $\Xi = 3.6$, i.e. 0.3kg per month weight regain after finishing
+the program.  Given the MNAR missing data mechanism, the quantile
+regression estimates are shown in Table \ref{tab:toursmnar}.
+
+\begin{table}
+  \renewcommand{\arraystretch}{1.3}
+  \begin{center}
+    \caption{Estimated marginal quantile regression coefficients with
+      95\% confidence interval for weight of participants at 6 and 18
+      months under MNAR assumption. Weight measurement is scaled by
+      1/100.}\label{tab:toursmnar}
+    \vspace{10pt}
+    \begin{tabular}{rrrrr}
+      \toprule
+      & Intercept & Age(centered) & White & BaseWeight \\
+      \hline
+      Weight at 6 months                              \\
+      5\%  & 0.08      & 0.00          & -0.44 & 0.75       \\
+      30\% & 0.01      & 0.00          & -0.05 & 0.91       \\
+      50\% & 0.01      & 0.00          & -0.04 & 0.92       \\
+      70\% & 0.01      & 0.01          & -0.04 & 0.94       \\
+      95\% & 0.11      & 0.01          & -0.07 & 0.93       \\
+      Weight at 18 months                             \\
+      5\%  & -0.21     & -0.00         & -0.02 & 0.31       \\
+      30\% & 0.02      & -0.00         & -0.02 & 0.28       \\
+      50\% & 0.05      & -0.00         & -0.01 & 0.20       \\
+      70\% & 0.03      & -0.00         & -0.01 & 0.55       \\
+      95\% & 0.22      & -0.00         & -0.01 & 0.33       \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{table}
 
 \section{Discussion}
 \label{sec:discussion}
@@ -639,15 +747,18 @@ Our model assumes a multivariate normal distribution for each
 component in the pattern mixture model, which might be too
 restrictive. It is possible to replace that with a semi-parametric
 model, for example, the Dirichlet process mixture or \polya{} tree.
-It would also be interesting to allow mixture probabilities depend on
-covariates. Our future work will also include development of a
+Meanwhile, even though we use the multivariate normal distributions
+within patterns, which can easily model MNAR departure from MAR by
+difference in means and (co)-variances, we still need strong
+assumptions for sequential multivariate normal distribution within
+each pattern. Otherwise MAR constraints do not exist \citep{wang2011}.
+It would also be interesting to allow mixture probabilities to depend
+on covariates. Our future work will also include development of a
 goodness of fit test to the model fit.
 
 \section{Acknowledgments}
 
-
 \bibliographystyle{plainnat}
-% \bibliographystyle{abbrev}
 \bibliography{qr-missing-reference}
 
 \appendix
