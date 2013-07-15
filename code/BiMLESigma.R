@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 07/02/2013 16:05:00>
+## Time-stamp: <liuminzhao 07/15/2013 15:27:20>
 ## WRAP UP BiMLESigma.f
 
 BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]), method = 'heter2'){
@@ -87,7 +87,7 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
     param[(5*xdim + 1):(6*xdim)] = sp[1:xdim]
     param[(7*xdim + 1):(8*xdim)] = sp[(xdim + 2):(2*xdim + 1)]
     param[8*xdim + 2]= sp[xdim + 1]
-    param[8*xdim + 3] = 0.5
+    param[8*xdim + 3] = sum(R)/dim(X)[1]
 ##    print(param)
     paramsave <- matrix(0, niter, 8*xdim + 4)
     mod <- .Fortran("BiQRGradientH2f",
