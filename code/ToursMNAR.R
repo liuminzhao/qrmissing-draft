@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/14/2013 23:43:23>
+##' Time-stamp: <liuminzhao 07/15/2013 15:41:13>
 ##' 2013/07/05
 
 ToursMNAR <- function(y, R, X, tau = 0.5, niter = 1000,  method="heter2"){
@@ -19,11 +19,11 @@ ToursMNAR <- function(y, R, X, tau = 0.5, niter = 1000,  method="heter2"){
   require(quantreg)
   lmcoef1 <- coef(rq(y[,1] ~ X[,-1], tau = tau))
   lmcoef2 <- coef(rq(y[,2][R == 1] ~ X[R == 1,-1], tau = tau))
-  if (tau == 0.1) {
+  if (tau == 0.05) {
     lmcoef1 <- c(0.080726637783397, 0.00451080465161577, -0.442936708038249, 0.753033829630134)
     lmcoef2 <- c(-0.206850522306966, -0.00232449257256374, -0.0183695937996462, 0.310703921030932)
   }
-  if (tau == 0.9) {
+  if (tau == 0.95) {
     lmcoef1 <- c(0.112940628486934,  0.00540403561172756, -0.0692974826323355, 0.927829207235262)
     lmcoef2 <- c(0.217754080961376, -0.0026205522008995, -0.00553671984010173, 0.325975371558977)
   }
@@ -33,8 +33,8 @@ ToursMNAR <- function(y, R, X, tau = 0.5, niter = 1000,  method="heter2"){
   param[(5*xdim + 1):(6*xdim)] = sp[1:xdim]
   param[(7*xdim + 1):(8*xdim)] = sp[(xdim + 2):(2*xdim + 1)]
   param[8*xdim + 2]= sp[xdim + 1]
-  param[8*xdim + 3] = 0.5
-  ##    print(param)
+  param[8*xdim + 3] = sum(R)/dim(X)[1]
+  ## print(param)
   paramsave <- matrix(0, niter, 8*xdim + 4)
   mod <- .Fortran("toursmnarh2f",
                   y = as.double(y),
