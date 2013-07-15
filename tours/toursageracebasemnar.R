@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/07/2013 00:09:16>
+##' Time-stamp: <liuminzhao 07/14/2013 10:13:49>
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
 ##' 2013/07/05 MNAR
@@ -101,3 +101,5 @@ colnames(coefw3) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
 library(xtable)
 print(xtable(coefw2))
 print(xtable(coefw3))
+
+write.table(rbind(coefw2, coefw3), 'ageracebasemnar.txt', row.names=FALSE)
