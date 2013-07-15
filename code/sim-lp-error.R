@@ -26,6 +26,8 @@ tau <- 1
 ###############
 boot <- 1000
 
+start <- proc.time()[3]
+
 result <- foreach(icount(boot), .combine = rbind) %dopar% {
   R <- rbinom(n, 1, p)
   x <- runif(n, 0, 2)
@@ -125,7 +127,7 @@ trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 2)
 mse <- rep(0, 40)
 for (i in 1:40){
-  mse[i] <- mean((result[,i] - trueq[i])^2)
+  mse[i] <- mean((result[,i] - trueq[i])^2, trim = 0.05)
 }
 
 mseh2 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
@@ -138,5 +140,5 @@ print(xtable(mserq))
 colnames(mytbl) <- rep(c('MM', 'RQ'), 5)
 
 print(xtable(mytbl))
-cat("Time: ", proc.time()[3] - time, '\n')
+cat("Time: ", proc.time()[3] - start, '\n')
 sink()
