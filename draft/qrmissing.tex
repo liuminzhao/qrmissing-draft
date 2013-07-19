@@ -883,31 +883,62 @@ Now if $y$ is distributed from:
 \begin{align*}
   y \sim \beta_0 + \beta_x x + \exp(\alpha_0 + \alpha_xx) N(0, 1)
 \end{align*}
-then by Taylor expansion, $\exp(\alpha_0 + \alpha_xx) \approx 1 +
-\alpha_0 + \alpha_xx$, and by previous result, the corresponding
-quantile regression coefficient can be approximated as $(\gamma_0,
-\gamma_1) = (\beta_0 + (1 + \alpha_0)\Phi_{\epsilon}(\tau), \beta_x +
-\alpha_x\Phi_{\epsilon}(\tau))$
+then by Taylor expansion, $\exp(\alpha_0 + \alpha_xx) \approx 1 + \alpha_0 + \alpha_xx$, and by
+previous result, the corresponding quantile regression coefficient can
+be approximated as $(\gamma_0, \gamma_1) = (\beta_0 + (1 +
+\alpha_0)\Phi_{\epsilon}(\tau), \beta_x + \alpha_x\Phi_{\epsilon}(\tau))$
 
-Now consider mixture of distributions:
+To construct mixture model with linear quantile lines over covariates,
+consider the following model:
 \begin{align*}
-  y | R = 1 & \sim N(\beta_{01} + \beta_{11}x,  \sigma)\\
-  y | R = 0 & \sim N(\beta_{00} + \beta_{10}x, \sigma) \\
+  y | R = 1 & \sim N(\mu_1,  \sigma_1)\\
+  y | R = 0 & \sim N(\mu_0, \sigma_0) \\
   \pr (R = 1) & = \pi
 \end{align*}
-or
-\begin{align*}
-  y | R = 1 & \sim N(\beta_{01} + \beta_{11}x,  \exp(\alpha_{01} + \alpha_{11}x))\\
-  y | R = 0 & \sim N(\beta_{00} + \beta_{10}x, \exp(\alpha_{00}+ \alpha_{10}x)) \\
-  \pr (R = 1) & = \pi
-\end{align*}
-
 Here $R$ stands for mixture normal indicator, not for missing
 indicator.
 
-If distribution of $y|R = 1$ and $y | R = 0$ are almost
-\textit{separable}, then we can obtain quantile lines in closed form
-and those quantiles given $x$ are linear form of covariates $x$.
+Suppose $\mu$ is the marginal quantile of interest for response $y$,
+then we have
+\begin{align}\label{eq:true}
+  \tau = \pi \Phi \left( \frac{\mu- \mu_1}{\sigma_1} \right) + (1 - \pi) \Phi \left( \frac{\mu -
+      \mu_0}{\sigma_0} \right),
+\end{align}
+and $\mu$ can be solved through above equation either numerically or
+theoretically. Denote
+\begin{equation*}
+  \mu = h_{\tau}(\bm \theta) = h_{\tau}(\mu_1, \mu_0, \sigma_1, \sigma_0, \pi).
+\end{equation*}
+Simplify $h_{\tau}$ as $h$ to save typing.
+
+Suppose we have only one covariate $x$, take derivative of $x$ on both
+sides of above equation. By chain rule, we have
+\begin{align*}
+  \frac{d\mu}{dx} = \frac{\partial h}{\partial \mu_1} \frac{d \mu_1}{dx} + \frac{\partial h}{\partial \mu_0}
+  \frac{d \mu_0}{dx} + \frac{\partial h}{\partial \sigma_1} \frac{d
+    \sigma_1}{dx} + \frac{\partial h}{\partial \sigma_0} \frac{d \sigma_0}{dx}.
+\end{align*}
+Therefore we can get a sufficient condition to guarantee a linear
+quantile line. To reach that, set $d\mu/dx$ equal constant over
+covariate $x$ and higher order of derivatives to be zero. For example,
+let $\mu_1(x) = \beta_{01} + \beta_{11}x, \mu_0(x) = \beta_{00} +
+\beta_{10}x, \sigma_1(x) \equiv \sigma_1, \sigma_0 \equiv \sigma_0$,
+then $\mu$ is linear on $x$. Even if some terms, say $d \sigma_0/dx$, are not
+constant on covariates $x$, we can make $\partial h/\partial \sigma_0$ close to zero,
+thus $\mu$ is still constant over covariates $x$.
+
+We also provide a way to solve partial derivative of $h$. For example,
+ to solve  $\partial h/\partial \mu_1$, plug in $h$ and take derivative of $\mu_1$ in equation (\ref{eq:true}), 
+we have 
+\begin{align*}
+0 = \pi \phi \left( \frac{h(\bm \theta) - \mu_1}{\sigma_1} \right) \left( \frac{1}{\sigma_1} \left( \frac{\partial h}{\partial \mu_1} - 1 \right) \right) 
+ + (1 - \pi) \phi \left( \frac{h(\bm \theta) - \mu_0}{\sigma_0}  \right) \frac{1}{\sigma_0} \frac{\partial h}{\partial \mu_1}
+\end{align*}
+thus 
+\begin{align*}
+\frac{\partial h}{\partial \mu_1} = \frac{ \frac{\pi}{\sigma_1} \phi \left( \frac{h - \mu_1}{\sigma_1} \right)}{ \frac{\pi}{\sigma_1} \phi \left( \frac{h - \mu_1}{\sigma_1} \right) + 
+\frac{1 - \pi}{\sigma_0} \phi \left(  \frac{h - \mu_0}{\sigma_0} \right)}
+\end{align*}
 
 
 \section{Heterogeneous Model}
@@ -1066,7 +1097,9 @@ missing (211 observed out of 224 , 94\%). All weights are scaled by
 
 Here is the boxplot of weights vs treatments and races.
 
-\includegraphics{../tours/weight-plot}
+\begin{center}
+\includegraphics[scale = 0.8]{../tours/weight-plot}
+\end{center}
 
 Quantile regression models were fitted for responses \textit{weight2}
 and \textit{weight3} together ($\bm Y_i = (Y_{i1}, Y_{i2})$) for
@@ -1265,9 +1298,81 @@ equation for coefficient of $y_1$, we must have $\beta_{11} =
 \xi$ is identifiable.
 
 For identifiability issue in heterogeneous model described in section
-\ref{sec:heter}, it is easy to show there is no trouble with
+\ref{sec:heter}, it is easy to show there is no trouble with 
 heterogeneity parameters $\alpha$, analog to the linear model
 case. For the other parameters, it can be found similar to the above
 discussion.
+
+\section{Quantiles for Contrasts}
+We want to show quantiles for contrasts are deterministic if we model
+the marginal quantiles simultaneously. For easiest case, (no mixture
+model, only intercept):
+\begin{align*}
+  \tau & = \pr(y_1 \leq \theta_1)  \quad y_1\sim N(\Delta_1, \sigma_1^2) \\
+  \tau & = \pr (y_2 \leq \theta_2) \quad y_2 |y_1 \sim N(\Delta_2 + \beta y_1, \sigma_2^2)
+\end{align*}
+Integrating out $y_1$ in conditional distribution $y_2|y_1$ , we have
+\begin{align*}
+  y_2 \sim N(\Delta_2 + \beta \Delta_1, \sigma_2^2 + \sigma_1^2 \beta^2)
+\end{align*}
+Thus, $\Delta_1$ and $\Delta_2$ can be solved by $\Delta_1 = \theta_1 - \sigma_{1}\Phi^{-1}(\tau)$ and $\Delta_2 =
+\theta_2 - \beta \Delta_1 - \sqrt{\sigma_1^2\beta^2+\sigma_2^2}\Phi^{-1}(\tau)$.
+
+So if we want to estimate quantiles for $y_2 - y_1$ too, such that:
+\begin{align*}
+  \tau = \pr (y_2 - y_1 \leq \theta)
+\end{align*}
+First we have
+\begin{align*}
+  Y_2 - y_1 |y_1 \sim N(\Delta_2 + (\beta- 1)y_1, \sigma_2^2)
+\end{align*}
+Integrating $y_1$ out, we have :
+\begin{align*}
+  y_2 - y_1 \sim N(\Delta_2 + (\beta-1)\Delta_1, \sigma_1^2(\beta-1)^2 + \sigma_2^2)
+\end{align*}
+Thus
+\begin{align*}
+  \theta & = \Delta_2 + (\beta-1)\Delta_1 + \sqrt{\sigma_1^2(\beta-1)^2+\sigma_2^2} \Phi^{-1}(\tau) \\
+    & = \theta_2 - \theta_1 + \left( \sigma_1 + \sqrt{\sigma_1^2(\beta-1)^2+\sigma_2^2} -
+    \sqrt{\sigma_1^2\beta^2+\sigma_2^2}\right) \Phi^{-1}(\tau)
+\end{align*}
+which is a functional of other parameters.
+
+For the similar quantile regression with single covariates $x$,
+suppose the model is :
+\begin{align*}
+  \tau &= \pr(y_1 \leq \theta_{01} + x\theta_{11} ), \quad Y_1 \sim N(\Delta_1, \sigma_1^2)\\
+  \tau &= \pr (y_2 \leq \theta_{02} + x\theta_{12}) , \quad Y_2 | Y_1 \sim N(\Delta_2
+  + \beta_yy_1, \sigma_2^2)
+\end{align*}
+similarly, we can solve $\Delta_2, \Delta_1$ by other parameters:
+\begin{align*}
+  \Delta_1 & = \theta_{01} + x\theta_{11} - \sigma_1\Phi^{-1}(\tau)\\
+  \Delta_2 & = \theta_{02} + x\theta_{12} - \beta_y \Delta_1 - \sqrt{\sigma_2^2 +
+    \beta_y^2\sigma_1^2} \Phi^{-1}(\tau)
+\end{align*}
+Now what if we want to estimate quantile regression for contrast $Y_2 -
+Y_1$:
+\begin{align*}
+  \tau = \pr (Y_2 - Y_1 \leq \theta_0 + x\theta_1)
+\end{align*}
+we will have
+\begin{align*}
+  (\theta_{02} - \theta_0) + x(\theta_{12} - \theta_1) = \theta_{01} + x\theta_{11} +
+  \left( \sqrt{\sigma_2^2 + \beta_y^2\sigma_1^2} - \sqrt{\sigma_2^2 + (\beta_y-1)^2\sigma_1^2} -\sigma_1 \right)
+  \Phi^{-1}(\tau)
+\end{align*}
+Since it holds for all $x$, then :
+\begin{align*}
+  \theta_1 &= \theta_{12} - \theta_{11} \\
+  \theta_0 & = \theta_{02} - \theta_{01} - \left( \sqrt{\sigma_2^2 + \beta_y^2\sigma_1^2} -
+    \sqrt{\sigma_2^2 + (\beta_y-1)^2\sigma_1^2} -\sigma_1 \right) \Phi^{-1}(\tau)
+\end{align*}
+  
+For mixture normal margins, similarly quantile regressions for
+contrasts are determined by parameters in original models, since the
+distribution of contrasts is determined by joint
+distribution. Simultaneously modeling these parameters would become
+problematic, but using plug-in estimators could be one option.
 
 \end{document}
