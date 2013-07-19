@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/18/2013 16:10:10>
+##' Time-stamp: <liuminzhao 07/18/2013 23:59:07>
 ##' Simulation Bivariate case with MNAR using heter2
 ##' Normal
 ##' correct heterogeneity parameters
@@ -42,7 +42,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
       y[i, 1] <- 4 + x[i]*2 +(1 + 0.5*x[i])*rnorm(1)
       y[i, 2] <- 1 - x[i] - 0.5 * y[i, 1] + (1+0.5*x[i])*rnorm(1)
     } else {
-      y[i, 1] <- -2 - x[i]*2 +(1 + 0.5*x[i])*rnorm(1)
+      y[i, 1] <- -4 - x[i]*2 +(1 + 0.5*x[i])*rnorm(1)
       y[i, 2] <- 3 - x[i] - 0.5 * y[i, 1] + (1+0.5*x[i])*rnorm(1)
     }
   }
@@ -95,7 +95,7 @@ SolveQuan1 <- function(x, tau){
 }
 
 quan2 <- function(y, x, tau){
-  return(tau - .5*pnorm(y, -1 -2*x, (1+0.5*x)*sqrt(5/4)) - .5*pnorm(y, 4, (1+0.5*x)*sqrt(5/4)))
+  return(tau - .5*pnorm(y, -1 -2*x, (1+0.5*x)*sqrt(5/4)) - .5*pnorm(y, 5, (1+0.5*x)*sqrt(5/4)))
 }
 
 SolveQuan2 <- function(x, tau){
