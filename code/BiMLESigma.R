@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 07/22/2013 13:38:14>
+## Time-stamp: <liuminzhao 07/22/2013 14:34:01>
 ## WRAP UP BiMLESigma.f
 
 BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]), method = 'heter2'){
@@ -90,6 +90,7 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
     param[8*xdim + 3] = sum(R)/dim(X)[1]
 ##    print(param)
     paramsave <- matrix(0, niter, 8*xdim + 4)
+    res <- matrix(0, dim(X)[1], 2)
     mod <- .Fortran("BiQRGradientH2f",
                     y = as.double(y),
                     R = as.integer(R),
@@ -100,9 +101,11 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
                     param = as.double(param),
                     paramsave = as.double(paramsave),
                     xdim = as.integer(xdim),
-                    converge = as.logical(TRUE)
+                    converge = as.logical(TRUE),
+                    res = as.double(res)
                     )
   }
+  mod$res <- matrix(mod$res, dim(X)[1], 2)
   mod$method <- method
   class(mod) <- "BiQRGradient"
   return(mod)
@@ -159,4 +162,13 @@ Diagnose <- function(mod){
   for (i in 1:dim(a)[2]){
     plot(ts(a[, i]), main = colnames(a)[i])
   }
+}
+
+GoF <- function(mod){
+  R <- mod$R
+  res <- mod$res
+  qqnorm(res[, 1])
+  qqline(res[, 1])
+  qqnorm(res[R == 1, 1])
+  qqline(res[R == 1, 1])
 }

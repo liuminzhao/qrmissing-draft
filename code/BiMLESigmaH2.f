@@ -1,6 +1,6 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 07/06/2013 09:22:41>
+C$$$  Time-stamp: <liuminzhao 07/22/2013 14:12:13>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c$$$  2013/07/01 change bracket the interval and bisection method
@@ -388,6 +388,70 @@ CCCCCCCCCCCCCCCCCCCC
       return
       end
 
+CCCCCCCCCCCCCCCCCCCC
+C RESIDUALS
+CCCCCCCCCCCCCCCCCCCC
+
+      subroutine residualsh2(y, R, x, delta1, delta2,
+     &     param,n, res, xdim)
+      implicit none
+      integer n, xdim
+      integer R(n)
+      real*8 y(n, 2),x(n,xdim), delta1(n), delta2(n), param(8*xdim+3)
+      real*8 dnrm, res(n, 2)
+      real*8 gamma1(xdim), beta1(xdim), sigma1(2)
+      real*8 gamma2(xdim), beta2(xdim + 1), sigma2(2), p
+      integer  i,j,k
+      real*8 beta22, h
+
+      real*8 beta1lp, beta2lp
+      real*8 alpha11(xdim), alpha01(xdim)
+      real*8 alpha12(xdim)
+
+      do i = 1, xdim
+         gamma1(i) = param(i)
+         beta1(i) = param(xdim+i)
+         gamma2(i) = param(4*xdim + i)
+         beta2(i) = param(5*xdim + i)
+         alpha11(i) = param(2*xdim + i)
+         alpha01(i) = param(3*xdim + i)
+         alpha12(i) = param(6*xdim + i)
+      end do
+      beta2(xdim + 1) = param(8*xdim + 1)
+      h = param(8*xdim + 2)
+      p = param(8* xdim + 3)
+
+      beta22 = beta2(xdim + 1) + h
+
+      do i = 1, n
+         res(i, 1) = 0
+         res(i, 2) = 0
+         beta1lp = 0
+         beta2lp = 0
+         sigma1(1) = 0
+         sigma1(2) = 0
+         sigma2(1) = 0
+         do j = 1, xdim
+            beta1lp = beta1lp + beta1(j)*x(i,j)
+            beta2lp = beta2lp + beta2(j)*x(i,j)
+            sigma1(1) = sigma1(1) + alpha11(j)*x(i,j)
+            sigma1(2) = sigma1(2) + alpha01(j)*x(i,j)
+            sigma2(1) = sigma2(1) + alpha12(j)*x(i,j)
+         end do
+         if (R(i) .eq. 1) then
+            res(i, 1) = (y(i,1) -  delta1(i) - beta1lp)/
+     &           exp(sigma1(1))
+            res(i, 2) = (y(i,2) - delta2(i) -
+     &           y(i,1)*beta22)/
+     &           exp(sigma2(1))
+         else
+            res(i, 1) = (y(i,1) - delta1(i) + beta1lp)/
+     &           exp(sigma1(2))
+         end if
+      end do
+      return
+      end
+
 
 CCCCCCCCCCCCCCCCCCCC
 C       PARTIAL ALL
@@ -449,7 +513,7 @@ C MAIN FUNCTION
 CCCCCCCCCCCCCCCCCCCC
 
       subroutine BiQRGradientH2f(y,R,x,tau,n,niter,param,paramsave,xdim,
-     &     converge)
+     &     converge, res)
       implicit none
       integer n, niter, xdim
       integer R(n)
@@ -463,6 +527,8 @@ CCCCCCCCCCCCCCCCCCCC
 
       real*8 tmpx(xdim)
       real*8 root1, root2
+
+      real*8 res(n, 2)
 
       do i = 1, 8*xdim+3
          pp(i) = 0
@@ -526,6 +592,8 @@ CCCCCCCCCCCCCCCCCCCC
          call progress(iter, niter)
          iter = iter + 1
       end do
+
+      call residualsh2(y,R,x,delta1, delta2,param,n,res,xdim)
 
       if (iter .ge. niter) converge = .false.
       if (converge) print*, 'converge \n'
