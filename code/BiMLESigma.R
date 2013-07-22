@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 07/15/2013 15:27:20>
+## Time-stamp: <liuminzhao 07/22/2013 13:38:14>
 ## WRAP UP BiMLESigma.f
 
 BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]), method = 'heter2'){
@@ -159,20 +159,4 @@ Diagnose <- function(mod){
   for (i in 1:dim(a)[2]){
     plot(ts(a[, i]), main = colnames(a)[i])
   }
-}
-
-mysummary <- function(mod){
-  q <- mod$xdim
-  param <- mod$param[1:(8*q)]
-  coef <- matrix(param, 8, q, byrow = T)
-  coef <- coef[c(1, 5, 2, 6, 3, 4, 7, 8), ]
-  p <- mod$param[8*q + 3]
-  beta22 <- mod$param[8*q + 1]
-  h <- mod$param[8*q + 2]
-  rownames(coef) <- c('Q1Coef', 'Q2Coef', 'beta1(0)', 'beta2(0)',
-                      'Sigma1(1)', 'Sigma1(0)', 'Sigma2(1)', 'Sigma2(0)')
-  ## cat("\n Coefficients: \n")
-  ## print(coef)
-  ## cat("\n beta22 is ", beta22, ", h is ", h, ", p is ", p, "\n")
-  return(coef)
 }
