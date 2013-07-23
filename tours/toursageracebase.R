@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/05/2013 15:43:34>
+##' Time-stamp: <liuminzhao 07/23/2013 15:42:54>
 ##' manipulate data TOURS
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
@@ -71,11 +71,11 @@ dat <- data.frame(weight2, weight3, trt, age_center, age=TOURS$AGE, race = facto
 y[is.na(y[,2]),2] <- 0
 
 source('~/Documents/qrmissing/code/BiMLESigma.R')
-mod1 <- BiQRGradient(y, R, X, tau = 0.05, method = 'heter2')
-mod3 <- BiQRGradient(y, R, X, tau = 0.3, method = 'heter2')
-mod5 <- BiQRGradient(y, R, X, tau = 0.5, method = 'heter2')
-mod7 <- BiQRGradient(y, R, X, tau = 0.7, method = 'heter2')
-mod9 <- BiQRGradient(y, R, X, tau = 0.95, method = 'heter2')
+mod1 <- BiQRGradient(y, R, X, tau = 0.05, niter = 2000,  method = 'heter2')
+mod3 <- BiQRGradient(y, R, X, tau = 0.3, niter = 2000,  method = 'heter2')
+mod5 <- BiQRGradient(y, R, X, tau = 0.5, niter = 2000,  method = 'heter2')
+mod7 <- BiQRGradient(y, R, X, tau = 0.7, niter = 2000,  method = 'heter2')
+mod9 <- BiQRGradient(y, R, X, tau = 0.95, niter = 2000,  method = 'heter2')
 
 coef1 <- coef(mod1)
 coef3 <- coef(mod3)
@@ -96,4 +96,4 @@ library(xtable)
 print(xtable(coefw2))
 print(xtable(coefw3))
 
-## write.table(rbind(coefw2, coefw3), 'ageracebase.txt', row.names=FALSE)
+write.table(rbind(coefw2, coefw3), 'ageracebase.txt', row.names=FALSE)
