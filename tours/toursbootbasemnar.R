@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/08/2013 12:43:30>
+##' Time-stamp: <liuminzhao 07/24/2013 23:06:49>
 ##' bootstrap on tours data
 ##' weight2 and weight3
 ##' scaled by 1/100
@@ -67,14 +67,20 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   coef7 <- coef(mod7)
   coef9 <- coef(mod9)
 
+  count1 <- mod1$converge
+  count3 <- mod3$converge
+  count5 <- mod5$converge
+  count7 <- mod7$converge
+  count9 <- mod9$converge
+
   coefw2 <- c(coef1[1,], coef3[1, ], coef5[1, ], coef7[1, ], coef9[1,])
   coefw3 <- c(coef1[2,], coef3[2, ], coef5[2, ], coef7[2, ], coef9[2,])
 
-  ans <- c(coefw2, coefw3)
+  ans <- c(coefw2, coefw3, count1, count3, count5, count7, count9)
 
 }
 
-write.table(result, file = "toursbootagebbasemnar.txt", row.names = FALSE, col.names = FALSE)
+write.table(result, file = "toursbootagebasemnar-0724.txt", row.names = FALSE, col.names = FALSE)
 sendEmail(subject="boot tours base mnar", text="done", address="liuminzhao@gmail.com")
 
 print(proc.time()[3] - start)
