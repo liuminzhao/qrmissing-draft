@@ -1,7 +1,8 @@
-## Time-stamp: <liuminzhao 07/22/2013 14:34:01>
+## Time-stamp: <liuminzhao 07/25/2013 15:57:05>
 ## WRAP UP BiMLESigma.f
 
-BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]), method = 'heter2'){
+BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]),
+                         method = 'heter2', init = NULL){
   ## LOAD SHARED LIBRARY
   if (method == 'heter2') {
     if (!is.loaded('biqrgradienth2f')) {
@@ -78,16 +79,20 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
                     )
   } else if (method == 'heter2') {
     xdim <- dim(X)[2]
-    require(quantreg)
-    lmcoef1 <- coef(rq(y[,1] ~ X[,-1], tau = tau))
-    lmcoef2 <- coef(rq(y[,2][R == 1] ~ X[R == 1,-1], tau = tau))
-    param <- rep(0, 8*xdim + 3)
-    param[1:xdim] <- lmcoef1
-    param[(4*xdim + 1):(5*xdim)] <- lmcoef2
-    param[(5*xdim + 1):(6*xdim)] = sp[1:xdim]
-    param[(7*xdim + 1):(8*xdim)] = sp[(xdim + 2):(2*xdim + 1)]
-    param[8*xdim + 2]= sp[xdim + 1]
-    param[8*xdim + 3] = sum(R)/dim(X)[1]
+    if (is.null(init)){
+      require(quantreg)
+      lmcoef1 <- coef(rq(y[,1] ~ X[,-1], tau = tau))
+      lmcoef2 <- coef(rq(y[,2][R == 1] ~ X[R == 1,-1], tau = tau))
+      param <- rep(0, 8*xdim + 3)
+      param[1:xdim] <- lmcoef1
+      param[(4*xdim + 1):(5*xdim)] <- lmcoef2
+      param[(5*xdim + 1):(6*xdim)] = sp[1:xdim]
+      param[(7*xdim + 1):(8*xdim)] = sp[(xdim + 2):(2*xdim + 1)]
+      param[8*xdim + 2]= sp[xdim + 1]
+      param[8*xdim + 3] = sum(R)/dim(X)[1]
+    } else {
+      param <- init
+    }
 ##    print(param)
     paramsave <- matrix(0, niter, 8*xdim + 4)
     res <- matrix(0, dim(X)[1], 2)
