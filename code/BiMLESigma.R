@@ -1,4 +1,4 @@
-## Time-stamp: <liuminzhao 07/25/2013 15:57:05>
+## Time-stamp: <liuminzhao 07/25/2013 18:03:36>
 ## WRAP UP BiMLESigma.f
 
 BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]),
@@ -172,8 +172,9 @@ Diagnose <- function(mod){
 GoF <- function(mod){
   R <- mod$R
   res <- mod$res
-  qqnorm(res[, 1])
+  tau <- mod$tau
+  qqnorm(res[, 1], main = bquote(paste('Normal Q-Q Plot for ', Y[1], 'of quantile ', tau == .(tau))))
   qqline(res[, 1])
-  qqnorm(res[R == 1, 1])
+  qqnorm(res[R == 1, 1], main = bquote(paste('Normal Q-Q Plot for ', Y[2], 'of quantile ', tau == .(tau))))
   qqline(res[R == 1, 1])
 }
