@@ -1,6 +1,6 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 07/06/2013 09:31:22>
+C$$$  Time-stamp: <liuminzhao 07/24/2013 20:18:29>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c$$$  2013/07/01 change bracket the interval and bisection method
@@ -170,7 +170,7 @@ CCCCCCCCCCCCCCCCCCCC
          sigma2(1) = sigma2(1) + param(6*xdim + i)*x(i)
         sigma2(2) = sigma2(2) + (param(6*xdim + i)+param(7*xdim+i))*x(i)
       end do
-      beta2(xdim + 1) = 1
+      beta2(xdim + 1) = 0
       h = param(xdim*8 + 2)
       p = param(xdim*8 + 3)
 
@@ -211,7 +211,7 @@ CCCCCCCCCCCCCCCCCCCC
      &        sigma1(2)**2/beta2(xdim + 1)**2+1),
      &        0.d0,1.d0,1,0)
       else
-         p2=pnrm((gamma2lp -delta2-beta2lp
+         p2=pnrm((gamma2lp - delta1 - beta2lp + beta1lp
      &        )/sigma2(2), 0.d0, 1.d0, 1, 0)
       end if
 
@@ -349,7 +349,7 @@ CCCCCCCCCCCCCCCCCCCC
          alpha01(i) = param(3*xdim + i)
          alpha12(i) = param(6*xdim + i)
       end do
-      beta2(xdim + 1) = 1
+      beta2(xdim + 1) = param(8*xdim + 1)
       h = param(8*xdim + 2)
       p = param(8* xdim + 3)
 
