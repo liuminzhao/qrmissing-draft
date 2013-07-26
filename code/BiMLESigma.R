@@ -1,8 +1,8 @@
-## Time-stamp: <liuminzhao 07/25/2013 18:06:33>
+## Time-stamp: <liuminzhao 07/26/2013 12:50:54>
 ## WRAP UP BiMLESigma.f
 
 BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X)[2]),
-                         method = 'heter2', init = NULL){
+                         method = 'heter2', init = NULL, tol = 0.00001){
   ## LOAD SHARED LIBRARY
   if (method == 'heter2') {
     if (!is.loaded('biqrgradienth2f')) {
@@ -93,6 +93,7 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
     } else {
       param <- init
     }
+
 ##    print(param)
     paramsave <- matrix(0, niter, 8*xdim + 4)
     res <- matrix(0, dim(X)[1], 2)
@@ -107,7 +108,9 @@ BiQRGradient <- function(y, R, X, tau=0.5, niter = 1000, sp = rep(0, 1 + 2*dim(X
                     paramsave = as.double(paramsave),
                     xdim = as.integer(xdim),
                     converge = as.logical(TRUE),
-                    res = as.double(res)
+                    res = as.double(res),
+                    iter = as.integer(1),
+                    tol = as.double(tol)
                     )
   }
   mod$res <- matrix(mod$res, dim(X)[1], 2)
@@ -155,7 +158,7 @@ plot.BiQRGradient <- function(mod, ...){
   colnames(a) <- c(paste('gamma1', 1:xdim, sep=''), paste('beta1', 1:xdim, sep=''), paste('sigma1', 1:xdim, sep = ''), paste('sigma0', 1:xdim, sep = ''), paste('gamma2', 1:xdim, sep=''), paste('beta1', 1:xdim, sep=''), paste('sigma2', 1:xdim, sep = ''), paste('sp', 1:xdim, sep = ''), 'beta22', 'h', 'p', 'nll')
   par(mfrow = c(2, 2))
   for (i in 1:dim(a)[2]){
-    plot(ts(a[, i]), main = colnames(a)[i])
+    plot(ts(a[1:mod$iter, i]), main = colnames(a)[i])
   }
 }
 

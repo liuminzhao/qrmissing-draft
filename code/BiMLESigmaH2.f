@@ -1,6 +1,6 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 07/24/2013 19:17:01>
+C$$$  Time-stamp: <liuminzhao 07/26/2013 12:51:15>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c$$$  2013/07/01 change bracket the interval and bisection method
@@ -513,7 +513,7 @@ C MAIN FUNCTION
 CCCCCCCCCCCCCCCCCCCC
 
       subroutine BiQRGradientH2f(y,R,x,tau,n,niter,param,paramsave,xdim,
-     &     converge, res)
+     &     converge, res, iter, tol)
       implicit none
       integer n, niter, xdim
       integer R(n)
@@ -528,7 +528,7 @@ CCCCCCCCCCCCCCCCCCCC
       real*8 tmpx(xdim)
       real*8 root1, root2
 
-      real*8 res(n, 2)
+      real*8 res(n, 2), tol
 
       do i = 1, 8*xdim+3
          pp(i) = 0
@@ -552,7 +552,7 @@ CCCCCCCCCCCCCCCCCCCC
          end do
       end do
 
-      do while (dif > 0.0001 .and. iter .le. niter)
+      do while (dif > tol .and. iter .le. niter)
          call PartialH2f(param, tau, x, y, R, n, pp,xdim)
          do i = 1, 8*xdim + 3
             if (pp(i) * ppp(i) > 0) then
@@ -598,6 +598,7 @@ CCCCCCCCCCCCCCCCCCCC
       if (iter .ge. niter) converge = .false.
       if (converge) print*, 'converge \n'
       if (.not. converge) print*, 'not converge \n'
+      iter = min(niter, iter)
       return
       end
 
