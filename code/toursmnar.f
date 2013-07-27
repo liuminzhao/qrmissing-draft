@@ -1,6 +1,6 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 07/24/2013 21:10:59>
+C$$$  Time-stamp: <liuminzhao 07/27/2013 13:43:53>
 c$$$  Bivariate MLE using sigma
 c$$$  exp(a0 + a1*x) as sigma
 c$$$  2013/07/01 change bracket the interval and bisection method
@@ -446,7 +446,7 @@ C MAIN FUNCTION
 CCCCCCCCCCCCCCCCCCCC
 
       subroutine toursmnarh2f(y,R,x,tau,n,niter,param,paramsave,xdim,
-     &     converge)
+     &     converge, tol)
       implicit none
       integer n, niter, xdim
       integer R(n)
@@ -459,7 +459,7 @@ CCCCCCCCCCCCCCCCCCCC
       real*8 alphamax, alphamin, etap, etam
 
       real*8 tmpx(xdim)
-      real*8 root1, root2
+      real*8 root1, root2, tol
 
       do i = 1, 8*xdim+3
          pp(i) = 0
@@ -483,7 +483,7 @@ CCCCCCCCCCCCCCCCCCCC
          end do
       end do
 
-      do while (dif > 0.0001 .and. iter .le. niter)
+      do while (dif > tol .and. iter .le. niter)
          call PartialH2f(param, tau, x, y, R, n, pp,xdim)
          do i = 1, 8*xdim + 3
             if (pp(i) * ppp(i) > 0) then
