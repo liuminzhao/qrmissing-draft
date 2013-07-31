@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/30/2013 19:45:19>
+##' Time-stamp: <liuminzhao 07/31/2013 13:28:35>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -21,7 +21,7 @@
 ##' @param tol: root finding tolerance
 ##' @return
 ##' @author Minzhao Liu
-QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'L-BFGS-B', tol = 0.00001){
+QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'CG', tol = 0.00001, maxit = 1000){
   require(rootSolve)
   require(compiler)
 
@@ -43,7 +43,7 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'L-
     param <- rep(0, 6*xdim + 2)
     param[1:xdim] <- lmcoef1
     param[(4*xdim + 1):(5*xdim)] <- lmcoef2
-    param[6*xdim + 2] = num/n
+    param[6*xdim + 2] = log(num/(n-num))
   }
 
   ## negative log likelihood function
@@ -129,7 +129,7 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'L-
     sigma2 <- exp(X %*% as.matrix(sigma21))
 
     ## ll
-    ll11 <- sum(dnorm(y[, 1], mu11, sigma1, log = T)[R==1])
+    ll11 <- sum(dnorm(y[,1], mu11, sigma1, log=T)[R==1])
     ll10 <- sum(dnorm(y[,1], mu10, sigma0, log=T)[R==0])
     ll21 <- sum(dnorm(y[,2], mu21, sigma2, log=T)[R==1])
     ans <- ll11+ll10+ll21+ num*log(p) + (n - num)*log(1 - p)
@@ -140,5 +140,47 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'L-
 
   nllc <- cmpfun(nll)
   ## optimize nll to get MLE
-  mod <- optim(param, nllc, method)
+  mod <- optim(param, nllc, method = method, control = list(maxit = maxit))
+
+  mod$n <- n
+  mod$xdim <- xdim
+  mod$X <- X
+  mod$y <- y
+  mod$R <- R
+  mod$tau <- tau
+
+  class(mod) <- "QRMissingBi"
+
+  return(mod)
+
+}
+
+coef.QRMissingBi <- function(mod, ...){
+  q <- mod$xdim
+  param <- mod$par[c(1:q, (4*q + 1):(5*q))]
+  coef <- matrix(param, 2, q, byrow = T)
+  rownames(coef) <- c('Q1Coef', 'Q2Coef')
+  return(coef)
+}
+
+print.QRMissingBi <- function(mod, ...){
+  cat('Coefficients: \n')
+  print(coef(mod))
+}
+
+summary.QRMissingBi <- function(mod, ...){
+  n <- mod$n
+  R <- mod$R
+  tau <- mod$tau
+  param <- mod$par
+  q <- mod$xdim
+
+  cat('Number of observations: ', n, '\n')
+  cat('Sample proportion of observed data: ', sum(R)/n, '\n')
+  cat('Estimated pi:', exp(param[6*q + 2])/(1 + exp(param[6*q + 2])), '\n')
+  cat('Quantile: ', tau, '\n')
+  cat('Model converged: ', ifelse(mod$convergence, 'No', 'Yes'), '\n')
+  cat('Quantile regression coefficients: \n')
+  print(coef(mod))
+
 }
