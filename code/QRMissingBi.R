@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/31/2013 13:28:35>
+##' Time-stamp: <liuminzhao 07/31/2013 13:50:02>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -149,10 +149,104 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'CG
   mod$R <- R
   mod$tau <- tau
 
+#### residuals
+  res <- matrix(0, n, 2)
+  param <- mod$par
+  res <- residuals(param, X, y, R)
+
+##########
+
+  mod$res <- res
+
   class(mod) <- "QRMissingBi"
 
   return(mod)
 
+}
+
+residuals <- function(param, X, y, R){
+  ## translate param
+  gamma1 <- param[1:xdim]
+  beta1 <- param[(xdim + 1):(2*xdim)]
+  sigma11 <- param[(2*xdim + 1):(3*xdim)]
+  sigma10 <- param[(3*xdim + 1):(4*xdim)]
+  gamma2 <- param[(4*xdim + 1):(5*xdim)]
+  beta2 <- sp[1:xdim] # SP for R = 0
+  sigma21 <- param[(5*xdim + 1):(6*xdim)]
+  sigma20 <- sp[(xdim + 2):(2*xdim+1)] + sigma21 # SP for R = 0
+  betay <- param[6*xdim + 1] # for R = 1
+  beta2y <- betay + sp[xdim + 1] # SP for R = 0
+  p <- exp(param[6*xdim + 2])/(1 + exp(param[6*xdim + 2]))
+
+  ## Delta1 function
+  Delta1 <- function(x){
+    quan <- gamma1 %*% x
+    lp <- beta1 %*% x
+    sigma1 <- exp(sigma11 %*% x)
+    sigma0 <- exp(sigma10 %*% x)
+    target1 <- function(d){
+      return(tau - p*pnorm((quan - d - lp)/sigma1) - (1 - p)*pnorm(
+        (quan - d + lp)/sigma0))
+    }
+    ans <- uniroot.all(target1, c(-10, 10), tol = tol)[1]
+    ## TODO bracket low and upp until get root
+    return(ans)
+  }
+
+  Delta2 <- function(x){
+    d1 <- Delta1(x)
+    quan1 <- gamma1 %*% x
+    lp1 <- beta1 %*% x
+    sigma1 <- exp(sigma11 %*% x)
+    sigma0 <- exp(sigma10 %*% x)
+    mu11 <- d1 + lp1
+    mu10 <- d1 - lp1
+    quan2 <- gamma2 %*% x
+    lp2 <- beta2 %*% x
+    sigma2 <- exp(sigma21 %*% x)
+    sigma2sp <- exp(sigma20 %*% x)
+
+    target2 <- function(d2){
+      if (betay == 0){
+        int1 <- pnorm((quan2 - d2)/sigma2)
+      } else {
+        int1 <- pnorm(((d2 - quan2)/betay - mu11)/sqrt(sigma2^2/betay^2 + sigma1^2))
+        if (betay < 0) {
+          int1 <- 1 - int1
+        }
+      }
+
+      if (beta2y == 0){
+        int2 <- pnorm((quan2 - d2 - lp2)/sigma2sp)
+      } else {
+        int2 <- pnorm(((d2 + lp2 - quan2)/beta2y - mu10)/sqrt(sigma2sp^2/beta2y^2 + sigma0^2))
+        if (beta2y < 0){
+          int2 <- 1 - int2
+        }
+      }
+      return(tau - p*int1 - (1-p)*int2)
+    }
+    return(c(d1, uniroot.all(target2, c(-10, 10), tol = tol)[1]))
+  }
+
+  ## get delta
+  delta <- t(apply(X, 1, function(l) Delta2(l)))
+  d1 <- delta[,1]
+  d2 <- delta[,2]
+
+  res <- matrix(0, dim(X)[1], 2)
+  ## Y1
+  lp1 <- X %*% as.matrix(beta1)
+  mu11 <- d1 + lp1
+  mu10 <- d1 - lp1
+  res[R==1, 1] <- y[R==1, 1] - mu11[R==1]
+  res[R==0, 1] <- y[R==0, 1] - mu10[R==0]
+
+  ## Y2
+  mu21 <- d2 + betay * y[,1]
+  res[R==1, 2] <- y[R==1, 2] - mu21[R==1]
+
+  return(res)
 }
 
 coef.QRMissingBi <- function(mod, ...){
@@ -182,5 +276,16 @@ summary.QRMissingBi <- function(mod, ...){
   cat('Model converged: ', ifelse(mod$convergence, 'No', 'Yes'), '\n')
   cat('Quantile regression coefficients: \n')
   print(coef(mod))
+
+}
+
+GoF <- function(mod, ...){
+  res <- mod$res
+  R <- mod$R
+  tau <- mod$tau
+  qqnorm(res[, 1], main = bquote(paste('Normal Q-Q Plot for ', Y[1], ' of quantile ', tau == .(tau))))
+  qqline(res[, 1])
+  qqnorm(res[R == 1, 1], main = bquote(paste('Normal Q-Q Plot for ', Y[2], ' of quantile ', tau == .(tau))))
+  qqline(res[R == 1, 1])
 
 }
