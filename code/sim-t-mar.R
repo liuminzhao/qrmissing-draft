@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/01/2013 08:33:42>
+##' Time-stamp: <liuminzhao 08/01/2013 08:36:36>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
@@ -13,7 +13,7 @@ sink('sim-t-mar-0801.txt')
 rm(list = ls())
 library(compiler)
 enableJIT(3)
-source('BiMLESigma.R')
+source('QRMissingBi.R')
 source('sendEmail.R')
 source('Bottai.R')
 library(quantreg)
