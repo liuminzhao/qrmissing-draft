@@ -1,26 +1,29 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/18/2013 16:44:01>
+##' Time-stamp: <liuminzhao 07/31/2013 22:31:14>
 ##' Simulation Bivariate case with MAR using heter2
 ##' Real MAR , not MCAR
 ##' correct heterogeneity parameters
 ##' 2013/07/18 add Bottai's , Normal MAR , scenario 1
+##' 2013/07/31 using QRMissingBi.R
 
-sink('sim-normal-mar-0718.txt')
+sink('sim-normal-mar-0731.txt')
 rm(list = ls())
-source('BiMLESigma.R')
+library(compiler)
+enableJIT(3)
+source('QRMissingBi.R')
 source('sendEmail.R')
 source('Bottai.R')
 library(quantreg)
 library(xtable)
 library(doMC)
 registerDoMC()
-options(cores = 8)
+options(cores = 10)
 set.seed(1)
 
 ###############
 ## PARAMETER
 ###############
-n <- 500
+n <- 200
 p <- 0.5
 alpha <- 0.5
 
@@ -49,11 +52,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   X[,1] <- 1
   X[,2] <- x
 
-  mod1 <- BiQRGradient(y, R, X, tau = 0.1, method = 'heter2')
-  mod3 <- BiQRGradient(y, R, X, tau = 0.3, method = 'heter2')
-  mod5 <- BiQRGradient(y, R, X, tau = 0.5, method = 'heter2')
-  mod7 <- BiQRGradient(y, R, X, tau = 0.7, method = 'heter2')
-  mod9 <- BiQRGradient(y, R, X, tau = 0.9, method = 'heter2')
+  mod1 <- QRMissingBi(y, R, X, tau = 0.1)
+  mod3 <- QRMissingBi(y, R, X, tau = 0.3)
+  mod5 <- QRMissingBi(y, R, X, tau = 0.5)
+  mod7 <- QRMissingBi(y, R, X, tau = 0.7)
+  mod9 <- QRMissingBi(y, R, X, tau = 0.9)
 
   mod1mm <- coef(mod1)
   mod3mm <- coef(mod3)
@@ -76,7 +79,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-normal-mar-0718-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-normal-mar-0731-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-normal-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -124,7 +127,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-normal-mar-0718-result.txt')
+result <- read.table('sim-normal-mar-0731-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
@@ -162,7 +165,6 @@ efficiencybb <- rbind(matrix(efficiency[41:50], 2, 5), matrix(efficiency[51:60],
 mytbl3 <- cbind(efficiencyrq/efficiencyh2, efficiencybb/efficiencyh2)
 colnames(mytbl3) <- rep(c('RQ', 'BB'), 5)
 print(xtable(mytbl3))
-
 
 cat("Time: ", proc.time()[3] - start, '\n')
 sink()
