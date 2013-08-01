@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/01/2013 12:45:39>
+##' Time-stamp: <liuminzhao 08/01/2013 16:45:15>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
@@ -14,6 +14,7 @@ rm(list = ls())
 library(compiler)
 library(quantreg)
 library(rootSolve)
+enableJIT(3)
 enableJIT(3)
 source('QRMissingBi.R')
 source('sendEmail.R')

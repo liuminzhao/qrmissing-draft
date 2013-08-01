@@ -4,23 +4,30 @@
 ##' 2013/07/10 try small value and add Bottai's algorithm
 ##' 2013/07/13 try 4 +- x
 ##' 2013/07/16 try +- 4 +- 2x
+##' 2013/08/01 on QRMissingBi
 
-sink('sim-lp-0716-ex.txt')
+sink('sim-lp-mar-0801.txt')
 rm(list = ls())
-source('BiMLESigma.R')
+library(compiler)
+library(quantreg)
+library(rootSolve)
+enableJIT(3)
+enableJIT(3)
+source('QRMissingBi.R')
+QRMissingBic <- cmpfun(QRMissingBi)
 source('sendEmail.R')
 source('Bottai.R')
 library(quantreg)
 library(xtable)
 library(doMC)
 registerDoMC()
-options(cores = 8)
+options(cores = 10)
 set.seed(1)
 
 ###############
 ## PARAMETER
 ###############
-n <- 500
+n <- 200
 p <- 0.5
 alpha <- 0.5
 tau <- 1
@@ -28,7 +35,7 @@ tau <- 1
 ###############
 ## SIMULATION
 ###############
-boot <- 1000
+boot <- 100
 
 start <- proc.time()[3]
 
@@ -51,11 +58,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   X[,1] <- 1
   X[,2] <- x
 
-  mod1 <- BiQRGradient(y, R, X, tau = 0.1, method = 'heter2')
-  mod3 <- BiQRGradient(y, R, X, tau = 0.3, method = 'heter2')
-  mod5 <- BiQRGradient(y, R, X, tau = 0.5, method = 'heter2')
-  mod7 <- BiQRGradient(y, R, X, tau = 0.7, method = 'heter2')
-  mod9 <- BiQRGradient(y, R, X, tau = 0.9, method = 'heter2')
+  mod1 <- QRMissingBic(y, R, X, tau = 0.1)
+  mod3 <- QRMissingBic(y, R, X, tau = 0.3)
+  mod5 <- QRMissingBic(y, R, X, tau = 0.5)
+  mod7 <- QRMissingBic(y, R, X, tau = 0.7)
+  mod9 <- QRMissingBic(y, R, X, tau = 0.9)
 
   mod1mm <- coef(mod1)
   mod3mm <- coef(mod3)
@@ -79,7 +86,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
            mod1b[,2], mod3b[,2], mod5b[,2], mod7b[,2], mod9b[,2])
 }
 
-write.table(result, file = "sim-lp-error-0716.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-lp-error-0801.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-lp-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -136,7 +143,7 @@ q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
 
-result <- read.table('sim-lp-error-0716.txt')
+result <- read.table('sim-lp-error-0801.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
