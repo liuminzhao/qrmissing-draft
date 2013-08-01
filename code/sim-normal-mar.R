@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/01/2013 08:32:36>
+##' Time-stamp: <liuminzhao 08/01/2013 12:45:32>
 ##' Simulation Bivariate case with MAR using heter2
 ##' Real MAR , not MCAR
 ##' correct heterogeneity parameters
@@ -9,6 +9,8 @@
 sink('sim-normal-mar-0731.txt')
 rm(list = ls())
 library(compiler)
+library(quantreg)
+library(rootSolve)
 enableJIT(3)
 source('QRMissingBi.R')
 source('sendEmail.R')
