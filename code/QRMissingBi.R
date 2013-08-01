@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/31/2013 15:21:21>
+##' Time-stamp: <liuminzhao 08/01/2013 11:52:54>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -22,8 +22,6 @@
 ##' @return
 ##' @author Minzhao Liu
 QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'CG', tol = 0.00001, maxit = 1000){
-  require(rootSolve)
-  require(compiler)
 
   ## data
   n <- dim(y)[1]
@@ -37,7 +35,6 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'CG
   if (!is.null(init)){
     param <- init
   } else {
-    require(quantreg)
     lmcoef1 <- coef(rq(y[,1] ~ X[,-1], tau = tau))
     lmcoef2 <- coef(rq(y[,2][R == 1] ~ X[R == 1,-1], tau = tau))
     param <- rep(0, 6*xdim + 2)
