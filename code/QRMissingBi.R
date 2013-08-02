@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/01/2013 11:52:54>
+##' Time-stamp: <liuminzhao 08/02/2013 11:56:29>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -21,7 +21,10 @@
 ##' @param tol: root finding tolerance
 ##' @return
 ##' @author Minzhao Liu
-QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'CG', tol = 0.00001, maxit = 1000){
+QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
+                        init = NULL, method = 'BFGS',
+                        tol = 0.00001, maxit = 1000,
+                        trace = 0){
 
   ## data
   n <- dim(y)[1]
@@ -42,6 +45,8 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'CG
     param[(4*xdim + 1):(5*xdim)] <- lmcoef2
     param[6*xdim + 2] = log(num/(n-num))
   }
+
+##  print(param)
 
   ## negative log likelihood function
   nll <- function(param){
@@ -68,8 +73,24 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'CG
         return(tau - p*pnorm((quan - d - lp)/sigma1) - (1 - p)*pnorm(
           (quan - d + lp)/sigma0))
       }
-      ans <- uniroot.all(target1, c(-10, 10), tol = tol)[1]
-      ## TODO bracket low and upp until get root
+      interval <- c(-10, 10)
+
+      ans <- uniroot.all(target1, interval, tol = tol)[1]
+      rootiter <- 0
+      repeat {
+        if (!is.na(ans)) {
+          break
+        } else {
+          interval <- interval * 2
+##          cat('There is NA in D1 root \n')
+          ans <- uniroot.all(target1, interval, tol = tol)[1]
+        }
+        rootiter <- rootiter + 1
+        if (rootiter > 15) {
+          cat('can not bracket root fot d1 \n')
+          break
+        }
+      }
       return(ans)
     }
 
@@ -106,7 +127,24 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'CG
         }
         return(tau - p*int1 - (1-p)*int2)
       }
-      return(c(d1, uniroot.all(target2, c(-10, 10), tol = tol)[1]))
+      interval <- c(-10, 10)
+      ans <- c(d1, uniroot.all(target2, interval, tol = tol)[1])
+      rootiter <- 0
+      repeat {
+        if (!is.na(ans[2])) {
+          break
+        } else {
+          interval <- interval * 2
+##           cat('THere is NA in D2 root. \n')
+          ans <- c(d1, uniroot.all(target2, interval, tol = tol)[1])
+        }
+        rootiter <- rootiter + 1
+        if (rootiter > 15) {
+          cat('can not bracket the root for d2 \n')
+          break
+        }
+      }
+      return(ans)
     }
 
     ## get delta
@@ -137,7 +175,7 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL, init = NULL, method = 'CG
 
   nllc <- cmpfun(nll)
   ## optimize nll to get MLE
-  mod <- optim(param, nllc, method = method, control = list(maxit = maxit))
+  mod <- optim(param, nllc, method = method, control = list(maxit = maxit, trace = trace))
 
   mod$n <- n
   mod$xdim <- xdim
