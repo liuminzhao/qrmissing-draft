@@ -1,36 +1,44 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/15/2013 00:27:58>
+##' Time-stamp: <liuminzhao 08/02/2013 08:12:29>
 ##' Simulation Bivariate case with MNAR using heter2
 ##' Normal
 ##' correct heterogeneity parameters
 ##' MNAR with 1 in intercept shift
 ##' 2013/07/15 specify SP = (1, 0, 0, 0, 0)
+##' 2013/08/02 specify SP = (2, 0, 0, 0, 0) and test QRMissingBi
 
-sink('sim-normal-0715-mnar.txt')
+sink('sim-normal-mnar-mnar-0802.txt')
 rm(list = ls())
-source('BiMLESigma.R')
+library(compiler)
+library(quantreg)
+library(rootSolve)
+enableJIT(3)
+enableJIT(3)
+source('QRMissingBi.R')
 source('sendEmail.R')
 source('Bottai.R')
 library(quantreg)
 library(xtable)
 library(doMC)
 registerDoMC()
-options(cores = 8)
+options(cores = 10)
 set.seed(1)
 
 ###############
 ## PARAMETER
 ###############
-n <- 500
+n <- 200
 p <- 0.5
 alpha <- 0.5
 
 ###############
 ## SIMULATION
 ###############
-boot <- 1000
+boot <- 100
 
 start <- proc.time()[3]
+
+QRMissingBic <- cmpfun(QRMissingBi)
 
 result <- foreach(icount(boot), .combine = rbind) %dopar% {
   R <- rbinom(n, 1, p)
@@ -42,7 +50,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
       y[i, 2] <- 1 - x[i] - 0.5 * y[i, 1] + (1+0.5*x[i])*rnorm(1)
     } else {
       y[i, 1] <- -2 - x[i] +(1 + 0.5*x[i])*rnorm(1)
-      y[i, 2] <- 2 - x[i] - 0.5 * y[i, 1] + (1+0.5*x[i])*rnorm(1)
+      y[i, 2] <- 3 - x[i] - 0.5 * y[i, 1] + (1+0.5*x[i])*rnorm(1)
     }
   }
 
@@ -50,11 +58,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   X[,1] <- 1
   X[,2] <- x
 
-  mod1 <- BiQRGradient(y,R,X,tau=0.1,sp = c(1,0,0,0,0),method = 'heter2')
-  mod3 <- BiQRGradient(y,R,X,tau=0.3,sp = c(1,0,0,0,0),method = 'heter2')
-  mod5 <- BiQRGradient(y,R,X,tau=0.5,sp = c(1,0,0,0,0),method = 'heter2')
-  mod7 <- BiQRGradient(y,R,X,tau=0.7,sp = c(1,0,0,0,0),method = 'heter2')
-  mod9 <- BiQRGradient(y,R,X,tau=0.9,sp = c(1,0,0,0,0),method = 'heter2')
+  mod1 <- QRMissingBic(y,R,X,tau=0.1,sp = c(2,0,0,0,0))
+  mod3 <- QRMissingBic(y,R,X,tau=0.3,sp = c(2,0,0,0,0))
+  mod5 <- QRMissingBic(y,R,X,tau=0.5,sp = c(2,0,0,0,0))
+  mod7 <- QRMissingBic(y,R,X,tau=0.7,sp = c(2,0,0,0,0))
+  mod9 <- QRMissingBic(y,R,X,tau=0.9,sp = c(2,0,0,0,0))
 
   mod1mm <- coef(mod1)
   mod3mm <- coef(mod3)
@@ -79,7 +87,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
            mod1b[,2], mod3b[,2], mod5b[,2], mod7b[,2], mod9b[,2])
 }
 
-write.table(result, file = "sim-normal-mnar-0715-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-normal-mnar-mnar-result-0802.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-normal-MNAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -94,7 +102,7 @@ SolveQuan1 <- function(x, tau){
 }
 
 quan2 <- function(y, x, tau){
-  return(tau - .5*pnorm(y, -1.5*x, (1+0.5*x)*sqrt(5/4)) - .5*pnorm(y, 3-.5*x, (1+0.5*x)*sqrt(5/4)))
+  return(tau - .5*pnorm(y, -1.5*x, (1+0.5*x)*sqrt(5/4)) - .5*pnorm(y, 4-.5*x, (1+0.5*x)*sqrt(5/4)))
 }
 
 SolveQuan2 <- function(x, tau){
@@ -127,7 +135,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-normal-mnar-0715-result.txt')
+result <- read.table('sim-normal-mnar-mnar-result-0802.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
