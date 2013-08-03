@@ -1,12 +1,18 @@
 #!/bin/Rscript
-## Time-stamp: <liuminzhao 07/29/2013 05:19:02>
+## Time-stamp: <liuminzhao 08/03/2013 01:08:40>
 ## bootstrap on tours data
 ## weight2 and weight3
 ## scaled by 1/100
 ## covariates: 3 treatments and 2 races
 ## 2013/07/29 add init1 and init9 , modfiied saved file name, change to 10 core
+## 2013/08/03 Using QRMissingBi.R and change boot to 50
 rm(list=ls())
-source('~/Documents/qrmissing/code/BiMLESigma.R')
+library(compiler)
+enableJIT(3)
+enableJIT(3)
+library(rootSolve)
+library(quantreg)
+source('../code/QRMissingBi.R')
 source('~/Documents/qrmissing/code/sendEmail.R')
 library(doMC)
 registerDoMC()
@@ -31,64 +37,18 @@ weight3 <- weight3/100
 ## new dataset
 NEWTOURS <- data.frame(w2 = weight2, w3 = weight3, age_center, race3, w1 = weight1)
 
-## initial values
-init9 <- c(0.0198771492948432, 0.00419168481637642, -0.0286769281833563,
-0.962705938424494, 0.124463473412154, 0.0082669321531808, -0.0332265872488645,
--0.101252841224114, -4.00482423046243, 0.00384361643406015, 0.242014360378546,
-0.774992605720537, -4.41878993116355, -0.0893229764233047, 0.235700725875636,
-0.367955520969719, 0.0365627649996702, -0.000848529569421987,
--0.0131870438707394, 1.00131102458501, 0.036, 0, 0, 0, -4.12227104972579,
-0.00335677750788003, 0.245472347196181, 1.13619092057686, 0,
-0, 0, 0, 1.15785690811763, 0, 0.943612829565736)
-
-init1 <- c(0.00128500849891446, 0.00165353550525411, -0.0457700527122326,
-0.852903241638371, 0.0965964850319247, 0.0106681055898985, -0.00833488917465255,
--0.0983272783788632, -3.97083966918167, 0.0224131103967352, 0.143912587571141,
-0.829355087608916, -2.06231973874536, -0.197632882886333, -1.70344194695517,
--0.0974725348981226, 0.0782115557466507, -0.00109541725928936,
--0.0654920860767664, 0.755271619906803, 0.036, 0, 0, 0, -4.2102888327682,
--0.00912613468204781, 0.286319221594694, 1.19375723405397, 0,
-0, 0, 0, 1.14599024095279, 0, 0.946162518243309)
-
-init3 <- c(0.00346754533524767, 0.00340547757160402, -0.0424477368487844,
-0.903304542638568, 0.232602165858655, 0.0066085533754103, -0.047828380774495,
--0.205949076863877, -3.98127225565636, 0.00826563282087521, 0.202449750934045,
-0.788235833662693, -3.5365921209912, -0.143132715223207, 0.792684508025302,
--1.21289657040325, 0.0522199852142105, -0.000783994978801458,
--0.0436083360986863, 0.856314796337822, 0, 0, 0, 0, -4.33162748420352,
--0.0108090053648665, 0.327970623481113, 1.28007377111706, 0,
-0, 0, 0, 1.14599514929207, 0, 0.937596514557817)
-
-init5 <- c(0.00817699838851987, 0.00330942186819275, -0.0399131709475386,
-0.922897301066523, 0.126750584163812, 0.0058020299150031, -0.0355863273100943,
--0.102391762777324, -4.01950753497282, 0.00628486521066096, 0.243707932246988,
-0.792047381377232, -3.28627563586285, 0.0348857118359061, 0.355686812534977,
--0.895834755931226, 0.0489958299031745, -0.00101797992303196,
--0.0362702460564401, 0.898227827546846, 0, 0, 0, 0, -4.2666036648914,
--0.00736395189520582, 0.307366569878983, 1.23213379914368, 0,
-0, 0, 0, 1.15359495226242, 0, 0.941404809334169)
-
-init7 <- c(0.00665810647810459, 0.00390179829308831, -0.0355819879382891,
-0.946502966557501, 0.151101151390684, 0.00565476504014295, -0.0395569668320582,
--0.125689555220142, -3.93441276791615, 0.00427008684110161, 0.233183683079389,
-0.714398756168959, -3.53017373626221, 0.0480494948493253, 0.575154747202667,
--0.909814475356364, 0.0394362427537354, -0.000588417299503833,
--0.0268498352569201, 0.944566617750712, 0, 0, 0, 0, -4.07550686393392,
--0.00479128863405338, 0.276711851665603, 1.06053661934902, 0,
-0, 0, 0, 1.15556927936215, 0, 0.9391757154398)
-
-
-
 ###############
 ## BOOTSTRAP
 ###############
-boot <- 1000
+boot <- 50
 n <- dim(NEWTOURS)[1]
 y <- matrix(0, n, 2)
 X <- matrix(0, n, 4)
 X[,1] <- 1
 
 start <- proc.time()[3]
+
+QRMissingBic <- cmpfun(QRMissingBi)
 
 result <- foreach(icount(boot), .combine = rbind) %dopar% {
   indices <- sample(n, replace = TRUE)
@@ -101,22 +61,22 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   R <- 1 - as.numeric(is.na(dat$w3))
   y[is.na(y[,2]),2] <- 0
 
-  mod1 <- BiQRGradient(y, R, X, tau = 0.05, niter = 500, method = 'heter2', init = init1)
-  mod3 <- BiQRGradient(y, R, X, tau = 0.3, niter = 500, method = 'heter2', init = init3)
-  mod5 <- BiQRGradient(y, R, X, tau = 0.5, niter = 500, method = 'heter2', init = init5)
-  mod7 <- BiQRGradient(y, R, X, tau = 0.7, niter = 500, method = 'heter2', init = init7)
-  mod9 <- BiQRGradient(y, R, X, tau = 0.95, niter = 500, method = 'heter2', init = init9)
+  mod1 <- QRMissingBic(y, R, X, tau = 0.05)
+  mod3 <- QRMissingBic(y, R, X, tau = 0.3)
+  mod5 <- QRMissingBic(y, R, X, tau = 0.5)
+  mod7 <- QRMissingBic(y, R, X, tau = 0.7)
+  mod9 <- QRMissingBic(y, R, X, tau = 0.95)
 
   coef1 <- coef(mod1)
   coef3 <- coef(mod3)
   coef5 <- coef(mod5)
   coef7 <- coef(mod7)
   coef9 <- coef(mod9)
-  count1 <- mod1$converge
-  count3 <- mod3$converge
-  count5 <- mod5$converge
-  count7 <- mod7$converge
-  count9 <- mod9$converge
+  count1 <- mod1$convergence
+  count3 <- mod3$convergence
+  count5 <- mod5$convergence
+  count7 <- mod7$convergence
+  count9 <- mod9$convergence
 
   coefw2 <- c(coef1[1,], coef3[1, ], coef5[1, ], coef7[1, ], coef9[1,])
   coefw3 <- c(coef1[2,], coef3[2, ], coef5[2, ], coef7[2, ], coef9[2,])
@@ -125,7 +85,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "toursbootagebase.txt", row.names = FALSE, col.names = FALSE)
+write.table(result, file = "toursbootagebase-0803.txt", row.names = FALSE, col.names = FALSE)
 sendEmail(subject="boot tours base", text="done", address="liuminzhao@gmail.com")
 
 print(proc.time()[3] - start)
