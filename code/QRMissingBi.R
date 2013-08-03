@@ -1,11 +1,12 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/02/2013 11:56:29>
+##' Time-stamp: <liuminzhao 08/03/2013 00:59:50>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
 ##' used JIT/compiler package to increase speed
 ##' checked some small experiments and confirmed SP does not
 ##' affect estimates of Y1
+##' 2013/08/03 change rootiter from 15 to 50
 ##'
 ##' .. content for \description{} (no empty lines) ..
 ##'
@@ -86,7 +87,7 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
           ans <- uniroot.all(target1, interval, tol = tol)[1]
         }
         rootiter <- rootiter + 1
-        if (rootiter > 15) {
+        if (rootiter > 50) {
           cat('can not bracket root fot d1 \n')
           break
         }
@@ -139,7 +140,7 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
           ans <- c(d1, uniroot.all(target2, interval, tol = tol)[1])
         }
         rootiter <- rootiter + 1
-        if (rootiter > 15) {
+        if (rootiter > 50) {
           cat('can not bracket the root for d2 \n')
           break
         }
