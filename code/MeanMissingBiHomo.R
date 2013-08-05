@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/04/2013 17:15:00>
+##' Time-stamp: <liuminzhao 08/04/2013 20:05:14>
 ##' 2013/08/04 Mean regression for Bivariate using our approach
 ##' Test on SP effect on Y1 marignal estimates for mean
 ##' fix sd = 1
@@ -39,11 +39,11 @@ nll <- function(param, y, X, R, sp){
   xdim <- dim(X)[2]
   gamma1 <- param[1:xdim]
   beta1 <- param[(xdim + 1):(2*xdim)]
-  sigma11 <- 1
-  sigma10 <- 1
+  sigma11 <- exp(param[3*xdim + 3])
+  sigma10 <- exp(param[3*xdim + 4])
   gamma2 <- param[(2*xdim + 1):(3*xdim)]
   beta2 <- sp[1:xdim] # SP for R = 0
-  sigma21 <- 1
+  sigma21 <- exp(param[3*xdim + 5])
   sigma20 <- 1
   betay <- param[3*xdim + 1] # for R = 1
   beta2y <- betay + sp[xdim + 1] # SP for R = 0
@@ -58,11 +58,11 @@ nll <- function(param, y, X, R, sp){
   lp1 <- X %*% as.matrix(beta1)
   mu11 <- d1 + lp1
   mu10 <- d1 - lp1
-  sigma1 <- 1
-  sigma0 <- 1
+  sigma1 <- sigma11
+  sigma0 <- sigma10
   ## Y2
   mu21 <- d2 + betay * y[,1]
-  sigma2 <- 1
+  sigma2 <- sigma21
 
   ## ll
   ll11 <- sum(dnorm(y[,1], mu11, sigma1, log=T)[R==1])
@@ -92,7 +92,7 @@ MeanMissingBi <- function(y, R, X, sp = NULL,
   } else {
     lmcoef1 <- coef(lm(y[,1]~X[, -1]))
     lmcoef2 <- coef(lm(y[R==1,1]~X[R==1, -1]))
-    param <- rep(0, 3*xdim + 2)
+    param <- rep(0, 3*xdim + 5)
     param[1:xdim] <- lmcoef1
     param[(2*xdim + 1):(3*xdim)] <- lmcoef2
     param[3*xdim + 2] = log(num/(n-num))
