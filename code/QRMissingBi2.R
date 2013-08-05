@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/03/2013 22:49:11>
+##' Time-stamp: <liuminzhao 08/04/2013 21:58:21>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -32,20 +32,20 @@ DDelta1 <- function(x, param, tau, tol, sp){
   xdim <- length(x)
   gamma1 <- param[1:xdim]
   beta1 <- param[(xdim + 1):(2*xdim)]
-  sigma11 <- param[(2*xdim + 1):(3*xdim)]
-  sigma10 <- param[(3*xdim + 1):(4*xdim)]
-  gamma2 <- param[(4*xdim + 1):(5*xdim)]
+  sigma11 <- exp(param[3*xdim + 3])
+  sigma10 <- exp(param[3*xdim + 4])
+  gamma2 <- param[(2*xdim + 1):(3*xdim)]
   beta2 <- sp[1:xdim] # SP for R = 0
-  sigma21 <- param[(5*xdim + 1):(6*xdim)]
-  sigma20 <- sp[(xdim + 2):(2*xdim+1)] + sigma21 # SP for R = 0
-  betay <- param[6*xdim + 1] # for R = 1
+  sigma21 <- exp(param[3*xdim + 5])
+  sigma20 <- exp(sp[xdim + 2] + param[3*xdim + 5])  # SP for R = 0
+  betay <- param[3*xdim + 1] # for R = 1
   beta2y <- betay + sp[xdim + 1] # SP for R = 0
-  p <- exp(param[6*xdim + 2])/(1 + exp(param[6*xdim + 2]))
+  p <- exp(param[3*xdim + 2])/(1 + exp(param[3*xdim + 2]))
 
   quan <- gamma1 %*% x
   lp <- beta1 %*% x
-  sigma1 <- exp(sigma11 %*% x)
-  sigma0 <- exp(sigma10 %*% x)
+  sigma1 <- sigma11
+  sigma0 <- sigma10
   interval <- c(-10, 10)
   ans <- uniroot.all(Target1, interval, tau = tau, p = p ,
                      quan = quan, lp = lp,
@@ -63,6 +63,9 @@ DDelta1 <- function(x, param, tau, tol, sp){
     }
     rootiter <- rootiter + 1
     if (rootiter > 50) {
+      print(param)
+      print(sp)
+      stop('Error')
       cat('can not bracket root fot d1 \n')
       break
     }
@@ -77,26 +80,26 @@ Target2 <- function(d2, x, param, tau, d1, sp){
   xdim <- length(x)
   gamma1 <- param[1:xdim]
   beta1 <- param[(xdim + 1):(2*xdim)]
-  sigma11 <- param[(2*xdim + 1):(3*xdim)]
-  sigma10 <- param[(3*xdim + 1):(4*xdim)]
-  gamma2 <- param[(4*xdim + 1):(5*xdim)]
+  sigma11 <- exp(param[3*xdim + 3])
+  sigma10 <- exp(param[3*xdim + 4])
+  gamma2 <- param[(2*xdim + 1):(3*xdim)]
   beta2 <- sp[1:xdim] # SP for R = 0
-  sigma21 <- param[(5*xdim + 1):(6*xdim)]
-  sigma20 <- sp[(xdim + 2):(2*xdim+1)] + sigma21 # SP for R = 0
-  betay <- param[6*xdim + 1] # for R = 1
+  sigma21 <- exp(param[3*xdim + 5])
+  sigma20 <- exp(sp[xdim + 2] + param[3*xdim + 5])  # SP for R = 0
+  betay <- param[3*xdim + 1] # for R = 1
   beta2y <- betay + sp[xdim + 1] # SP for R = 0
-  p <- exp(param[6*xdim + 2])/(1 + exp(param[6*xdim + 2]))
+  p <- exp(param[3*xdim + 2])/(1 + exp(param[3*xdim + 2]))
 
   quan1 <- gamma1 %*% x
   lp1 <- beta1 %*% x
-  sigma1 <- exp(sigma11 %*% x)
-  sigma0 <- exp(sigma10 %*% x)
+  sigma1 <- sigma11
+  sigma0 <- sigma10
   mu11 <- d1 + lp1
   mu10 <- d1 - lp1
   quan2 <- gamma2 %*% x
   lp2 <- beta2 %*% x
-  sigma2 <- exp(sigma21 %*% x)
-  sigma2sp <- exp(sigma20 %*% x)
+  sigma2 <- sigma21
+  sigma2sp <- sigma20
 
   if (betay == 0){
     int1 <- pnorm((quan2 - d2)/sigma2)
@@ -150,18 +153,18 @@ nll <- function(param, y, X, R, tau, sp, tol){
   n <- dim(y)[1]
   num <- sum(R)
   xdim <- dim(X)[2]
-  xdim <- dim(X)[2]
+
   gamma1 <- param[1:xdim]
   beta1 <- param[(xdim + 1):(2*xdim)]
-  sigma11 <- param[(2*xdim + 1):(3*xdim)]
-  sigma10 <- param[(3*xdim + 1):(4*xdim)]
-  gamma2 <- param[(4*xdim + 1):(5*xdim)]
+  sigma11 <- exp(param[3*xdim + 3])
+  sigma10 <- exp(param[3*xdim + 4])
+  gamma2 <- param[(2*xdim + 1):(3*xdim)]
   beta2 <- sp[1:xdim] # SP for R = 0
-  sigma21 <- param[(5*xdim + 1):(6*xdim)]
-  sigma20 <- sp[(xdim + 2):(2*xdim+1)] + sigma21 # SP for R = 0
-  betay <- param[6*xdim + 1] # for R = 1
+  sigma21 <- exp(param[3*xdim + 5])
+  sigma20 <- exp(sp[xdim + 2] + param[3*xdim + 5])  # SP for R = 0
+  betay <- param[3*xdim + 1] # for R = 1
   beta2y <- betay + sp[xdim + 1] # SP for R = 0
-  p <- exp(param[6*xdim + 2])/(1 + exp(param[6*xdim + 2]))
+  p <- exp(param[3*xdim + 2])/(1 + exp(param[3*xdim + 2]))
 
   ## get delta
   delta <- t(apply(X, 1, function(l) DDelta2(l, param, tau , tol, sp)))
@@ -172,12 +175,12 @@ nll <- function(param, y, X, R, tau, sp, tol){
   lp1 <- X %*% as.matrix(beta1)
   mu11 <- d1 + lp1
   mu10 <- d1 - lp1
-  sigma1 <- exp(X %*% as.matrix(sigma11))
-  sigma0 <- exp(X %*% as.matrix(sigma10))
+  sigma1 <- sigma11
+  sigma0 <- sigma10
 
   ## Y2
   mu21 <- d2 + betay * y[,1]
-  sigma2 <- exp(X %*% as.matrix(sigma21))
+  sigma2 <- sigma21
 
   ## ll
   ll11 <- sum(dnorm(y[,1], mu11, sigma1, log=T)[R==1])
@@ -193,7 +196,7 @@ nll <- function(param, y, X, R, tau, sp, tol){
 QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
                         init = NULL, method = 'BFGS',
                         tol = 0.00001, maxit = 1000,
-                        trace = 0){
+                        trace = 0, lower = NULL, upper = NULL){
 
   ## data
   n <- dim(y)[1]
@@ -202,23 +205,27 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
 
   ## initial
   if (is.null(sp)) {
-    sp <- rep(0, xdim * 2 + 1)
+    sp <- rep(0, xdim +2)
   }
   if (!is.null(init)){
     param <- init
   } else {
     lmcoef1 <- coef(rq(y[,1] ~ X[,-1], tau = tau))
     lmcoef2 <- coef(rq(y[,2][R == 1] ~ X[R == 1,-1], tau = tau))
-    param <- rep(0, 6*xdim + 2)
+    param <- rep(0, 3*xdim + 5)
     param[1:xdim] <- lmcoef1
-    param[(4*xdim + 1):(5*xdim)] <- lmcoef2
-    param[6*xdim + 2] = log(num/(n-num))
+    param[(2*xdim + 1):(3*xdim)] <- lmcoef2
+    param[3*xdim + 2] = log(num/(n-num))
   }
 
   nllc <- cmpfun(nll)
   ## optimize nll to get MLE
   ##  mod <- optim(param, nllc, method = method, control = list(maxit = maxit))
-  mod <- optim(param, nllc, y = y, X = X, R = R, tau = tau, sp = sp, tol = tol,  method = method, control = list(maxit = maxit, trace = trace))
+  if (is.null(lower)) {
+    mod <- optim(param, nllc, y = y, X = X, R = R, tau = tau, sp = sp, tol = tol,  method = method, control = list(maxit = maxit, trace = trace))
+  } else {
+    mod <- optim(param, nllc, y = y, X = X, R = R, tau = tau, sp = sp, tol = tol,  method = method, upper = upper, lower = lower,  control = list(maxit = maxit, trace = trace))
+  }
 
   mod$n <- n
   mod$xdim <- xdim
@@ -235,7 +242,7 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
 
 coef.QRMissingBi <- function(mod, ...){
   q <- mod$xdim
-  param <- mod$par[c(1:q, (4*q + 1):(5*q))]
+  param <- mod$par[c(1:q, (2*q + 1):(3*q))]
   coef <- matrix(param, 2, q, byrow = T)
   rownames(coef) <- c('Q1Coef', 'Q2Coef')
   return(coef)
@@ -255,7 +262,7 @@ summary.QRMissingBi <- function(mod, ...){
 
   cat('Number of observations: ', n, '\n')
   cat('Sample proportion of observed data: ', sum(R)/n, '\n')
-  cat('Estimated pi:', exp(param[6*q + 2])/(1 + exp(param[6*q + 2])), '\n')
+  cat('Estimated pi:', exp(param[3*q + 2])/(1 + exp(param[3*q + 2])), '\n')
   cat('Quantile: ', tau, '\n')
   cat('Model converged: ', ifelse(mod$convergence, 'No', 'Yes'), '\n')
   cat('Quantile regression coefficients: \n')
