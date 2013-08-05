@@ -1,16 +1,18 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/01/2013 12:45:32>
+##' Time-stamp: <liuminzhao 08/05/2013 00:19:15>
 ##' Simulation Bivariate case with MAR using heter2
 ##' Real MAR , not MCAR
 ##' correct heterogeneity parameters
 ##' 2013/07/18 add Bottai's , Normal MAR , scenario 1
 ##' 2013/07/31 using QRMissingBi.R
+##' 2013/08/05 test on new QRMissingBi.R
 
-sink('sim-normal-mar-0731.txt')
+sink('sim-normal-mar-0805.txt')
 rm(list = ls())
 library(compiler)
 library(quantreg)
 library(rootSolve)
+enableJIT(3)
 enableJIT(3)
 source('QRMissingBi.R')
 source('sendEmail.R')
@@ -36,6 +38,8 @@ boot <- 100
 
 start <- proc.time()[3]
 
+QRMissingBic <- cmpfun(QRMissingBi)
+
 result <- foreach(icount(boot), .combine = rbind) %dopar% {
   R <- rbinom(n, 1, p)
   x <- runif(n, 0, 2)
@@ -54,11 +58,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   X[,1] <- 1
   X[,2] <- x
 
-  mod1 <- QRMissingBi(y, R, X, tau = 0.1)
-  mod3 <- QRMissingBi(y, R, X, tau = 0.3)
-  mod5 <- QRMissingBi(y, R, X, tau = 0.5)
-  mod7 <- QRMissingBi(y, R, X, tau = 0.7)
-  mod9 <- QRMissingBi(y, R, X, tau = 0.9)
+  mod1 <- QRMissingBic(y, R, X, tau = 0.1)
+  mod3 <- QRMissingBic(y, R, X, tau = 0.3)
+  mod5 <- QRMissingBic(y, R, X, tau = 0.5)
+  mod7 <- QRMissingBic(y, R, X, tau = 0.7)
+  mod9 <- QRMissingBic(y, R, X, tau = 0.9)
 
   mod1mm <- coef(mod1)
   mod3mm <- coef(mod3)
@@ -81,7 +85,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-normal-mar-0731-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-normal-mar-result-0805.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-normal-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -129,7 +133,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-normal-mar-0731-result.txt')
+result <- read.table('sim-normal-mar-result-0805.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 

@@ -1,12 +1,13 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/02/2013 00:13:46>
+##' Time-stamp: <liuminzhao 08/05/2013 00:20:08>
 ##' Simulation Bivariate case with MNAR using heter2
 ##' Normal
 ##' correct heterogeneity parameters
 ##' MNAR with 1 in intercept shift
 ##' 2013/08/02 Test on QRMissingBi.R
+##' 2013/08/05 test on new QRMissingBi.R
 
-sink('sim-normal-mnar-mar-0802.txt')
+sink('sim-normal-mnar-mar-0805.txt')
 rm(list = ls())
 library(compiler)
 library(quantreg)
@@ -85,7 +86,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
            mod1b[,2], mod3b[,2], mod5b[,2], mod7b[,2], mod9b[,2])
 }
 
-write.table(result, file = "sim-normal-mnar-mar-0802-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-normal-mnar-mar-0805-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-normal-MNAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -133,7 +134,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-normal-mnar-mar-0802-result.txt')
+result <- read.table('sim-normal-mnar-mar-0805-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
