@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/04/2013 23:07:50>
+##' Time-stamp: <liuminzhao 08/05/2013 20:46:15>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -23,9 +23,9 @@
 ##' @return
 ##' @author Minzhao Liu
 QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
-                        init = NULL, method = 'BFGS',
-                        tol = 0.00001, maxit = 1000,
-                        trace = 0){
+                        init = NULL, method = 'bobyqa',
+                        tol = 0.00001, control = list(maxit = 1000,
+                        trace = 0, sort.result = FALSE)){
 
   ## data
   n <- dim(y)[1]
@@ -88,6 +88,8 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
         }
         rootiter <- rootiter + 1
         if (rootiter > 50) {
+##          print(param)
+##          print(x)
           cat('can not bracket root fot d1 \n')
           break
         }
@@ -176,7 +178,20 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
 
   nllc <- cmpfun(nll)
   ## optimize nll to get MLE
-  mod <- optim(param, nllc, method = method, control = list(maxit = maxit, trace = trace))
+  optim_method <- c('BFGS', 'CG', 'L-BFGS-B')
+
+  if (method %in% optim_method) {
+    mod <- optim(param, nllc, method = method, control = control)
+  } else {
+    minqa_control <- list(isprint = control$trace)
+    if (method == 'bobyqa'){
+      mod <- bobyqa(param, nllc, control=list(iprint = 2))
+    } else if (method == 'uobyqa') {
+      mod <- uobyqa(param, nllc, control=list(iprint = 2))
+    } else if (method == 'newuoa') {
+      mod <- newuoa(param, nllc, control=list(iprint = 2))
+    }
+  }
 
   mod$n <- n
   mod$xdim <- xdim
@@ -184,6 +199,7 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
   mod$y <- y
   mod$R <- R
   mod$tau <- tau
+  mod$method <- method
 
   class(mod) <- "QRMissingBi"
 
@@ -215,7 +231,13 @@ summary.QRMissingBi <- function(mod, ...){
   cat('Sample proportion of observed data: ', sum(R)/n, '\n')
   cat('Estimated pi:', exp(param[3*q + 2])/(1 + exp(param[3*q + 2])), '\n')
   cat('Quantile: ', tau, '\n')
-  cat('Model converged: ', ifelse(mod$convergence, 'No', 'Yes'), '\n')
+  optim_method <- c('BFGS', 'CG', 'L-BFGS-B')
+
+  if (mod$method %in% optim_method) {
+    cat('Model converged: ', ifelse(mod$convergence, 'No', 'Yes'), '\n')
+  } else {
+    cat('Model converged: ', ifelse(mod$ierr, 'No', 'Yes'), '\n')
+  }
   cat('Quantile regression coefficients: \n')
   print(coef(mod))
 
