@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/06/2013 14:11:08>
+##' Time-stamp: <liuminzhao 08/06/2013 15:51:22>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -232,6 +232,7 @@ summary.QRMissingBi <- function(mod, ...){
   cat('Sample proportion of observed data: ', sum(R)/n, '\n')
   cat('Estimated pi:', exp(param[6*q + 2])/(1 + exp(param[6*q + 2])), '\n')
   cat('Quantile: ', tau, '\n')
+  cat('Optimization method: ', mod$method, '\n')
   optim_method <- c('BFGS', 'CG', 'L-BFGS-B', 'Nelder-Mead')
 
   if (mod$method %in% optim_method) {
