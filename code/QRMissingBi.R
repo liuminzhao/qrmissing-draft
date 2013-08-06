@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/05/2013 20:46:15>
+##' Time-stamp: <liuminzhao 08/06/2013 13:41:34>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -23,7 +23,7 @@
 ##' @return
 ##' @author Minzhao Liu
 QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
-                        init = NULL, method = 'bobyqa',
+                        init = NULL, method = 'uobyqa',
                         tol = 0.00001, control = list(maxit = 1000,
                         trace = 0, sort.result = FALSE)){
 
@@ -178,18 +178,18 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
 
   nllc <- cmpfun(nll)
   ## optimize nll to get MLE
-  optim_method <- c('BFGS', 'CG', 'L-BFGS-B')
+  optim_method <- c('BFGS', 'CG', 'L-BFGS-B', 'Nelder-Mead')
 
   if (method %in% optim_method) {
     mod <- optim(param, nllc, method = method, control = control)
   } else {
-    minqa_control <- list(isprint = control$trace)
+    minqa_control <- list(iprint = control$trace)
     if (method == 'bobyqa'){
-      mod <- bobyqa(param, nllc, control=list(iprint = 2))
+      mod <- bobyqa(param, nllc, control=minqa_control)
     } else if (method == 'uobyqa') {
-      mod <- uobyqa(param, nllc, control=list(iprint = 2))
+      mod <- uobyqa(param, nllc, control=minqa_control)
     } else if (method == 'newuoa') {
-      mod <- newuoa(param, nllc, control=list(iprint = 2))
+      mod <- newuoa(param, nllc, control=minqa_control)
     }
   }
 
@@ -231,7 +231,7 @@ summary.QRMissingBi <- function(mod, ...){
   cat('Sample proportion of observed data: ', sum(R)/n, '\n')
   cat('Estimated pi:', exp(param[3*q + 2])/(1 + exp(param[3*q + 2])), '\n')
   cat('Quantile: ', tau, '\n')
-  optim_method <- c('BFGS', 'CG', 'L-BFGS-B')
+  optim_method <- c('BFGS', 'CG', 'L-BFGS-B', 'Nelder-Mead')
 
   if (mod$method %in% optim_method) {
     cat('Model converged: ', ifelse(mod$convergence, 'No', 'Yes'), '\n')
