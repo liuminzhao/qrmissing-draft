@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/06/2013 20:57:46>
+##' Time-stamp: <liuminzhao 08/07/2013 12:55:45>
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
 ##' 2013/07/05 MNAR
@@ -56,11 +56,11 @@ dat <- data.frame(weight2, weight3, trt, age_center, age=TOURS$AGE, race = facto
 
 ToursMNARc <- cmpfun(ToursMNAR)
 
-mod1 <- ToursMNARc(y, R, X, tau = 0.05)
+mod1 <- ToursMNARc(y, R, X, tau = 0.1)
 mod3 <- ToursMNARc(y, R, X, tau = 0.3)
 mod5 <- ToursMNARc(y, R, X, tau = 0.5)
 mod7 <- ToursMNARc(y, R, X, tau = 0.7)
-mod9 <- ToursMNARc(y, R, X, tau = 0.95)
+mod9 <- ToursMNARc(y, R, X, tau = 0.9)
 
 print(mod1$ierr)
 print(mod3$ierr)
@@ -80,8 +80,8 @@ coefw3 <- rbind(coef1[2,], coef3[2, ], coef5[2, ], coef7[2, ], coef9[2,])
 rownames(coefw2) <- c('tau = 0.05', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.95')
 rownames(coefw3) <- c('tau = 0.05', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.95')
 
-colnames(coefw2) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
-colnames(coefw3) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
+colnames(coefw2) <- c('Intercept', 'Age(centered)', 'White')
+colnames(coefw3) <- c('Intercept', 'Age(centered)', 'White')
 
 library(xtable)
 print(xtable(coefw2))
