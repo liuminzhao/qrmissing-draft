@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/06/2013 20:53:50>
+##' Time-stamp: <liuminzhao 08/07/2013 11:39:29>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -8,6 +8,7 @@
 ##' affect estimates of Y1
 ##' 2013/08/02 Modified to fit TOURS MNAR using method from QRMissingBi.R
 ##' 2013/08/06 modified TOURS MNAR using Homo QRMissingBi.R Model
+##' 2013/08/07 set beta2y = 1
 ##'
 ##' .. content for \description{} (no empty lines) ..
 ##'
@@ -63,7 +64,7 @@ ToursMNAR <- function(y, R, X, tau = 0.5, sp = NULL,
     sigma21 <- exp(param[3*xdim + 5])
     sigma20 <- exp(param[3*xdim + 5] + sp[xdim + 2])
     betay <- param[3*xdim + 1] # for R = 1
-    beta2y <- 0 # for R = 0 SP
+    beta2y <- 1 # for R = 0 SP
     p <- exp(param[3*xdim + 2])/(1 + exp(param[3*xdim + 2]))
 
     ## Delta1 function
@@ -123,7 +124,7 @@ ToursMNAR <- function(y, R, X, tau = 0.5, sp = NULL,
         if (beta2y == 0){
           int2 <- pnorm((quan2 - lp2 - mu10)/sigma2sp)
         } else {
-          int2 <- pnorm(((-d2 - lp2 + quan2)/beta2y - mu10)/sqrt(sigma2sp^2/beta2y^2 + sigma0^2))
+          int2 <- pnorm((( - lp2 + quan2)/beta2y - mu10)/sqrt(sigma2sp^2/beta2y^2 + sigma0^2))
           if (beta2y < 0){
             int2 <- 1 - int2
           }
@@ -143,6 +144,11 @@ ToursMNAR <- function(y, R, X, tau = 0.5, sp = NULL,
         }
         rootiter <- rootiter + 1
         if (rootiter > 50) {
+          if (tau > 0.5) {
+            ans <- c(d1, -Inf)
+          } else {
+            ans <- c(d1, Inf)
+          }
           cat('can not bracket the root for d2 \n')
           break
         }
@@ -239,7 +245,6 @@ summary.QRMissingBi <- function(mod, ...){
   } else {
     cat('Model converged: ', ifelse(mod$ierr, 'No', 'Yes'), '\n')
   }
-  cat('Model converged: ', ifelse(mod$convergence, 'No', 'Yes'), '\n')
   cat('Quantile regression coefficients: \n')
   print(coef(mod))
 
