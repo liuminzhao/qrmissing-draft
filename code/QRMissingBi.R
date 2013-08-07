@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/06/2013 15:50:55>
+##' Time-stamp: <liuminzhao 08/06/2013 20:46:09>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -25,7 +25,7 @@
 QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
                         init = NULL, method = 'uobyqa',
                         tol = 0.00001, control = list(maxit = 1000,
-                        trace = 0, sort.result = FALSE)){
+                        trace = 0)){
 
   ## data
   n <- dim(y)[1]
