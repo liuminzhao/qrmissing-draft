@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/02/2013 14:37:35>
+##' Time-stamp: <liuminzhao 08/07/2013 11:49:52>
 ##' manipulate data TOURS
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
@@ -11,6 +11,7 @@ enableJIT(3)
 enableJIT(3)
 library(rootSolve)
 library(quantreg)
+library(minqa)
 source('../code/QRMissingBi.R')
 
 TOURS <- read.csv('~/Documents/qrmissing/tours/tours.csv')
@@ -79,11 +80,11 @@ dat <- data.frame(weight2, weight3, trt, age_center, age=TOURS$AGE, race = facto
 ## y[is.na(y[,2]),2] <- 0
 QRMissingBic <- cmpfun(QRMissingBi)
 
-mod1 <- QRMissingBic(y, R, X, tau = 0.05, trace = 3)
-mod3 <- QRMissingBic(y, R, X, tau = 0.3, trace  = 3)
-mod5 <- QRMissingBic(y, R, X, tau = 0.5, trace  = 3)
-mod7 <- QRMissingBic(y, R, X, tau = 0.7, trace  = 3)
-mod9 <- QRMissingBic(y, R, X, tau = 0.95, trace  = 3)
+mod1 <- QRMissingBic(y, R, X, tau = 0.1)
+mod3 <- QRMissingBic(y, R, X, tau = 0.3)
+mod5 <- QRMissingBic(y, R, X, tau = 0.5)
+mod7 <- QRMissingBic(y, R, X, tau = 0.7)
+mod9 <- QRMissingBic(y, R, X, tau = 0.9)
 
 coef1 <- coef(mod1)
 coef3 <- coef(mod3)
