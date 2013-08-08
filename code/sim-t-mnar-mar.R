@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/08/2013 08:38:06>
+##' Time-stamp: <liuminzhao 08/08/2013 08:45:33>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
@@ -56,7 +56,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
     y[i, 2] <-  1 - x[i] - y[i, 1]*1/2  +  (1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(3*winv[i]/4))
   } else {
     y[i, 1] <-  -2 - x[i] +(1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(winv[i]))
-    y[i, 2] <-  1 - x[i] - y[i, 1]*1/2  +  (1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(3*winv[i]/4))
+    y[i, 2] <-  3 - x[i] - y[i, 1]*1/2  +  (1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(3*winv[i]/4))
     }
   }
 
@@ -125,7 +125,7 @@ q17 <- lm(y17~xsim)$coef
 q19 <- lm(y19~xsim)$coef
 
 quan2 <- function(y, x, tau){
-  return(tau - .5*pt((y  + 1.5*x)/(1+alpha*x), df = 3) - .5*pt((y - 2 + 0.5*x)/(1 + alpha*x),df = 3))
+  return(tau - .5*pt((y  + 1.5*x)/(1+alpha*x), df = 3) - .5*pt((y - 4 + 0.5*x)/(1 + alpha*x),df = 3))
 }
 
 SolveQuan2 <- function(x, tau){
