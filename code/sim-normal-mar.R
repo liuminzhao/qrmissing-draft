@@ -1,25 +1,26 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/05/2013 00:19:15>
+##' Time-stamp: <liuminzhao 08/07/2013 22:38:58>
 ##' Simulation Bivariate case with MAR using heter2
 ##' Real MAR , not MCAR
 ##' correct heterogeneity parameters
 ##' 2013/07/18 add Bottai's , Normal MAR , scenario 1
 ##' 2013/07/31 using QRMissingBi.R
 ##' 2013/08/05 test on new QRMissingBi.R
+##' 2013/08/07 using new uobyqa default method and simulate homo model
 
-sink('sim-normal-mar-0805.txt')
+sink('sim-normal-mar-0807.txt')
 rm(list = ls())
 library(compiler)
 library(quantreg)
 library(rootSolve)
+library(xtable)
+library(minqa)
+library(doMC)
 enableJIT(3)
 enableJIT(3)
 source('QRMissingBi.R')
 source('sendEmail.R')
 source('Bottai.R')
-library(quantreg)
-library(xtable)
-library(doMC)
 registerDoMC()
 options(cores = 10)
 set.seed(1)
@@ -29,7 +30,7 @@ set.seed(1)
 ###############
 n <- 200
 p <- 0.5
-alpha <- 0.5
+alpha <- 0
 
 ###############
 ## SIMULATION
@@ -46,11 +47,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   y <- matrix(0, n, 2)
   for (i in 1:n){
     if (R[i] == 1){
-      y[i, 1] <- 2 + x[i] +(1 + 0.5*x[i])*rnorm(1)
-      y[i, 2] <- 1 - x[i] - 0.5 * y[i, 1] + (1+0.5*x[i])*rnorm(1)
+      y[i, 1] <- 2 + x[i] +(1 + alpha*x[i])*rnorm(1)
+      y[i, 2] <- 1 - x[i] - 0.5 * y[i, 1] + (1+alpha*x[i])*rnorm(1)
     } else {
-      y[i, 1] <- -2 - x[i] +(1 + 0.5*x[i])*rnorm(1)
-      y[i, 2] <- 1 - x[i] - 0.5 * y[i, 1] + (1+0.5*x[i])*rnorm(1)
+      y[i, 1] <- -2 - x[i] +(1 + alpha*x[i])*rnorm(1)
+      y[i, 2] <- 1 - x[i] - 0.5 * y[i, 1] + (1+alpha*x[i])*rnorm(1)
     }
   }
 
@@ -85,14 +86,14 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-normal-mar-result-0805.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-normal-mar-result-0807.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-normal-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
 ## TRUE VALUE
 ###############
 quan1 <- function(y, x, tau){
-  return(tau - .5*pnorm(y, 2+x, 1 + 0.5*x) - .5*pnorm(y, -2-x, 1 + 0.5*x))
+  return(tau - .5*pnorm(y, 2+x, 1 + alpha*x) - .5*pnorm(y, -2-x, 1 + alpha*x))
 }
 
 SolveQuan1 <- function(x, tau){
@@ -100,7 +101,7 @@ SolveQuan1 <- function(x, tau){
 }
 
 quan2 <- function(y, x, tau){
-  return(tau - .5*pnorm(y, -1.5*x, (1+0.5*x)*sqrt(5/4)) - .5*pnorm(y, 2-.5*x, (1+0.5*x)*sqrt(5/4)))
+  return(tau - .5*pnorm(y, -1.5*x, (1+alpha*x)*sqrt(5/4)) - .5*pnorm(y, 2-.5*x, (1+alpha*x)*sqrt(5/4)))
 }
 
 SolveQuan2 <- function(x, tau){
@@ -133,7 +134,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-normal-mar-result-0805.txt')
+result <- read.table('sim-normal-mar-result-0807.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
