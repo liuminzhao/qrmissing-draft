@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/08/2013 08:45:33>
+##' Time-stamp: <liuminzhao 08/08/2013 17:25:53>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
@@ -10,6 +10,7 @@
 ##' 2013/08/01 test on QRMissingBi.R
 
 sink('sim-t-mnar-mar-0808.txt')
+rm(list = ls())
 library(compiler)
 library(quantreg)
 library(rootSolve)

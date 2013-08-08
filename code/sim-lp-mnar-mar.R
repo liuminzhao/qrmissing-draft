@@ -1,38 +1,46 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 07/17/2013 14:26:52>
+##' Time-stamp: <liuminzhao 08/08/2013 17:30:27>
 ##' Simulation Bivariate case with MNAR using heter2
 ##' MNAR 1 shift in intercept
 ##' correct heterogeneity parameters
 ##' test on Bottai's method
 ##' LP distribution
 ##' 2013/07/17 use +-4 +- 2x
+##' 2013/08/01 test on QRMissingBi.R
 
-sink('sim-lp-mnar-mar-0717.txt')
+sink('sim-lp-mnar-mar-0808.txt')
 rm(list = ls())
-source('BiMLESigma.R')
-source('Bottai.R')
-source('sendEmail.R')
+library(compiler)
 library(quantreg)
+library(rootSolve)
 library(xtable)
+library(minqa)
 library(doMC)
+enableJIT(3)
+enableJIT(3)
+source('QRMissingBi.R')
+source('sendEmail.R')
+source('Bottai.R')
 registerDoMC()
-options(cores = 8)
-set.seed(3)
+options(cores = 10)
+set.seed(1)
 
 ###############
 ## PARAMETER
 ###############
-n <- 500
+n <- 200
 p <- 0.5
-alpha <- 0.5
+alpha <- 0
 tau <- 1
 
 ###############
 ## SIMULATION
 ###############
-boot <- 1000
+boot <- 100
 
 start <- proc.time()[3]
+
+QRMissingBic <- cmpfun(QRMissingBi)
 
 result <- foreach(icount(boot), .combine = rbind) %dopar% {
   R <- rbinom(n, 1, p)
@@ -41,11 +49,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   w <- rgamma(n, 1, rate = tau)
   for (i in 1:n){
     if (R[i] == 1){
-      y[i, 1] <- 4 + x[i]*2 + (1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(8*w[i]/tau))
+      y[i, 1] <- 2 + x[i] + (1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(8*w[i]/tau))
       y[i, 2] <- 1 - x[i] - y[i, 1]*1/2 + rnorm(1,sd = sqrt(6*w[i]/tau))*(1 + alpha*x[i])
     } else {
-      y[i, 1] <- -4 - x[i]*2 + (1 + alpha*x[i])* rnorm(1, sd = sqrt(8*w[i]/tau))
-      y[i, 2] <- 2 - x[i] - y[i, 1]/2 + rnorm(1, sd = sqrt(6*w[i]/tau))*(1 + alpha*x[i])
+      y[i, 1] <- -2 - x[i] + (1 + alpha*x[i])* rnorm(1, sd = sqrt(8*w[i]/tau))
+      y[i, 2] <- 3 - x[i] - y[i, 1]/2 + rnorm(1, sd = sqrt(6*w[i]/tau))*(1 + alpha*x[i])
     }
   }
 
@@ -53,11 +61,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   X[,1] <- 1
   X[,2] <- x
 
-  mod1 <- BiQRGradient(y, R, X, tau = 0.1, method = 'heter2')
-  mod3 <- BiQRGradient(y, R, X, tau = 0.3, method = 'heter2')
-  mod5 <- BiQRGradient(y, R, X, tau = 0.5, method = 'heter2')
-  mod7 <- BiQRGradient(y, R, X, tau = 0.7, method = 'heter2')
-  mod9 <- BiQRGradient(y, R, X, tau = 0.9, method = 'heter2')
+  mod1 <- QRMissingBi(y, R, X, tau = 0.1)
+  mod3 <- QRMissingBi(y, R, X, tau = 0.3)
+  mod5 <- QRMissingBi(y, R, X, tau = 0.5)
+  mod7 <- QRMissingBi(y, R, X, tau = 0.7)
+  mod9 <- QRMissingBi(y, R, X, tau = 0.9)
 
   mod1mm <- coef(mod1)
   mod3mm <- coef(mod3)
@@ -83,7 +91,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-lp-mnar-mar-0717-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-lp-mnar-mar-0808-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-lp-mnar-mar", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -94,7 +102,7 @@ pLD <- function(x, tau){
 }
 
 quan1 <- function(y, x, tau, quan){
-  return(quan - .5*pLD(y - 4 - x*2, tau = tau/(1 + alpha*x) ) - .5*pLD(y + 4 + x*2, tau = tau/(1 + alpha*x)))
+  return(quan - .5*pLD(y - 2 - x, tau = tau/(1 + alpha*x) ) - .5*pLD(y +  + x, tau = tau/(1 + alpha*x)))
 }
 
 SolveQuan1 <- function(x, tau, quan){
@@ -102,7 +110,7 @@ SolveQuan1 <- function(x, tau, quan){
 }
 
 quan2 <- function(y, x, tau, quan){
-  return(quan - .5*pLD(y + 1 + (2*x), tau = tau/(1 + alpha*x)) - .5*pLD(y - (4 - 0*x),tau = tau/(1 + alpha*x)))
+  return(quan - .5*pLD(y + (1.5*x), tau = tau/(1 + alpha*x)) - .5*pLD(y - (4 - 0.5*x),tau = tau/(1 + alpha*x)))
 }
 
 SolveQuan2 <- function(x, tau, quan){
@@ -134,7 +142,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-lp-mnar-mar-0717-result.txt')
+result <- read.table('sim-lp-mnar-mar-0808-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
