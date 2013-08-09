@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/07/2013 11:47:31>
+##' Time-stamp: <liuminzhao 08/09/2013 13:49:43>
 ##' manipulate data TOURS
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/08/02 using QRMissingBi
@@ -11,6 +11,7 @@ enableJIT(3)
 library(rootSolve)
 library(quantreg)
 library(minqa)
+library(numDeriv)
 source('../code/QRMissingBi.R')
 
 TOURS <- read.csv('~/Documents/qrmissing/tours/tours.csv')
@@ -72,16 +73,39 @@ coef9 <- coef(mod9)
 coefw2 <- rbind(coef1[1,], coef3[1, ], coef5[1, ], coef7[1, ], coef9[1,])
 coefw3 <- rbind(coef1[2,], coef3[2, ], coef5[2, ], coef7[2, ], coef9[2,])
 
-rownames(coefw2) <- c('tau = 0.05', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.95')
-rownames(coefw3) <- c('tau = 0.05', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.95')
+rownames(coefw2) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.9')
+rownames(coefw3) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.9')
 
 colnames(coefw2) <- c('Intercept', 'Age(centered)', 'White')
 colnames(coefw3) <- c('Intercept', 'Age(centered)', 'White')
 
+## sd
+sd1 <- sd(mod1)
+sd3 <- sd(mod3)
+sd5 <- sd(mod5)
+sd7 <- sd(mod7)
+sd9 <- sd(mod9)
+
+sdw2 <- rbind(sd1[1,], sd3[1, ], sd5[1, ], sd7[1, ], sd9[1,])
+sdw3 <- rbind(sd1[2,], sd3[2, ], sd5[2, ], sd7[2, ], sd9[2,])
+
+rownames(sdw2) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.9')
+rownames(sdw3) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.9')
+
+colnames(sdw2) <- c('Intercept', 'Age(centered)', 'White')
+colnames(sdw3) <- c('Intercept', 'Age(centered)', 'White')
+
+## merge
+w2 <- cbind(coefw2[,1], sdw2[,1],coefw2[,2], sdw2[,2], coefw2[,3], sdw2[,3])
+w3 <- cbind(coefw3[,1], sdw3[,1],coefw3[,2], sdw3[,2], coefw3[,3], sdw3[,3])
+colnames(w2) <- c('Intercept', 'sd', 'Age(centered)', 'sd', 'White', 'sd')
+colnames(w3) <- c('Intercept', 'sd', 'Age(centered)', 'sd', 'White', 'sd')
+
+
 library(xtable)
-print(xtable(coefw2))
-print(xtable(coefw3))
+print(xtable(w2))
+print(xtable(w3))
 
 cat("time: ", proc.time()[3] - start, '\n')
 
-write.table(rbind(coefw2, coefw3), '../tours/agerace.txt', row.names=FALSE)
+write.table(rbind(w2, w3), '../tours/agerace.txt', row.names=FALSE)
