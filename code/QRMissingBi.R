@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/09/2013 11:40:46>
+##' Time-stamp: <liuminzhao 08/09/2013 13:32:29>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -230,6 +230,10 @@ coef.QRMissingBi <- function(mod, ...){
 print.QRMissingBi <- function(mod, ...){
   cat('Coefficients: \n')
   print(coef(mod))
+}
+
+sd.QRMissingBi <- function(mod, ...){
+  return(mod$se)
 }
 
 summary.QRMissingBi <- function(mod, ...){
