@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/09/2013 13:49:43>
+##' Time-stamp: <liuminzhao 08/09/2013 14:06:10>
 ##' manipulate data TOURS
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/08/02 using QRMissingBi
@@ -80,11 +80,11 @@ colnames(coefw2) <- c('Intercept', 'Age(centered)', 'White')
 colnames(coefw3) <- c('Intercept', 'Age(centered)', 'White')
 
 ## sd
-sd1 <- sd(mod1)
-sd3 <- sd(mod3)
-sd5 <- sd(mod5)
-sd7 <- sd(mod7)
-sd9 <- sd(mod9)
+sd1 <- mod1$se
+sd3 <- mod3$se
+sd5 <- mod5$se
+sd7 <- mod7$se
+sd9 <- mod9$se
 
 sdw2 <- rbind(sd1[1,], sd3[1, ], sd5[1, ], sd7[1, ], sd9[1,])
 sdw3 <- rbind(sd1[2,], sd3[2, ], sd5[2, ], sd7[2, ], sd9[2,])

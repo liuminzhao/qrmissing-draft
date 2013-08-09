@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/09/2013 13:50:56>
+##' Time-stamp: <liuminzhao 08/09/2013 14:05:59>
 ##' manipulate data TOURS
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
@@ -96,18 +96,18 @@ coef9 <- coef(mod9)
 coefw2 <- rbind(coef1[1,], coef3[1, ], coef5[1, ], coef7[1, ], coef9[1,])
 coefw3 <- rbind(coef1[2,], coef3[2, ], coef5[2, ], coef7[2, ], coef9[2,])
 
-rownames(coefw2) <- c('tau = 0.05', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.95')
-rownames(coefw3) <- c('tau = 0.05', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.95')
+rownames(coefw2) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.9')
+rownames(coefw3) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.9')
 
 colnames(coefw2) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
 colnames(coefw3) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
 
 ## sd
-sd1 <- sd(mod1)
-sd3 <- sd(mod3)
-sd5 <- sd(mod5)
-sd7 <- sd(mod7)
-sd9 <- sd(mod9)
+sd1 <- mod1$se
+sd3 <- mod3$se
+sd5 <- mod5$se
+sd7 <- mod7$se
+sd9 <- mod9$se
 
 sdw2 <- rbind(sd1[1,], sd3[1, ], sd5[1, ], sd7[1, ], sd9[1,])
 sdw3 <- rbind(sd1[2,], sd3[2, ], sd5[2, ], sd7[2, ], sd9[2,])
