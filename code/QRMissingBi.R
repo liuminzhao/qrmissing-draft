@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/09/2013 16:02:21>
+##' Time-stamp: <liuminzhao 08/09/2013 16:38:03>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -202,7 +202,10 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
     se[1, ] <- sqrt(diag(Jninv)[1:xdim])
     se[2, ] <- sqrt(diag(Jninv)[(2*xdim + 1):(3*xdim)])
     rownames(se) <- c('Q1', 'Q2')
-  } else {Hessian <- NULL}
+  } else {
+    Hessian <- NULL
+    se <- NULL
+  }
 
   mod$n <- n
   mod$xdim <- xdim
