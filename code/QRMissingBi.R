@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/06/2013 20:46:09>
+##' Time-stamp: <liuminzhao 08/09/2013 11:40:46>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -193,6 +193,15 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
     }
   }
 
+  ## Hessian matrix and grad
+  Hessian <- hessian(nllc, mod$par)
+  d <- grad(nllc, mod$par)
+  Jninv <- solve(Hessian)
+  se <- matrix(0, 2, xdim)
+  se[1, ] <- sqrt(diag(Jninv)[1:xdim])
+  se[2, ] <- sqrt(diag(Jninv)[(2*xdim + 1):(3*xdim)])
+  rownames(se) <- c('Q1', 'Q2')
+
   mod$n <- n
   mod$xdim <- xdim
   mod$X <- X
@@ -200,6 +209,9 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
   mod$R <- R
   mod$tau <- tau
   mod$method <- method
+  mod$Hessian <- Hessian
+  mod$se <- se
+##   mod$d <- d
 
   class(mod) <- "QRMissingBi"
 
@@ -241,5 +253,7 @@ summary.QRMissingBi <- function(mod, ...){
   }
   cat('Quantile regression coefficients: \n')
   print(coef(mod))
+  cat('Standard error: \n')
+  print(mod$se)
 
 }
