@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/09/2013 14:05:43>
+##' Time-stamp: <liuminzhao 08/09/2013 16:02:21>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -25,7 +25,7 @@
 QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
                         init = NULL, method = 'uobyqa',
                         tol = 0.00001, control = list(maxit = 1000,
-                        trace = 0)){
+                        trace = 0), hess = FALSE){
 
   ## data
   n <- dim(y)[1]
@@ -194,13 +194,15 @@ QRMissingBi <- function(y, R, X, tau = 0.5, sp = NULL,
   }
 
   ## Hessian matrix and grad
-  Hessian <- hessian(nllc, mod$par)
-  d <- grad(nllc, mod$par)
-  Jninv <- solve(Hessian)
-  se <- matrix(0, 2, xdim)
-  se[1, ] <- sqrt(diag(Jninv)[1:xdim])
-  se[2, ] <- sqrt(diag(Jninv)[(2*xdim + 1):(3*xdim)])
-  rownames(se) <- c('Q1', 'Q2')
+  if (hess) {
+    Hessian <- hessian(nllc, mod$par)
+    d <- grad(nllc, mod$par)
+    Jninv <- solve(Hessian)
+    se <- matrix(0, 2, xdim)
+    se[1, ] <- sqrt(diag(Jninv)[1:xdim])
+    se[2, ] <- sqrt(diag(Jninv)[(2*xdim + 1):(3*xdim)])
+    rownames(se) <- c('Q1', 'Q2')
+  } else {Hessian <- NULL}
 
   mod$n <- n
   mod$xdim <- xdim
