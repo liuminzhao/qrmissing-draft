@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/08/2013 17:30:27>
+##' Time-stamp: <liuminzhao 08/09/2013 13:08:48>
 ##' Simulation Bivariate case with MNAR using heter2
 ##' MNAR 1 shift in intercept
 ##' correct heterogeneity parameters
@@ -102,7 +102,7 @@ pLD <- function(x, tau){
 }
 
 quan1 <- function(y, x, tau, quan){
-  return(quan - .5*pLD(y - 2 - x, tau = tau/(1 + alpha*x) ) - .5*pLD(y +  + x, tau = tau/(1 + alpha*x)))
+  return(quan - .5*pLD(y - 2 - x, tau = tau/(1 + alpha*x) ) - .5*pLD(y + 2 + x, tau = tau/(1 + alpha*x)))
 }
 
 SolveQuan1 <- function(x, tau, quan){
