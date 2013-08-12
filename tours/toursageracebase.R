@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/09/2013 14:05:59>
+##' Time-stamp: <liuminzhao 08/12/2013 12:56:33>
 ##' manipulate data TOURS
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
@@ -102,30 +102,8 @@ rownames(coefw3) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau =
 colnames(coefw2) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
 colnames(coefw3) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
 
-## sd
-sd1 <- mod1$se
-sd3 <- mod3$se
-sd5 <- mod5$se
-sd7 <- mod7$se
-sd9 <- mod9$se
-
-sdw2 <- rbind(sd1[1,], sd3[1, ], sd5[1, ], sd7[1, ], sd9[1,])
-sdw3 <- rbind(sd1[2,], sd3[2, ], sd5[2, ], sd7[2, ], sd9[2,])
-
-rownames(sdw2) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.9')
-rownames(sdw3) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.9')
-
-colnames(sdw2) <- c('Intercept', 'Age(centered)', 'White')
-colnames(sdw3) <- c('Intercept', 'Age(centered)', 'White')
-
-## merge
-w2 <- cbind(coefw2[,1], sdw2[,1],coefw2[,2], sdw2[,2], coefw2[,3], sdw2[,3], coefw2[,4], sdw2[,4])
-w3 <- cbind(coefw3[,1], sdw3[,1],coefw3[,2], sdw3[,2], coefw3[,3], sdw3[,3], coefw3[,4], sdw3[,4])
-colnames(w2) <- c('Intercept', 'sd', 'Age(centered)', 'sd', 'White', 'sd', 'Baseweight', 'sd')
-colnames(w3) <- c('Intercept', 'sd', 'Age(centered)', 'sd', 'White', 'sd', 'Baseweight', 'sd')
-
 library(xtable)
-print(xtable(w2))
-print(xtable(w3))
+print(xtable(coefw2))
+print(xtable(coefw3))
 
 write.table(rbind(w2, w3), 'ageracebase.txt', row.names=FALSE)
