@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/07/2013 11:39:29>
+##' Time-stamp: <liuminzhao 08/12/2013 12:49:24>
 ##' 2013/07/30 Rewrite BiMLESigma.R using pure R language
 ##' used uniroot.all to obtain roots
 ##' used optim to optimize the likelihood to get the MLE
@@ -124,7 +124,7 @@ ToursMNAR <- function(y, R, X, tau = 0.5, sp = NULL,
         if (beta2y == 0){
           int2 <- pnorm((quan2 - lp2 - mu10)/sigma2sp)
         } else {
-          int2 <- pnorm((( - lp2 + quan2)/beta2y - mu10)/sqrt(sigma2sp^2/beta2y^2 + sigma0^2))
+          int2 <- pnorm(((-d2 - lp2 + quan2)/beta2y - mu10)/sqrt(sigma2sp^2/beta2y^2 + sigma0^2))
           if (beta2y < 0){
             int2 <- 1 - int2
           }
