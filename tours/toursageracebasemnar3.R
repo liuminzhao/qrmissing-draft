@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/07/2013 12:55:16>
+##' Time-stamp: <liuminzhao 08/12/2013 12:50:58>
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
 ##' 2013/07/05 MNAR
@@ -64,11 +64,11 @@ mod5 <- ToursMNARc(y, R, X, tau = 0.5)
 mod7 <- ToursMNARc(y, R, X, tau = 0.7)
 mod9 <- ToursMNARc(y, R, X, tau = 0.9)
 
-print(mod1$convergence)
-print(mod3$convergence)
-print(mod5$convergence)
-print(mod7$convergence)
-print(mod9$convergence)
+print(mod1$ierr)
+print(mod3$ierr)
+print(mod5$ierr)
+print(mod7$ierr)
+print(mod9$ierr)
 
 coef1 <- coef(mod1)
 coef3 <- coef(mod3)
@@ -79,8 +79,8 @@ coef9 <- coef(mod9)
 coefw2 <- rbind(coef1[1,], coef3[1, ], coef5[1, ], coef7[1, ], coef9[1,])
 coefw3 <- rbind(coef1[2,], coef3[2, ], coef5[2, ], coef7[2, ], coef9[2,])
 
-rownames(coefw2) <- c('tau = 0.05', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.95')
-rownames(coefw3) <- c('tau = 0.05', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.95')
+rownames(coefw2) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.9')
+rownames(coefw3) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.9')
 
 colnames(coefw2) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
 colnames(coefw3) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
