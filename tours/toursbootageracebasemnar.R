@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/08/2013 23:19:42>
+##' Time-stamp: <liuminzhao 08/12/2013 14:07:59>
 ##' bootstrap on tours data
 ##' weight2 and weight3
 ##' scaled by 1/100
@@ -45,7 +45,7 @@ NEWTOURS <- data.frame(w2 = weight2, w3 = weight3, age_center, race3, w1 = weigh
 ###############
 ## BOOTSTRAP
 ###############
-boot <- 50
+boot <- 10
 n <- dim(NEWTOURS)[1]
 y <- matrix(0, n, 2)
 X <- matrix(0, n, 4)
@@ -91,7 +91,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "toursbootageracebasemnar-0808.txt", row.names = FALSE, col.names = FALSE)
+write.table(result, file = "toursbootageracebasemnar-0812.txt", row.names = FALSE, col.names = FALSE)
 sendEmail(subject="boot tours age race base mnar", text="done", address="liuminzhao@gmail.com")
 
 print(proc.time()[3] - start)
