@@ -1,46 +1,34 @@
-##' Time-stamp: "liuminzhao 07/28/2013 23:14:27"
+##' Time-stamp: "liuminzhao 08/13/2013 13:42:41"
 ##' ##' tours data with covariates : age, race, baseline weight
 ##' 2013/07/14 MNAR
 ##' 2013/07/27 new mnar
 ##' new mnar with 200 boot for mod1 and 200 for mod9
 ##' 2013/07/28
+##' 2013/08/13 uobyqa 100 boot
 
-dat11 <- read.table('toursbootagebasemnar-0727-1.txt')
-dat12 <- read.table('toursbootagebasemnar-0727-1-2.txt')
-dat13 <- read.table('toursbootagebasemnar-0727-1-3.txt')
-dat91 <- read.table('toursbootagebasemnar-0727-9.txt')
-dat92 <- read.table('toursbootagebasemnar-0727-9-2.txt')
-dat93 <- read.table('toursbootagebasemnar-0727-9-3.txt')
-dat94 <- read.table('toursbootagebasemnar-0727-9-4.txt')
-dat95 <- read.table('toursbootagebasemnar-0727-9-5.txt')
-dat1 <- rbind(dat11, dat12, dat13)
-dat9 <- rbind(dat91, dat92, dat93, dat94, dat95)
+dat1 <- read.table('toursbootageracebasemnar-0812.txt')
+dat2 <- read.table('toursbootageracebasemnar-0812-2.txt')
+dat3 <- read.table('toursbootageracebasemnar-0812-3.txt')
+dat4 <- read.table('toursbootageracebasemnar-0812-4.txt')
+dat5 <- read.table('toursbootageracebasemnar-0812-5.txt')
 
-sum(dat1[,9])
-sum(dat9[,9])
+dat <- rbind(dat1, dat2, dat3, dat4, dat5)
 
-index1 <- which(dat1[, 9] == 1)
-index9 <- which(dat9[, 9] == 1)
-coef1 <- dat1[index1, 1:8]
-coef9 <- dat9[index9, 1:8]
+index1 <- which(dat[,41] == 0)
+index3 <- which(dat[,42] == 0)
+index5 <- which(dat[,43] == 0)
+index7 <- which(dat[,44] == 0)
+index9 <- which(dat[,45] == 0)
+coef1 <- dat[index1, c(1:4, 21:24)]
+coef3 <- dat[index3, c(5:8, 25:28)]
+coef5 <- dat[index5, c(9:12, 29:32)]
+coef7 <- dat[index7, c(13:16, 33:36)]
+coef9 <- dat[index9, c(17:20, 37:40)]
 datsummary1 <- apply(coef1, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
-datsummary9 <- apply(coef9, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
-
-dat37 <- read.table('toursbootagebasemnar-0724-3-7.txt')
-
-apply(dat37[, 25:27], 2, sum)
-
-index3 <- which(dat37[,25] == 1)
-index5 <- which(dat37[,26] == 1)
-index7 <- which(dat37[,27] == 1)
-coef3 <- dat37[index3, c(1:4, 13:16)]
-coef5 <- dat37[index5, c(5:8, 17:20)]
-coef7 <- dat37[index7, c(9:12, 21:24)]
-
 datsummary3 <- apply(coef3, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
 datsummary5 <- apply(coef5, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
 datsummary7 <- apply(coef7, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
-
+datsummary9 <- apply(coef9, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
 
 datest <- read.table('ageracebasemnar.txt', header = T)
 
@@ -55,13 +43,12 @@ ci <- rbind(ci1[1, ], ci3[1, ], ci5[1,], ci7[1,], ci9[1,],
 
 colnames(ci) <- c('Int.lo', 'Int.up', 'Age.lo', 'Age.up', 'White.lo', 'White.up', 'Base.lo', 'Base.up')
 
-
-
-
 total <- cbind(datest, ci)[, c(1, 5,6,2,7,8,3,9,10,4,11,12)]
 
-rownames(total) <- c('Y1 0.1', 'Y1 0.3', 'Y1 0.5', 'Y1 0.7', 'Y1 0.9',
-                     'Y2 0.1', 'Y2 0.3', 'Y2 0.5', 'Y2 0.7', 'Y2 0.9')
+rownames(total) <- c('Y10.1', 'Y10.3', 'Y10.5', 'Y10.7', 'Y10.9',
+                     'Y20.1', 'Y20.3', 'Y20.5', 'Y20.7', 'Y20.9')
+
+## total[, -c(4:6, 9:12)] <- total[, -c(4:6, 9:12)]*100
 
 library(xtable)
 print(xtable(total))

@@ -1,26 +1,27 @@
 ##' tours data with covariates : age, race, baseline weight
+##' Time-stamp: <liuminzhao 08/13/2013 13:42:47>
 ##' 2013/06/23
 ##' 2013/07/29 using new initial and new ci
+##' 2013/08/13 new method from  uobyqa
 
-dat1 <- read.table('toursbootagebase-0729.txt')
-dat2 <- read.table('toursbootagebase2.txt')
-dat3 <- read.table('toursbootagebase3.txt')
-dat4 <- read.table('toursbootagebase4.txt')
-dat5 <- read.table('toursbootagebase5.txt')
+dat1 <- read.table('toursbootageracebase-0808.txt')
+dat2 <- read.table('toursbootageracebase-0808-2.txt')
+dat3 <- read.table('toursbootageracebase-0808-3.txt')
+dat4 <- read.table('toursbootageracebase-0808-4.txt')
+dat5 <- read.table('toursbootageracebase-0808-5.txt')
 
 dat <- rbind(dat1, dat2, dat3, dat4, dat5)
 
-
-index1 <- which(dat1[, 41] == 1)
-index3 <- which(dat1[,42] == 1)
-index5 <- which(dat1[,43] == 1)
-index7 <- which(dat1[,44] == 1)
-index9 <- which(dat1[, 45] == 1)
-coef1 <- dat1[index1, c(1:4, 21:24)]
-coef3 <- dat1[index3, c(5:8, 25:28)]
-coef5 <- dat1[index5, c(9:12, 29:32)]
-coef7 <- dat1[index7, c(13:16, 33:36)]
-coef9 <- dat1[index9, c(17:20, 37:40)]
+index1 <- which(dat[,41] == 0)
+index3 <- which(dat[,42] == 0)
+index5 <- which(dat[,43] == 0)
+index7 <- which(dat[,44] == 0)
+index9 <- which(dat[,45] == 0)
+coef1 <- dat[index1, c(1:4, 21:24)]
+coef3 <- dat[index3, c(5:8, 25:28)]
+coef5 <- dat[index5, c(9:12, 29:32)]
+coef7 <- dat[index7, c(13:16, 33:36)]
+coef9 <- dat[index9, c(17:20, 37:40)]
 datsummary1 <- apply(coef1, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
 datsummary9 <- apply(coef9, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
 datsummary3 <- apply(coef3, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
@@ -42,8 +43,10 @@ colnames(ci) <- c('Int.lo', 'Int.up', 'Age.lo', 'Age.up', 'White.lo', 'White.up'
 
 total <- cbind(datest, ci)[, c(1, 5,6,2,7,8,3,9,10,4,11,12)]
 
-rownames(total) <- c('Y1 0.1', 'Y1 0.3', 'Y1 0.5', 'Y1 0.7', 'Y1 0.9',
-                     'Y2 0.1', 'Y2 0.3', 'Y2 0.5', 'Y2 0.7', 'Y2 0.9')
+rownames(total) <- c('Y10.1', 'Y10.3', 'Y10.5', 'Y10.7', 'Y10.9',
+                     'Y20.1', 'Y20.3', 'Y20.5', 'Y20.7', 'Y20.9')
+
+## total[, -c(4:6, 9:12)] <- total[, -c(4:6, 9:12)]*100
 
 library(xtable)
 print(xtable(total))
