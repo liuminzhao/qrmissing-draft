@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/09/2013 13:08:48>
+##' Time-stamp: <liuminzhao 08/13/2013 15:25:48>
 ##' Simulation Bivariate case with MNAR using heter2
 ##' MNAR 1 shift in intercept
 ##' correct heterogeneity parameters
@@ -180,6 +180,28 @@ efficiencybb <- rbind(matrix(efficiency[41:50], 2, 5), matrix(efficiency[51:60],
 mytbl3 <- cbind(efficiencyrq/efficiencyh2, efficiencybb/efficiencyh2)
 colnames(mytbl3) <- rep(c('RQ', 'BB'), 5)
 print(xtable(mytbl3))
+
+## MCSE
+mcse <- rep(0, 60)
+for (i in 1:60){
+  mcse[i] <- sd((result[,i] - trueq[i])^2)/sqrt(boot)
+}
+mcseh2 <- rbind(matrix(mcse[1:10], 2, 5), matrix(mcse[11:20], 2, 5))
+mcserq <- rbind(matrix(mcse[21:30], 2, 5), matrix(mcse[31:40], 2, 5))
+mcsebb <- rbind(matrix(mcse[41:50], 2, 5), matrix(mcse[51:60], 2, 5))
+mytbl4 <- cbind(mcseh2[,1], mcserq[,1], mcsebb[,1], mcseh2[,2], mcserq[,2], mcsebb[,2], mcseh2[,3], mcserq[,3], mcsebb[,3], mcseh2[,4], mcserq[,4], mcsebb[,4], mcseh2[,5], mcserq[,5], mcsebb[,5])
+colnames(mytbl4) <- rep(c('MM', 'RQ', 'BB'), 5)
+print(xtable(mytbl4))
+print(mytbl4)
+
+## combine mse and MCSE
+msemcse <- matrix(0, 4, 30)
+for (i in 1:15){
+  msemcse[, i*2 - 1] <- mytbl[, i]
+  msemcse[, i*2] <- mytbl4[, i]
+}
+print(msemcse)
+print(xtable(msemcse))
 
 cat("Time: ", proc.time()[3] - start, '\n')
 
