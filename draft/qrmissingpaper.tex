@@ -27,7 +27,7 @@
 \newcommand{\yobs}{\bm y_{\text{obs}}}
 \newcommand{\ymis}{\bm y_{\text{mis}}}
 \usepackage{subfiles}
-
+\usepackage{pdflscape}
 \def\biblio{\bibliographystyle{plainnat}\bibliography{qr-missing-reference}}
 
 \begin{document}
@@ -93,28 +93,29 @@ missing covariates given observed ones.  However, they put more focus
 on the missing covariates rather than missing outcomes.
 \citet{bottai2013} illustrated an imputation method using estimated
 conditional quantiles of missing outcomes given observed data. Their
-approach does not make distribution assumptions.  They assumed the
-missing data mechanism (MDM) is ignorable. However, because his
-imputing method does not depend on a fully conditional likelihood
-parametric model, it may not converge to a coherent stationary
-distribution model. In addition, their imputing method does not allow
-non-ignorable missingness.
+approach does not make distributional assumptions.  They assumed the
+missing data mechanism (MDM) is ignorable. However, because their
+imputation method is not derived from a joint distribution, the joint
+distribution with such conditionals may not exist.  In addition, their
+approach does not allow for MNAR.
 
-For missing not at random (MNAR), \citet{yuan2010} introduced a
-Bayesian quantile regression approach for longitudinal data with
-nonignorable missing data. They used random effects to explain the
-within-subject correlation and applied a $l_2$ penalty in the
-traditional quantile regression check function to shrink toward the
-common population values. However, the quantile regression
-coefficients are conditional on the random effects, which is not of
-interest if we are looking into the marginal relationship. In
-addition, they did not allow for sensitivity analysis which is
-essential for proper analysis of incomplete data \citep{nas2010}.
+\citet{yuan2010} introduced a fully parametric Bayesian quantile
+regression approach for longitudinal data with nonignorable missing
+data. They used random effects to explain the within-subject
+correlation and applied multivariate normal priors on the random terms
+to match the traditional quantile regression check function with
+penalties, which can also shrink the subject-specific effect toward
+zero. However, the quantile regression coefficients are conditional on
+the random effects, which is not of interest if we are interested in
+interpreting regression coefficients unconditional on random effects.
+In addition, due to their full parametric specification for the full
+data, their model does not allow for sensitivity analysis, which is a
+key component in inference for incomplete data \citep{nas2010}.
 
-Pattern mixture models were proposed to address missing data in
-\citet{rubin1977}. Later mixture models are extended to handle
-informative dropout in longitudinal data. For discrete dropout time
-scenario, \citet{little1993, little1994} proposed a general method by
+Pattern mixture models were originally proposed to model missing data
+in \citet{rubin1977}. Later mixture models were extended to handle
+MNAR in longitudinal data. For discrete dropout times,
+\citet{little1993, little1994} proposed a general method by
 introducing a finite mixture of multivariate distribution for
 longitudinal data. When there are many possible dropout time,
 \citet{roy2003} proposed to group them by latent classes.
@@ -124,16 +125,16 @@ and proposed a pattern mixture model for data with nonignorable
 dropout, borrowing ideas from \citet{heagerty1999}.  But their
 approach only estimates the marginal covariate effects on the mean. We
 will use related ideas for quantile regression models which allows
-non-ignorable missingness, MNAR and sensitivity analysis.
+non-ignorable missingness and sensitivity analysis.
 
 The structure of this article is as follows. First, we introduce a
-quantile regression method to address monotone nonignorable dropout
+quantile regression method to address monotone nonignorable
 missingness in section \ref{sec:model}, including sensitivity analysis
 and computational details.  We use simulation studies to evaluate the
 performance of the model in section \ref{sec:simulation}. We apply our
 approach to data from a recent clinical trial in section
-\ref{sec:real}. Finally, discussion and conclusions are in section
-\ref{sec:discussion}.
+\ref{sec:real}. Finally, discussion and conclusions are given in
+section \ref{sec:discussion}.
 
 \section{Model}
 \label{sec:model}
@@ -182,31 +183,32 @@ parameter vector $\bm \omega$ is partitioned as $(\bm \theta, \bm
 
 Furthermore, the conditional distribution of response within patterns
 can be decomposed as
-\begin{displaymath} \pr (\yobs, \ymis | \bm S, \bm \theta) = \pr
+\begin{equation}\label{eq:decompose}
+  \pr (\yobs, \ymis | \bm S, \bm \theta) = \pr
   (\ymis|\yobs, \bm S, \bm \theta_E) \pr (\yobs | \bm S, \bm
   \theta_{y, O}, \bm \phi),
-\end{displaymath}
+\end{equation}
 where $\bm \theta_E$ indexes the parameters in an extrapolation
 distribution, $\bm \theta_{y, O}, \bm \phi$ indexes parameters in
 distributions of observed data.
 
 We assume models within pattern to be multivariate normal
 distributions and specify a sequential model parametrization. Let the
-subscript $i$ stand for subject $i$. Specify the conditional
-distribution as:
+subscript $i$ stand for subject $i$. We specify the conditional
+distributions as:
 \begin{equation}
   \label{eq:model}
   \left.  \begin{aligned}
       & \pr_k(y_{i1}) = \textrm{N} (\Delta_{i1} + \bm x_{i1}^T \bm \beta_1^{(k)},
-      \exp (\bm x_{i1}^T \bm \alpha_1^{(k)} ) ), k = 1, \ldots, J,\\
+      \sigma_1^{(k)}  ), k = 1, \ldots, J,\\
       &\pr_k(y_{ij}|\bm y_{ij^{-}}) =
       \begin{cases}
         \textrm{N} \big (\Delta_{ij} + \bm x_{ij}^T \bm h_{j}^{(k)} +
         \bm y_{ij^{-}}^T \bm \beta_{y,j-1}^{(k)},
-        \exp (\bm x_{ij}^T \bm \alpha_j^{(k)} ) \big), & k < j ;  \\
+        \sigma_j^{(k)} \big), & k < j ;  \\
         \textrm{N} \big (\Delta_{ij} + \bm y_{ij^{-}}^T \bm
         \beta_{y,j-1}^{(\geq j)},
-        \exp (\bm x_{ij}^T \bm \alpha_j^{(\geq j)} ) \big), & k \geq j ;  \\
+        \sigma_j^{(\geq j)} \big), & k \geq j ;  \\
       \end{cases}, \text{ for } 2 \leq j \leq J,  \\
       &S_{ij} = k| \bm x_{ij} \sim \textrm{Multinomial}(1, \bm \pi),
     \end{aligned} \right\}
@@ -215,12 +217,11 @@ where $\bm y_{ij^{-}} = (y_{i1}, \ldots, y_{i(j-1)})^T, \bm \pi =
 (\pi_1, \ldots, \pi_J)$,$\bm h_j^{(k)} = (h_{j1}^{(k)}, \ldots,
 h_{jp}^{(k)})$, $\bm x_j$ is a $p \times 1$ covariate vector, $\bm
 \beta_{y, j-1}^{(k)} = \big(\beta_{y_1, j-1}^{(k)}, \ldots,
-\beta_{y_{j-1}, j-1}^{(k)} \big)^T$ and $\bm \alpha_j^{(k)}$ is a $p
-\times 1$ vector controlling heterogeneity of conditional variance of
-response component $j$. We specify the model as in (\ref{eq:model}) to
-, have multivariate normal distribution within patterns and to allow
-MAR to exist \citep{wang2011}. More details are presented in section
-\ref{sec:sa}.
+\beta_{y_{j-1}, j-1}^{(k)} \big)^T$ and $\sigma_j^{(k)}$ is
+conditional standard deviation of response component $j$. We specify
+the model as in (\ref{eq:model}) to , have multivariate normal
+distribution within patterns and to allow MAR to exist
+\citep{wang2011}. More details are presented in section \ref{sec:sa}.
 
 In (\ref{eq:model}), $\Delta_{ij}$ are functions of $\tau, \bm x_{ij},
 \bm \alpha_j, \bm \gamma_j$ and other parameters and are determined by
@@ -246,10 +247,9 @@ for $j = 2, \ldots, J$. Computational details will be given in section
 
 The idea is to model the marginal quantile regressions directly, then
 to embed them in the likelihood through restrictions in the mixture
-model. The mixture model and heterogeneity of variance between
-subjects in (\ref{eq:model}) allows the marginal quantile regression
-coefficients to differ by quantiles. Otherwise, the quantile lines
-would be parallel to each other.
+model. The mixture model in (\ref{eq:model}) allows the marginal
+quantile regression coefficients to differ by quantiles. Otherwise,
+the quantile lines would be parallel to each other.
 
 For identifiability of the observed data distribution, we apply the
 following restrictions,
@@ -266,9 +266,10 @@ found in Appendix \ref{sec:iden}.
 In general, mixture models are not identified due to insufficient
 information provided by observed data. Specific forms of missingness
 are needed to induce constraints to identify the distributions for
-incomplete patterns, in particular, the extrapolation distribution. In
-this section, we explore ways to embed the missingness mechanism and
-sensitivity parameters in mixture models for our setting.
+incomplete patterns, in particular, the extrapolation distribution in
+(\ref{eq:decompose}). In this section, we explore ways to embed the
+missingness mechanism and sensitivity parameters in mixture models for
+our setting.
 
 In the mixture model in (\ref{eq:model}), MAR holds \citep{molen1998,
   wang2011} if and only if, for each $j \geq 2$ and $k < j$:
@@ -281,48 +282,47 @@ h_j^{(k)}$ and $\bm \alpha_j^{(k)}$, $ \bm \beta_{y, j-1}^{(k)} =
 \big(\beta_{y_1,j}^{(k)}, \ldots, \beta_{y_{j-1},j-1}^{(k)} \big)^T $
 can not be identified from the observed data. Denote
 \begin{align*}
-  \bm \alpha_j^{(k)} &= \bm \alpha_j^{(\geq j)} + \bm \delta_{j}^{(k)}, \\
+  \log \sigma_j^{(k)} &= \log \sigma_j^{(\geq j)} +  \delta_{j}^{(k)}, \\
   \bm \beta_{y, j-1}^{(k)} &= \bm \beta_{y, j-1}^{(\geq j)} + \bm
   \eta_{j-1}^{(k)},
 \end{align*}
-where $\bm \delta_j^{(k)} = \big( \delta_{1j}^{(k)}, \ldots,
-\delta_{pj}^{(k)} \big)$ and $\bm \eta_{j-1}^{(k)} = \big(
+where  $\bm \eta_{j-1}^{(k)} = \big(
 \eta_{y_1,j-1}^{(k)}, \ldots, \eta_{y_{j-1}, j-1}^{(k)} \big)$ for $k
-< j$. Then $\bm \xi_s = ( \bm h_j^{(k)}, \bm \eta_{j-1}^{(k)}, \bm
+< j$. Then $\bm \xi_s = ( \bm h_j^{(k)}, \bm \eta_{j-1}^{(k)},
 \delta_j^{(k)})$ is a set of sensitivity parameters \citep{dh2008},
 where $k < j, 2 \leq j \leq J $.
 
 When $\bm \xi_s = \bm \xi_{s0} = \bm 0$, MAR holds. If $\bm \xi_s$ is
 fixed at $\bm \xi_s \neq \bm \xi_{s0}$, the missingness mechanism is
-MNAR.
+MNAR. We can vary $\bm \xi_s$ around $\bm 0$ to examine the impact of
+different MNAR mechanisms.
 
-For fully Bayesian inference, we can put independent priors on $(\bm
-\xi_s, \bm \xi_m)$ as :
+For fully Bayesian inference, we can put priors on $(\bm \xi_s, \bm
+\xi_m)$ as :
 \begin{displaymath}
   p(\bm \xi_s, \bm \xi_m) = p(\bm \xi_s) p(\bm \xi_m),
 \end{displaymath}
 where $\bm \xi_m = \big(\bm \gamma_j, \bm \beta_{y, j-1}^{(\geq j)},
-\bm \alpha_j^{(\geq j)}, \bm \pi \big)$.
-
-If we assume MAR with no uncertainty, the prior of $\bm \xi_s$ is
-$\pr(\bm \xi_s = \bm 0) \equiv 1$. Sensitivity analysis can be
-executed by putting point mass priors on $\bm \xi_s$ to examine the
-effect of priors on the posterior inference about quantile regression
-coefficients $\bm \gamma_{ij}^{\tau}$. For example, if MAR is assumed
-with uncertainty, priors can be assigned as $\textrm{E}(\bm \xi_s) =
-\bm \xi_{s0} = \bm 0$ with $\textrm{Var}(\bm \xi_s) \neq \bm 0$. If we
-assume MNAR with no uncertainty, we can put priors satisfying
-$\textrm{E}(\bm \xi_s) = \Delta_{\xi}$, where $\Delta_{\xi} \neq \bm
-0$ and $\textrm{Var}(\bm \xi_s) = \bm 0$. If MNAR is assumed with
-uncertainty, then priors could be $\textrm{E}(\bm \xi_s) =
-\Delta_{\xi}$, where $\Delta_{\xi} \neq \bm 0 $ and $\textrm{Var}(\bm
-\xi_s) \neq \bm 0$.
+\bm \alpha_j^{(\geq j)}, \bm \pi \big)$, the identified parameters in
+the data distribution.  If we assume MAR with no uncertainty, the
+prior of $\bm \xi_s$ is $\pr(\bm \xi_s = \bm 0) \equiv 1$. Sensitivity
+analysis can be executed by putting point mass priors on $\bm \xi_s$
+to examine the effect of priors on the posterior inference about
+quantile regression coefficients $\bm \gamma_{ij}^{\tau}$. For
+example, if MAR is assumed with uncertainty, priors can be assigned as
+$\textrm{E}(\bm \xi_s) = \bm \xi_{s0} = \bm 0$ with $\textrm{Var}(\bm
+\xi_s) \neq \bm 0$. If we assume MNAR with no uncertainty, we can put
+priors satisfying $\textrm{E}(\bm \xi_s) = \Delta_{\xi}$, where
+$\Delta_{\xi} \neq \bm 0$ and $\textrm{Var}(\bm \xi_s) = \bm 0$. If
+MNAR is assumed with uncertainty, then priors could be $\textrm{E}(\bm
+\xi_s) = \Delta_{\xi}$, where $\Delta_{\xi} \neq \bm 0 $ and
+$\textrm{Var}(\bm \xi_s) \neq \bm 0$.
 
 In general, each pattern $S = k$ has its own set of sensitivity
 parameters $\bm \xi_s^{(k)}$. However, to keep the number of
-sensitivity parameters at a manageable level \citep{dh2008}, without
-loss of generality, we assume independence of $\bm \xi_s$ does not
-depend on pattern.
+sensitivity parameters at a manageable level \citep{dh2008} and
+without loss of generality, we assume $\bm \xi_s$ does not depend on
+pattern.
 
 \subsection{Computation}
 \label{sec:computation}
@@ -346,8 +346,8 @@ parameters $\bm \xi = (\bm \xi_m, \xi_s)$.
 \item \textbf{$\Delta_{i1}: $} Expand equation (\ref{eq:deltaeqn1}):
   \begin{align*}
     \tau = \sum_{k = 1}^J \pi_k \Phi \left( \frac{\bm x_{i1}^T \bm
-        \gamma_1 - \Delta_{i1} - \bm x_{i1}^T\bm \beta_1^{(k)}}{\exp
-        \big( \bm x_{i1}^T \bm \alpha_1^{(k)} \big)} \right),
+        \gamma_1 - \Delta_{i1} - \bm x_{i1}^T\bm \beta_1^{(k)}}{
+         \sigma_1^{(k)} } \right),
   \end{align*}
   where $\Phi$ is the standard normal CDF. Because the above equation
   is continuous and monotone in $\Delta_{i1}$, it can be solved by a
@@ -412,8 +412,9 @@ follow-up time $S = k$ is
 \end{align}
 where $\bm y_i = (y_1, \ldots, y_k)$.
 
-We use an adaptive gradient descent algorithm to compute the maximum
-likelihood estimates \citep{ried1993}. Denote $J(\bm \xi) = - \log L =
+We use a derivative-free optimization algorithms by quadratic
+approximation to compute the maximum
+likelihood estimates \citep{minqa}. Denote $J(\bm \xi) = - \log L =
 - \log \sum_{i = 1}^n L_i$.  Then maximizing the likelihood is
 equivalent to minimize the target function $J(\bm \xi)$. Under an MAR
 assumption, we fix $\bm \xi_s = \bm 0$, while under MNAR assumption,
@@ -423,33 +424,27 @@ During each step of the algorithm, $\Delta_{ij}$ has to be calculated
 for each subject and at each time, as well as partial derivatives for
 each parameter.
 
-As an example of the speed of the algorithm, for 500 bivariate
-outcomes and 4 covariates, it takes about 11 seconds for 70 iterations
+As an example of the speed of the algorithm, for 100 bivariate
+outcomes and 5 covariates, it takes about 352 seconds
 to get convergence using R version 2.15.3 (2013-03-01) \citep{R} and
 platform: x86\_64-apple-darwin9.8.0/x86\_64 (64-bit). Main parts of
 the algorithm are coded in Fortran such as calculation of numerical
 derivatives and log-likelihood to quicken computation.
 
-Further details about the maximization algorithm are presented in
-Appendix \ref{sec:agda}.
-
 We use the bootstrap \citep{efron1979,efron1993,divison1997} to
 construct confidence interval and make inferences.  For quantile
-regression models, we treat the covariates as random among samples,
-thus a random-x resampling or case resampling approach is adopted to
-bootstrap. The bootstrap percentile interval is used to form
-confidence intervals.
+regression models, we resample the subject and use bootstrap
+percentile interval to form confidence intervals.
 
-A simple goodness-of-fit test can be done by looking into the normal
+A simple goodness-of-fit test can be done by examine  normal
 QQ plot of the fitted residuals from the model. The visual test can
-help to diagnostic if the parametric assumption of normal distribution
-is suitable for model. We will illustrate them in section
-\ref{sec:simulation} and \ref{sec:real}.
+help to diagnose if the parametric assumption of normal distributions
+is suitable for model.
 
 \subsubsection{Bayesian Framework}
 \label{sec:bayesian}
 
-For a Bayesian inference, we specify priors on the parameters $\bm
+For Bayesian inference, we specify priors on the parameters $\bm
 \xi$ and use a block Gibbs sampling method to draw samples from the
 posterior distribution. Denote all the parameters (including
 sensitivity parameters) to sample as :
@@ -457,12 +452,12 @@ sensitivity parameters) to sample as :
   \bm \xi_m = \left\{ \bm \gamma_1, \bm \gamma_2, \ldots, \gamma_J,
     \bm \beta_{y,j-1}^{(\geq j)}, \bm \alpha_j^{(\geq j)} \right\}
   \text{ for } j = 1, \ldots, J ,
-  \bm \xi_s = \left\{ \bm h_j^{(k)}, \bm \eta_{j-1}^{(k)}, \bm \delta_j^{(k)}
+  \bm \xi_s = \left\{ \bm h_j^{(k)}, \bm \eta_{j-1}^{(k)},  \delta_j^{(k)}
   \right\}
   \text{ for } k = 1, \ldots, j; 2 \leq j \leq J.
 \end{displaymath}
 Comma separated parameters are marked to sample as a block.  Updates
-of $\bm \xi_m$ require Metropolis-Hasting algorithm, while $\bm \xi_s$
+of $\bm \xi_m$ require a Metropolis-Hasting algorithm, while $\bm \xi_s$
 samples are drawn directly from priors as desired for missingness
 mechanism assumptions.
 
@@ -506,39 +501,30 @@ $\rho_{\tau} (u) = u(\tau - I(u < 0))$ and does not make any
 distributional assumptions. \citet{bottai2013} impute missing outcomes
 using the estimated conditional quantiles of missing outcomes given
 observed data. Their approach does not make distributional assumptions
-similar to \textit{rq}.  Their imputation assume ignorable missing
-data.
+similar to \textit{rq}.  Their imputation approach assumes ignorable
+missing data.
 
 We considered three scenarios corresponding to both MAR and MNAR
 assumptions for a bivariate response.  In the first scenario, $Y_2$
-were missing at random and we used MAR assumption in our algorithm. In
-the last two scenarios, $Y_2$ were missing not at random. However, in
-the second scenario, we misspecified the MDM for our algorithm and
-still assumed MAR, while in the third scenario, we used the correct
-MDM.  For each scenario, we prepared three error distributions:
-normal, student t distribution with 3 degree of freedom and Laplace
-distribution. For each error model, we simulated 1000 data sets. For
-each set there are 200 bivariate observations $\bm Y_i = (Y_{i1},
-Y_{i2})$ for $i = 1, \ldots, 200$. $Y_{i1}$ were always observed,
-while some of $Y_{i2}$ were missing. A single covariate $x$ was
-sampled from Uniform(0,2). The three models for the full data response
-$\bm Y_i$ were:
+were missing at random and we used the MAR assumption in our
+algorithm. In the next two scenarios, $Y_2$ were missing not at
+random. However, in the second scenario, we misspecified the MDM for
+our algorithm and still assumed MAR, while in the third scenario, we
+used the correct MDM.  For each scenario, we considered three error
+distributions: normal, student t distribution with 3 degrees of
+freedom and Laplace distribution. For each error model, we simulated
+100 data sets. For each set there are 200 bivariate observations $\bm
+Y_i = (Y_{i1}, Y_{i2})$ for $i = 1, \ldots, 200$. $Y_{i1}$ were always
+observed, while some of $Y_{i2}$ were missing. A single covariate $x$
+was sampled from Uniform(0,2). The three models for the full data
+response $\bm Y_i$ were:
 \begin{align*}
-  Y_{i1} | R = 1 & \sim 2 + x_i + (1 + 0.5x_i) \epsilon_{i1} , \\
-  Y_{i1}| R = 0 & \sim  -2 - x_i + (1 + 0.5x_i) \epsilon_{i1} , \\
-  Y_{i2}| R = 1, y_{i1}&\sim 1 - x_i - 1/2y_{i1} + (1 + 0.5x_i)
-  \epsilon_{i2},
+  Y_{i1} | R = 1 & \sim 2 + x_i +  \epsilon_{i1} , \\
+  Y_{i1}| R = 0 & \sim  -2 - x_i +  \epsilon_{i1} , \\
+  Y_{i2}| R = 1, y_{i1}&\sim 1 - x_i - 1/2y_{i1} + \epsilon_{i2},
 \end{align*}
-where $\epsilon_{i1}, \epsilon_{i2} \iid \textrm{N}(0, 1)$ or $t_3$
-within each scenario. And for $\text{LP}(\text{rate} = 1)$
-distribution, the model is:
-\begin{align*}
-  Y_{i1} | R = 1 & \sim 4 + 2x_i + (1 + 0.5x_i) \epsilon_{i1} , \\
-  Y_{i1}| R = 0 & \sim  -4 - 2x_i + (1 + 0.5x_i) \epsilon_{i1} , \\
-  Y_{i2}| R = 1, y_{i1}&\sim 1 - x_i - 1/2y_{i1} + (1 + 0.5x_i)
-  \epsilon_{i2},
-\end{align*}
-where $\epsilon_{i1}, \epsilon_{i2} \iid \text{LP}(\text{rate} = 1)$.
+where $\epsilon_{i1}, \epsilon_{i2} \iid \textrm{N}(0, 1)$, $t_3$ or
+$\text{LP}(\text{rate} = 1)$ distribution within each scenario.
 
 For all cases, $\prob (R = 1) = 0.5$.  When $R = 0$, $Y_{i2}$ is not
 observed, so $\pr(Y_{i2}| R = 0, y_{i1})$ is not identifiable from
@@ -547,34 +533,41 @@ observed data.
 In the first scenario, $Y_2$ is missing at random, thus $\pr(Y_{i2} |
 R = 0, y_{i1}) = \pr(Y_{i2}|R = 1, y_{i1}) $. In the last two
 scenarios, $Y_2$ are missing not at random. We assume $Y_{i2}| R = 0,
-y_{i1} \sim 2 - x_i - 1/2y_{i1} + (1 + 0.5x_i)
-\epsilon_{i2}$. Therefore, there is a shift of 1 in the intercept
-between $\pr(Y_2|R = 1, Y_1)$ and $\pr(Y_2|R = 0, Y_1)$.
+y_{i1} \sim 3 - x_i - 1/2y_{i1} + \epsilon_{i2}$. Therefore, there is
+a shift of 1 in the intercept between $\pr(Y_2|R = 1, Y_1)$ and
+$\pr(Y_2|R = 0, Y_1)$.
 
 Under an MAR assumption, the sensitivity parameter $\bm \xi_s$ is
-fixed at $(0,0,0,0,0)$ as discussed in section \ref{sec:sa}. For
-\textit{rq} function from \textit{quantreg} R package, because only
-$Y_{i2}|R = 1$ is observed, the quantile regression for $Y_{i2}$ can
-only be fit from the information of $Y_{i2}|R = 1$ vs $x$.
+fixed at $\bm 0$ as discussed in section \ref{sec:sa}. For \textit{rq}
+function from \textit{quantreg} R package, because only $Y_{i2}|R = 1$
+is observed, the quantile regression for $Y_{i2}$ can only be fit from
+the information of $Y_{i2}|R = 1$ vs $x$.
 
 Under true MNAR assumption, we still used the same $\bm \xi_s = \bm 0$
 in scenario 2, mis-specifying the MDM. But we fixed $\bm \xi_s$ at the
-true value $(1, 0, 0, 0, 0)$, assuming there was an intercept shift
-between distribution of $Y_{i2}|Y_{i1}, R = 1$ and $Y_{i2}|Y_{i1}$, $R
-= 0$ in scenario 3.
+true value, assuming there was an intercept shift between distribution
+of $Y_{i2}|Y_{i1}, R = 1$ and $Y_{i2}|Y_{i1}$, $R = 0$ in scenario 3.
 
 For each dataset, we fit quantile regression for quantiles $\tau =$
-0.1, 0.3, 0.5, 0.7, 0.9.
-
-Parameter estimates were evaluated by mean squared error (MSE),
+0.1, 0.3, 0.5, 0.7, 0.9.  Parameter estimates were evaluated by mean
+squared error (MSE),
 \begin{equation*}
-  \text{MSE} (\gamma_{ij}) = \frac{1}{1000} \sum_{k = 1}^{1000}
+  \text{MSE} (\gamma_{ij}) = \frac{1}{100} \sum_{k = 1}^{100}
   \left( \hat{\gamma}_{ij}^{(k)}  - \gamma_{ij}\right)^2,
 \end{equation*}
 where $\gamma_{ij}$ is the true value for quantile regression
 coefficient, $\hat{\gamma}_{ij}^{(k)}$ is the maximum likelihood
 estimates in $k$-th simulated dataset ($(\gamma_{01}, \gamma_{11})$
 for $Y_{i1}$, $(\gamma_{02}, \gamma_{12})$ for $Y_{i2}$).
+
+Monte carlo standard error (MCSE) is used to evaluate the significance
+of difference between methods. It is calculated by
+\begin{displaymath}
+  \text{MCSE} = \hat{\text{sd}}(\text{Bias}^2)/\sqrt{n},
+\end{displaymath}
+where $\hat{\text{sd}}$ is the sample standard deviation and
+$\text{Bias} = \hat{\gamma}_{ij} - \gamma_{ij}$ and $n$ is the number of
+simulations.
 
 Table \ref{tab:simh2}, \ref{tab:sim2} and \ref{tab:sim3} present the
 MSE for coefficients estimates of quantile 0.1, 0.3, 0.5, 0.7, 0.9
@@ -584,6 +577,7 @@ quantiles from 0.1 to 0.9.  In each scenario, our proposed method and
 Bottai's have smaller MSE than \textit{rq} function in all cases for
 normal error. And no matter if we mis-specified or used correct
 sensitivity parameters, our approach has smaller MSE than \textit{BZ}.
+
 As to the heavier tail distributions, $t_3$ and Laplace distribution,
 our approach shows better performance in middle quantiles and lose to
 \textit{rq} for extreme quantiles for observed data
@@ -591,25 +585,26 @@ $Y_1$. Nevertheless, our algorithm provides larger gains over
 \textit{rq} function for each marginal quantile for the second
 component $Y_2$, which are missing for some observations.  No matter
 what missing data mechanism (MAR or MNAR), what assumption we use in
-our approach ( misspecification or correct specified), our method
+our approach (misspecification or correct specified), our method
 shows advantages over \textit{rq} function, especially for $Y_2$,
 because \textit{quantreg} does not consider the missingness
 mechanism. The difference in MSE becomes larger for the upper
 quantiles because $Y_2 |R = 0$ tends to be larger than $Y_2 | R = 1$;
 therefore, the \textit{rq} method using only the observed $Y_2$ yields
-larger bias for upper quantiles.  Bottai's approach, however, shows
+larger bias for upper quantiles. Bottai's approach, however, shows
 great advantage over \textit{rq} function for missing data because its
 imputing method for missing responses.  It also has smaller MSE than
 ours on extreme quantiles regression when distribution has heavy
 tail. However, our approach has advantages on middle quantiles (30\% -
 70\%) for marginal inference on missing responses regardless using
-mis-specification or correct sensitivity parameters.
+mis-specification or correct sensitivity parameters. And we can see more gains over \textit{BZ} in the quantile regression slope estimates for
+$Y_2$.
 
 We also proposed a simple goodness of fit tool to check our parametric
 model on model fit. We used the QQ plot on fitted residuals in model
 (\ref{eq:model}) to check the normality assumption on the error
-term. One sample goodness of fit diagnostic from the simulation {\bf
-  (need ref? or see supplemental material?)} shows that when our error
+term. One sample goodness of fit diagnostic from the simulation
+ shows that when our error
 assumption is correct (normal), the QQ plot reflects the fitted
 residuals follow exact normal distribution. However, when we
 misspecified the error distribution, the proposed diagnostic method
@@ -617,31 +612,33 @@ did suggest heavier tail error than normal, and this also explains why
 our approach has some disadvantages on the extreme quantiles
 regression when error is not normal.
 
-\begin{table}[ht]
-  \renewcommand{\arraystretch}{1.3}
-  \centering
-  \caption{Scenario 1: MSE for coefficients estimates of quantiles
-    0.1, 0.3, 0.5, 0.7, 0.9 under MAR assumptions. $(\gamma_{01}, \gamma_{11})$
-    are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$
-    are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq'
-    function in R package 'quantreg'.}\label{tab:simh2}
-  \vspace{10pt}
-  \tabcolsep = 0.11cm
-  \begin{tabular}{rrrrrrrrrrrrrrrr}
-    \toprule
-    & \multicolumn{15}{c}{MAR Normal} \\
-    \cline{2-16}
-    &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3}{c}{0.5} &
-    \multicolumn{3}{c}{0.7} &  \multicolumn{3}{c}{0.9} \\
-    \cline{2-16}
-    & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
-    \hline
-    $\gamma_{01}$ & 0.03 & 0.04 & 0.04 & 0.03 & 0.06 & 0.06 & 0.06 & 0.51 & 0.51 & 0.03 & 0.05 & 0.05 & 0.03 & 0.04 & 0.04 \\
-    $\gamma_{11}$ & 0.03 & 0.05 & 0.05 & 0.03 & 0.06 & 0.06 & 0.10 & 0.60 & 0.60 & 0.03 & 0.06 & 0.06 & 0.03 & 0.05 & 0.05 \\
-    $\gamma_{02}$ & 0.03 & 0.27 & 0.05 & 0.03 & 0.57 & 0.05 & 0.04 & 1.04 & 0.07 & 0.06 & 1.67 & 0.09 & 0.10 & 2.41 & 0.13 \\
-    $\gamma_{12}$ & 0.03 & 0.12 & 0.06 & 0.03 & 0.16 & 0.05 & 0.03 & 0.28 & 0.06 & 0.03 & 0.43 & 0.06 & 0.05 & 0.63 & 0.07 \\
-    \bottomrule
-  \end{tabular}
+\begin{landscape}
+  \begin{table}[ht]
+    \renewcommand{\arraystretch}{1.3}
+    \scriptsize
+    \centering
+    \caption{Scenario 1: MSE(MCSE) for coefficients estimates of quantiles
+      0.1, 0.3, 0.5, 0.7, 0.9 under MAR assumptions. $(\gamma_{01}, \gamma_{11})$
+      are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$
+      are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq'
+      function in R package 'quantreg'.}\label{tab:simh2}
+    \vspace{10pt}
+    \tabcolsep = 0.11cm
+    \begin{tabular}{rrrrrrrrrrrrrrrr}
+      \toprule
+      & \multicolumn{15}{c}{MAR Normal} \\
+      \cline{2-16}
+      &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3}{c}{0.5} &
+      \multicolumn{3}{c}{0.7} &  \multicolumn{3}{c}{0.9} \\
+      \cline{2-16}
+      & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
+      \hline
+      $\gamma_{01}$ & 0.05 (0.01) & 0.10 (0.01) & 0.10 (0.01) & 0.05 (0.01) & 0.09 (0.02) & 0.09 (0.02) & 0.20 (0.03) & 1.15 (0.13) & 1.15 (0.13) & 0.04 (0.02) & 0.09 (0.01) & 0.09 (0.01) & 0.04 (0.01) & 0.06 (0.01) & 0.06 (0.01) \\
+      $\gamma_{11}$ & 0.02 (0.00) & 0.07 (0.01) & 0.07 (0.01) & 0.02 (0.00) & 0.07 (0.01) & 0.07 (0.01) & 0.90 (0.04) & 2.41 (0.21) & 2.41 (0.21) & 0.03 (0.01) & 0.07 (0.01) & 0.07 (0.01) & 0.03 (0.00) & 0.05 (0.01) & 0.05 (0.01) \\
+      $\gamma_{02}$ & 0.04 (0.01) & 0.31 (0.04) & 0.13 (0.02) & 0.05 (0.01) & 0.68 (0.05) & 0.11 (0.02) & 0.07 (0.01) & 1.07 (0.06) & 0.18 (0.04) & 0.14 (0.02) & 1.51 (0.06) & 0.21 (0.03) & 0.19 (0.03) & 2.35 (0.11) & 0.25 (0.05) \\
+      $\gamma_{12}$ & 0.03 (0.00) & 0.11 (0.01) & 0.09 (0.01) & 0.03 (0.00) & 0.06 (0.01) & 0.08 (0.01) & 0.06 (0.01) & 0.29 (0.02) & 0.16 (0.03) & 0.07 (0.01) & 0.96 (0.05) & 0.13 (0.02) & 0.06 (0.01) & 1.05 (0.06) & 0.11 (0.02) \\
+      \bottomrule
+    \end{tabular}
 
   \begin{tabular}{rrrrrrrrrrrrrrrr}
     \toprule
@@ -652,60 +649,60 @@ regression when error is not normal.
     \cline{2-16}
     & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
     \hline
-    $\gamma_{01}$  & 0.14 & 0.09 & 0.09 & 0.10 & 0.06 & 0.06 & 0.12 & 0.40 & 0.40 & 0.09 & 0.06 & 0.06 & 0.11 & 0.09 & 0.09 \\
-    $\gamma_{11}$  & 0.18 & 0.09 & 0.09 & 0.06 & 0.07 & 0.07 & 0.13 & 0.45 & 0.45 & 0.06 & 0.07 & 0.07 & 0.22 & 0.09 & 0.09 \\
-    $\gamma_{02}$  & 0.27 & 0.42 & 0.10 & 0.09 & 0.45 & 0.05 & 0.11 & 1.03 & 0.09 & 0.18 & 1.86 & 0.13 & 0.41 & 2.33 & 0.28 \\
-    $\gamma_{12}$  & 0.18 & 0.25 & 0.10 & 0.07 & 0.15 & 0.05 & 0.07 & 0.28 & 0.08 & 0.11 & 0.49 & 0.08 & 0.24 & 0.69 & 0.16 \\
+    $\gamma_{01}$  & 0.21 (0.04) & 0.14 (0.03) & 0.14 (0.03) & 0.15 (0.03) & 0.14 (0.03) & 0.14 (0.03) & 0.12 (0.02) & 1.29 (0.15) & 1.29 (0.15) & 0.10 (0.02) & 0.11 (0.02) & 0.11 (0.02) & 0.20 (0.03) & 0.15 (0.03) & 0.15 (0.03) \\
+    $\gamma_{11}$  & 0.07 (0.01) & 0.09 (0.02) & 0.09 (0.02) & 0.06 (0.01) & 0.09 (0.02) & 0.09 (0.02) & 0.49 (0.06) & 2.00 (0.21) & 2.00 (0.21) & 0.06 (0.01) & 0.08 (0.02) & 0.08 (0.02) & 0.06 (0.01) & 0.10 (0.01) & 0.10 (0.01) \\
+    $\gamma_{02}$  & 0.26 (0.05) & 0.62 (0.09) & 0.18 (0.04) & 0.12 (0.03) & 0.54 (0.06) & 0.11 (0.02) & 0.14 (0.04) & 1.09 (0.06) & 0.20 (0.03) & 0.25 (0.05) & 1.84 (0.09) & 0.18 (0.04) & 0.54 (0.12) & 2.58 (0.16) & 0.48 (0.08) \\
+    $\gamma_{12}$  & 0.08 (0.02) & 0.19 (0.05) & 0.12 (0.03) & 0.09 (0.02) & 0.07 (0.02) & 0.08 (0.02) & 0.12 (0.02) & 0.28 (0.02) & 0.27 (0.05) & 0.17 (0.03) & 0.86 (0.05) & 0.18 (0.03) & 0.18 (0.03) & 0.93 (0.10) & 0.19 (0.04) \\
     \bottomrule
   \end{tabular}
 
-  \begin{tabular}{rrrrrrrrrrrrrrrr}
-    \hline
-    & \multicolumn{15}{c}{MAR Laplace } \\
-    \cline{2-16}
-    &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3}{c}{0.5} &
-    \multicolumn{3}{c}{0.7} &  \multicolumn{3}{c}{0.9} \\
-    \cline{2-16}
-    & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
-    \hline
-    $\gamma_{01}$ & 1.13 & 1.23 & 1.23 & 0.71 & 0.21 & 0.21 & 0.40 & 1.92 & 1.92 & 0.88 & 0.22 & 0.22 & 0.91 & 1.18 & 1.18 \\
-    $\gamma_{11}$ & 1.63 & 0.56 & 0.56 & 0.19 & 0.25 & 0.25 & 0.37 & 2.09 & 2.09 & 0.19 & 0.21 & 0.21 & 2.07 & 0.59 & 0.59 \\
-    $\gamma_{02}$ & 2.58 & 5.66 & 1.62 & 0.18 & 1.63 & 0.15 & 0.24 & 4.03 & 0.37 & 0.34 & 7.80 & 0.40 & 1.69 & 3.37 & 2.51 \\
-    $\gamma_{12}$ & 0.94 & 1.81 & 0.67 & 0.18 & 0.51 & 0.16 & 0.21 & 1.07 & 0.38 & 0.24 & 2.12 & 0.28 & 1.07 & 1.47 & 0.88 \\
-    \hline
-  \end{tabular}
-
-  The Laplace distribution in each scenario used the different sampling model.
-
-\end{table}
-
-
-\begin{table}[h]
-  \renewcommand{\arraystretch}{1.3}
-  \centering
-  \caption{Scenario 2: MSE for coefficients estimates of quantiles
-    0.1, 0.3, 0.5, 0.7, 0.9 under MNAR scenario. In this scenario, we adopted MAR assumption
-    for our approach and thus misspecified the MDM. $(\gamma_{01}, \gamma_{11})$
-    are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$
-    are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq'
-    function in R package 'quantreg'.} \label{tab:sim2}
-  \vspace{10pt}
-  \tabcolsep = 0.11cm
   \begin{tabular}{rrrrrrrrrrrrrrrr}
     \toprule
-    & \multicolumn{15}{c}{MNAR Normal} \\
+    & \multicolumn{15}{c}{MAR Laplace} \\
     \cline{2-16}
     &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3}{c}{0.5} &
     \multicolumn{3}{c}{0.7} &  \multicolumn{3}{c}{0.9} \\
     \cline{2-16}
     & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
     \hline
-    $\gamma_{01}$ & 0.04 & 0.06 & 0.06 & 0.03 & 0.07 & 0.07 & 0.08 & 0.57 & 0.57 & 0.03 & 0.07 & 0.07 & 0.03 & 0.05 & 0.05 \\
-    $\gamma_{11}$ & 0.04 & 0.06 & 0.06 & 0.03 & 0.07 & 0.07 & 0.11 & 0.63 & 0.63 & 0.03 & 0.08 & 0.08 & 0.04 & 0.06 & 0.06 \\
-    $\gamma_{02}$ & 0.04 & 0.34 & 0.07 & 0.05 & 0.79 & 0.08 & 0.30 & 2.30 & 0.32 & 0.89 & 4.64 & 0.83 & 1.29 & 6.38 & 1.09 \\
-    $\gamma_{12}$ & 0.05 & 0.16 & 0.08 & 0.03 & 0.21 & 0.06 & 0.04 & 0.30 & 0.07 & 0.04 & 0.44 & 0.08 & 0.07 & 0.69 & 0.10 \\
+    $\gamma_{01}$ &2.43 (0.17) & 1.91 (0.23) & 1.91 (0.23) & 0.19 (0.03) & 0.21 (0.04) & 0.21 (0.04) & 0.13 (0.02) & 0.72 (0.09) & 0.72 (0.09) & 0.17 (0.03) & 0.20 (0.04) & 0.20 (0.04) & 2.26 (0.18) & 1.49 (0.20) & 1.49 (0.20) \\
+    $\gamma_{11}$ &0.19 (0.03) & 0.52 (0.09) & 0.52 (0.09) & 0.21 (0.03) & 0.21 (0.03) & 0.21 (0.03) & 0.12 (0.02) & 1.06 (0.14) & 1.06 (0.14) & 0.17 (0.03) & 0.20 (0.05) & 0.20 (0.05) & 0.16 (0.03) & 0.35 (0.06) & 0.35 (0.06) \\
+    $\gamma_{02}$ &3.06 (0.22) & 5.17 (0.46) & 2.52 (0.28) & 0.54 (0.07) & 1.31 (0.17) & 0.35 (0.04) & 0.24 (0.04) & 1.08 (0.09) & 0.32 (0.07) & 0.63 (0.08) & 1.03 (0.12) & 0.52 (0.09) & 3.35 (0.27) & 0.86 (0.24) & 3.45 (0.37) \\
+    $\gamma_{12}$ &0.17 (0.03) & 0.62 (0.12) & 0.48 (0.07) & 0.21 (0.04) & 0.22 (0.04) & 0.19 (0.03) & 0.14 (0.03) & 0.35 (0.05) & 0.29 (0.04) & 0.20 (0.04) & 1.21 (0.15) & 0.26 (0.04) & 0.17 (0.04) & 1.70 (0.23) & 0.55 (0.09) \\
     \bottomrule
   \end{tabular}
+
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+  \begin{table}[h]
+    \renewcommand{\arraystretch}{1.3}
+    \scriptsize
+    \centering
+    \caption{Scenario 2: MSE(MCSE) for coefficients estimates of quantiles
+      0.1, 0.3, 0.5, 0.7, 0.9 under MNAR scenario. In this scenario, we adopted MAR assumption
+      for our approach and thus misspecified the MDM. $(\gamma_{01}, \gamma_{11})$
+      are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$
+      are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq'
+      function in R package 'quantreg'.} \label{tab:sim2}
+    \vspace{10pt}
+    \tabcolsep = 0.11cm
+    \begin{tabular}{rrrrrrrrrrrrrrrr}
+      \toprule
+      & \multicolumn{15}{c}{MNAR Normal} \\
+      \cline{2-16}
+      &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3}{c}{0.5} &
+      \multicolumn{3}{c}{0.7} &  \multicolumn{3}{c}{0.9} \\
+      \cline{2-16}
+      & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
+      \hline
+      $\gamma_{01}$ & 0.03 (0.00) & 0.09 (0.01) & 0.09 (0.01) & 0.04 (0.00) & 0.09 (0.02) & 0.09 (0.02) & 0.23 (0.03) & 1.27 (0.14) & 1.27 (0.14) & 0.05 (0.01) & 0.10 (0.02) & 0.10 (0.02) & 0.05 (0.01) & 0.11 (0.02) & 0.11 (0.02) \\
+      $\gamma_{11}$ & 0.03 (0.00) & 0.07 (0.01) & 0.07 (0.01) & 0.03 (0.00) & 0.07 (0.01) & 0.07 (0.01) & 0.90 (0.04) & 2.64 (0.21) & 2.64 (0.21) & 0.04 (0.01) & 0.09 (0.02) & 0.09 (0.02) & 0.04 (0.01) & 0.08 (0.01) & 0.08 (0.01) \\
+      $\gamma_{02}$ & 0.06 (0.01) & 0.40 (0.06) & 0.12 (0.02) & 0.08 (0.01) & 0.89 (0.05) & 0.13 (0.02) & 1.10 (0.07) & 4.13 (0.11) & 1.17 (0.09) & 3.77 (0.16) & 9.91 (0.19) & 3.76 (0.18) & 4.28 (0.20) & 12.45 (0.26) & 4.56 (0.25) \\
+      $\gamma_{12}$ & 0.04 (0.01) & 0.13 (0.02) & 0.09 (0.01) & 0.05 (0.01) & 0.08 (0.01) & 0.10 (0.02) & 0.08 (0.01) & 0.30 (0.03) & 0.21 (0.03) & 0.09 (0.01) & 1.04 (0.05) & 0.12 (0.02) & 0.07 (0.01) & 1.11 (0.07) & 0.11 (0.02) \\
+      \bottomrule
+    \end{tabular}
 
   \begin{tabular}{rrrrrrrrrrrrrrrr}
     \toprule
@@ -716,92 +713,95 @@ regression when error is not normal.
     \cline{2-16}
     & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
     \hline
-    $\gamma_{01}$ & 0.19 & 0.11 & 0.11 & 0.13 & 0.09 & 0.09 & 0.16 & 0.54 & 0.54 & 0.11 & 0.08 & 0.08 & 0.22 & 0.11 & 0.11 \\
-    $\gamma_{11}$ & 0.26 & 0.11 & 0.11 & 0.08 & 0.09 & 0.09 & 0.17 & 0.60 & 0.60 & 0.07 & 0.09 & 0.09 & 0.32 & 0.11 & 0.11 \\
-    $\gamma_{02}$ & 0.45 & 0.59 & 0.14 & 0.17 & 0.66 & 0.09 & 0.41 & 2.31 & 0.41 & 0.90 & 5.02 & 0.95 & 0.92 & 5.89 & 1.01 \\
-    $\gamma_{12}$ & 0.28 & 0.31 & 0.12 & 0.10 & 0.18 & 0.07 & 0.08 & 0.30 & 0.09 & 0.14 & 0.50 & 0.09 & 0.32 & 0.79 & 0.20 \\
+    $\gamma_{01}$ &0.24 (0.29) & 0.16 (0.07) & 0.16 (0.07) & 0.13 (0.02) & 0.08 (0.02) & 0.08 (0.02) & 0.14 (0.02) & 1.12 (0.15) & 1.12 (0.15) & 0.13 (0.02) & 0.12 (0.02) & 0.12 (0.02) & 0.29 (0.29) & 0.15 (0.03) & 0.15 (0.03) \\
+    $\gamma_{11}$ &0.08 (0.02) & 0.12 (0.03) & 0.12 (0.03) & 0.08 (0.02) & 0.06 (0.02) & 0.06 (0.02) & 0.36 (0.04) & 1.91 (0.20) & 1.91 (0.20) & 0.07 (0.04) & 0.08 (0.02) & 0.08 (0.02) & 0.07 (0.03) & 0.12 (0.02) & 0.12 (0.02) \\
+    $\gamma_{02}$ &0.26 (0.08) & 0.58 (0.07) & 0.14 (0.02) & 0.17 (0.04) & 0.77 (0.06) & 0.13 (0.02) & 1.20 (0.09) & 4.14 (0.12) & 1.36 (0.10) & 3.46 (0.19) & 10.17 (0.23) & 3.79 (0.19) & 3.04 (0.25) & 12.31 (0.41) & 3.78 (0.28) \\
+    $\gamma_{12}$ &0.06 (0.02) & 0.18 (0.03) & 0.10 (0.02) & 0.09 (0.02) & 0.07 (0.01) & 0.08 (0.01) & 0.08 (0.02) & 0.25 (0.02) & 0.18 (0.04) & 0.13 (0.03) & 0.99 (0.06) & 0.08 (0.01) & 0.13 (0.04) & 0.95 (0.10) & 0.12 (0.03) \\
     \bottomrule
   \end{tabular}
 
   \begin{tabular}{rrrrrrrrrrrrrrrr}
     \toprule
-    & \multicolumn{15}{c}{MNAR Laplace \footnote{*}} \\
+    & \multicolumn{15}{c}{MNAR Laplace} \\
     \cline{2-16}
     &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3}{c}{0.5} &
     \multicolumn{3}{c}{0.7} &  \multicolumn{3}{c}{0.9} \\
     \cline{2-16}
     & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
     \hline
-    $\gamma_{01}$ & 1.32 & 1.42 & 1.42 & 0.82 & 0.29 & 0.29 & 0.48 & 2.15 & 2.15 & 0.93 & 0.28 & 0.28 & 1.00 & 1.35 & 1.35  \\
-    $\gamma_{11}$ & 1.73 & 0.67 & 0.67 & 0.21 & 0.27 & 0.27 & 0.42 & 2.28 & 2.28 & 0.21 & 0.25 & 0.25 & 2.23 & 0.75 & 0.75  \\
-    $\gamma_{02}$ & 2.80 & 6.10 & 2.03 & 0.24 & 1.78 & 0.20 & 0.63 & 6.34 & 0.79 & 1.40 & 14.13 & 1.40 & 0.75 & 8.05 & 1.19 \\
-    $\gamma_{12}$ & 1.12 & 2.28 & 0.88 & 0.22 & 0.66 & 0.20 & 0.24 & 1.15 & 0.41 & 0.28 & 2.27 & 0.32 & 1.22 & 1.74 & 1.04  \\
+    $\gamma_{01}$ & 2.31 (0.18) & 1.42 (0.16) & 1.42 (0.16) & 0.26 (0.03) & 0.35 (0.05) & 0.35 (0.05) & 0.20 (0.03) & 0.87 (0.10) & 0.87 (0.10) & 0.24 (0.04) & 0.33 (0.06) & 0.33 (0.06) & 2.48 (0.18) & 1.95 (0.20) & 1.95 (0.20) \\
+    $\gamma_{11}$ & 0.21 (0.02) & 0.40 (0.06) & 0.40 (0.06) & 0.27 (0.03) & 0.31 (0.04) & 0.31 (0.04) & 0.16 (0.02) & 0.92 (0.13) & 0.92 (0.13) & 0.23 (0.03) & 0.26 (0.04) & 0.26 (0.04) & 0.18 (0.03) & 0.46 (0.07) & 0.46 (0.07) \\
+    $\gamma_{02}$ & 3.95 (0.27) & 6.29 (0.63) & 3.33 (0.40) & 0.99 (0.10) & 1.69 (0.14) & 0.47 (0.06) & 1.55 (0.13) & 4.08 (0.18) & 1.66 (0.13) & 2.34 (0.17) & 8.09 (0.33) & 3.12 (0.22) & 0.77 (0.10) & 4.90 (0.45) & 1.44 (0.18) \\
+    $\gamma_{12}$ & 0.25 (0.04) & 0.83 (0.13) & 0.63 (0.11) & 0.33 (0.05) & 0.21 (0.03) & 0.20 (0.03) & 0.22 (0.03) & 0.41 (0.04) & 0.31 (0.04) & 0.34 (0.04) & 1.20 (0.12) & 0.37 (0.05) & 0.29 (0.04) & 1.87 (0.23) & 0.48 (0.06) \\
     \bottomrule
   \end{tabular}
 
 \end{table}
+\end{landscape}
 
+\begin{landscape}
+  \begin{table}[h]
+    \renewcommand{\arraystretch}{1.3}
+    \scriptsize
+    \centering
+    \caption{Scenario 3: MSE(MCSE) for coefficients estimates of quantiles
+      0.1, 0.3, 0.5, 0.7, 0.9 under MNAR scenario. In this scenario, we used the correct
+      sensitivity parameters
+      for our approach. $(\gamma_{01}, \gamma_{11})$
+      are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$
+      are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq'
+      function in R package 'quantreg'.} \label{tab:sim3}
+    \vspace{10pt}
+    \tabcolsep = 0.11cm
+    \begin{tabular}{rrrrrrrrrrrrrrrr}
+      \toprule
+      & \multicolumn{15}{c}{MNAR Normal} \\
+      \cline{2-16}
+      &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3}{c}{0.5} &
+      \multicolumn{3}{c}{0.7} &  \multicolumn{3}{c}{0.9} \\
+      \cline{2-16}
+      & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
+      \hline
+      $\gamma_{01}$ & 0.04 (0.01) & 0.10 (0.01) & 0.10 (0.01) & 0.07 (0.02) & 0.10 (0.01) & 0.10 (0.01) & 0.28 (0.04) & 1.41 (0.17) & 1.41 (0.17) & 0.08 (0.01) & 0.18 (0.03) & 0.18 (0.03) & 0.06 (0.01) & 0.11 (0.02) & 0.11 (0.02) \\
+      $\gamma_{11}$ & 0.03 (0.00) & 0.07 (0.01) & 0.07 (0.01) & 0.04 (0.01) & 0.09 (0.01) & 0.09 (0.01) & 0.81 (0.04) & 2.73 (0.22) & 2.73 (0.22) & 0.04 (0.01) & 0.11 (0.02) & 0.11 (0.02) & 0.04 (0.01) & 0.08 (0.01) & 0.08 (0.01) \\
+      $\gamma_{02}$ & 0.06 (0.01) & 0.32 (0.03) & 0.13 (0.02) & 0.08 (0.01) & 0.82 (0.05) & 0.16 (0.02) & 0.24 (0.04) & 4.21 (0.12) & 1.10 (0.10) & 0.26 (0.04) & 9.96 (0.19) & 3.53 (0.19) & 0.30 (0.04) & 12.60 (0.27) & 4.28 (0.24) \\
+      $\gamma_{12}$ & 0.04 (0.00) & 0.09 (0.01) & 0.10 (0.01) & 0.04 (0.00) & 0.07 (0.01) & 0.13 (0.03) & 0.21 (0.03) & 0.32 (0.03) & 0.25 (0.04) & 0.10 (0.01) & 1.11 (0.06) & 0.24 (0.03) & 0.10 (0.01) & 1.13 (0.07) & 0.18 (0.03) \\
+      \bottomrule
+    \end{tabular}
+    \begin{tabular}{rrrrrrrrrrrrrrrr}
+      \toprule
+      & \multicolumn{15}{c}{MNAR $T_3$} \\
+      \cline{2-16}
+      &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3}{c}{0.5} &
+      \multicolumn{3}{c}{0.7} &  \multicolumn{3}{c}{0.9} \\
+      \cline{2-16}
+      & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
+      \hline
+      $\gamma_{01}$ &0.29 (0.05) & 0.14 (0.02) & 0.14 (0.02) & 0.16 (0.03) & 0.18 (0.04) & 0.18 (0.04) & 0.18 (0.03) & 1.14 (0.14) & 1.14 (0.14) & 0.14 (0.03) & 0.13 (0.02) & 0.13 (0.02) & 0.38 (0.06) & 0.20 (0.03) & 0.20 (0.03) \\
+      $\gamma_{11}$ &0.08 (0.01) & 0.11 (0.02) & 0.11 (0.02) & 0.07 (0.01) & 0.11 (0.02) & 0.11 (0.02) & 0.46 (0.04) & 2.15 (0.19) & 2.15 (0.19) & 0.08 (0.01) & 0.11 (0.02) & 0.11 (0.02) & 0.07 (0.01) & 0.16 (0.02) & 0.16 (0.02) \\
+      $\gamma_{02}$ &0.41 (0.07) & 0.69 (0.12) & 0.17 (0.03) & 0.14 (0.03) & 0.74 (0.05) & 0.15 (0.02) & 0.36 (0.06) & 4.19 (0.10) & 1.32 (0.10) & 0.65 (0.10) & 10.29 (0.20) & 3.79 (0.21) & 1.11 (0.21) & 12.08 (0.41) & 4.13 (0.30) \\
+      $\gamma_{12}$ &0.07 (0.01) & 0.33 (0.05) & 0.14 (0.02) & 0.08 (0.01) & 0.06 (0.01) & 0.10 (0.02) & 0.25 (0.06) & 0.27 (0.02) & 0.40 (0.07) & 0.26 (0.06) & 1.02 (0.06) & 0.22 (0.03) & 0.25 (0.06) & 1.10 (0.09) & 0.23 (0.04) \\
+      \bottomrule
+    \end{tabular}
 
-\begin{table}[h]
-  \renewcommand{\arraystretch}{1.3}
-  \centering
-  \caption{Scenario 3: MSE for coefficients estimates of quantiles
-    0.1, 0.3, 0.5, 0.7, 0.9 under MNAR scenario. In this scenario, we used the correct
-    sensitivity parameters
-    for our approach. $(\gamma_{01}, \gamma_{11})$
-    are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$
-    are ones for $Y_{i2}$. MM stands for our proposed method, and RQ stands for the 'rq'
-    function in R package 'quantreg'.} \label{tab:sim3}
-  \vspace{10pt}
-  \tabcolsep = 0.11cm
   \begin{tabular}{rrrrrrrrrrrrrrrr}
     \toprule
-    & \multicolumn{15}{c}{MNAR Normal} \\
+    & \multicolumn{15}{c}{MNAR Laplace} \\
     \cline{2-16}
     &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3}{c}{0.5} &
     \multicolumn{3}{c}{0.7} &  \multicolumn{3}{c}{0.9} \\
     \cline{2-16}
     & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
     \hline
-    $\gamma_{01}$ & 0.03 & 0.05 & 0.05 & 0.04 & 0.07 & 0.07 & 0.08 & 0.59 & 0.59 & 0.03 & 0.07 & 0.07 & 0.04 & 0.06 & 0.06\\
-    $\gamma_{11}$ & 0.04 & 0.06 & 0.06 & 0.03 & 0.08 & 0.08 & 0.11 & 0.71 & 0.71 & 0.03 & 0.08 & 0.08 & 0.04 & 0.06 & 0.06\\
-    $\gamma_{02}$ & 0.04 & 0.32 & 0.07 & 0.04 & 0.77 & 0.08 & 0.05 & 2.31 & 0.32 & 0.09 & 4.66 & 0.85 & 0.13 & 6.44 & 1.11\\
-    $\gamma_{12}$ & 0.04 & 0.14 & 0.08 & 0.03 & 0.21 & 0.06 & 0.04 & 0.30 & 0.08 & 0.05 & 0.44 & 0.08 & 0.07 & 0.67 & 0.10\\
-    \bottomrule
-  \end{tabular}
-  \begin{tabular}{rrrrrrrrrrrrrrrr}
-    \toprule
-    & \multicolumn{15}{c}{MNAR $T_3$} \\
-    \cline{2-16}
-    &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3}{c}{0.5} &
-    \multicolumn{3}{c}{0.7} &  \multicolumn{3}{c}{0.9} \\
-    \cline{2-16}
-    & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
-    \hline
-    $\gamma_{01}$ & 0.20 & 0.10 & 0.10 & 0.13 & 0.09 & 0.09 & 0.17 & 0.50 & 0.50 & 0.11 & 0.09 & 0.09 & 0.18 & 0.11 & 0.11 \\
-    $\gamma_{11}$ & 0.26 & 0.11 & 0.11 & 0.08 & 0.10 & 0.10 & 0.17 & 0.55 & 0.55 & 0.07 & 0.09 & 0.09 & 0.30 & 0.11 & 0.11 \\
-    $\gamma_{02}$ & 0.43 & 0.58 & 0.14 & 0.11 & 0.67 & 0.09 & 0.16 & 2.32 & 0.41 & 0.31 & 5.05 & 0.96 & 0.71 & 6.02 & 1.01 \\
-    $\gamma_{12}$ & 0.24 & 0.28 & 0.13 & 0.08 & 0.17 & 0.06 & 0.10 & 0.30 & 0.10 & 0.16 & 0.50 & 0.10 & 0.35 & 0.76 & 0.20 \\
-    \bottomrule
-  \end{tabular}
-
-  \begin{tabular}{rrrrrrrrrrrrrrrr}
-    \toprule
-    & \multicolumn{15}{c}{MNAR Laplace \footnote{}} \\
-    \cline{2-16}
-    &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3}{c}{0.5} &
-    \multicolumn{3}{c}{0.7} &  \multicolumn{3}{c}{0.9} \\
-    \cline{2-16}
-    & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   & MM   & RQ   & BZ   \\
-    \hline
-    $\gamma_{01}$ & 1.25 & 1.40 & 1.40 & 0.86 & 0.27 & 0.27 & 0.47 & 2.10 & 2.10 & 0.89 & 0.27 & 0.27 & 1.02 & 1.40 & 1.40  \\
-    $\gamma_{11}$ & 1.69 & 0.66 & 0.66 & 0.21 & 0.26 & 0.26 & 0.44 & 2.30 & 2.30 & 0.22 & 0.28 & 0.28 & 2.18 & 0.69 & 0.69  \\
-    $\gamma_{02}$ & 2.61 & 6.31 & 1.89 & 0.21 & 1.81 & 0.18 & 0.30 & 6.38 & 0.78 & 0.52 & 14.35 & 1.36 & 1.63 & 8.03 & 1.05 \\
-    $\gamma_{12}$ & 1.07 & 2.19 & 0.79 & 0.19 & 0.57 & 0.18 & 0.24 & 1.12 & 0.40 & 0.29 & 2.15 & 0.33 & 1.18 & 1.77 & 1.05  \\
+    $\gamma_{01}$ &2.66 (0.22) & 2.42 (0.30) & 2.42 (0.30) & 0.30 (0.05) & 0.41 (0.06) & 0.41 (0.06) & 0.21 (0.03) & 0.87 (0.12) & 0.87 (0.12) & 0.24 (0.03) & 0.37 (0.07) & 0.37 (0.07) & 2.61 (0.18) & 1.82 (0.26) & 1.82 (0.26) \\
+    $\gamma_{11}$ &0.25 (0.03) & 0.69 (0.08) & 0.69 (0.08) & 0.28 (0.04) & 0.37 (0.06) & 0.37 (0.06) & 0.19 (0.03) & 1.00 (0.13) & 1.00 (0.13) & 0.24 (0.03) & 0.32 (0.07) & 0.32 (0.07) & 0.20 (0.03) & 0.58 (0.09) & 0.58 (0.09) \\
+    $\gamma_{02}$ &2.80 (0.21) & 6.44 (0.59) & 3.12 (0.34) & 0.38 (0.05) & 1.86 (0.15) & 0.55 (0.07) & 0.43 (0.06) & 4.19 (0.19) & 1.63 (0.15) & 0.57 (0.08) & 8.43 (0.34) & 2.91 (0.23) & 3.18 (0.33) & 4.44 (0.43) & 1.60 (0.24) \\
+    $\gamma_{12}$ &0.23 (0.04) & 1.05 (0.14) & 0.67 (0.08) & 0.24 (0.04) & 0.27 (0.04) & 0.25 (0.04) & 0.23 (0.04) & 0.46 (0.06) & 0.31 (0.05) & 0.35 (0.06) & 1.17 (0.11) & 0.34 (0.05) & 0.34 (0.05) & 1.75 (0.22) & 0.77 (0.09) \\
     \bottomrule
   \end{tabular}
 
 \end{table}
+\end{landscape}
 
 \section{Real Data Analysis}
 \label{sec:real}
@@ -815,27 +815,30 @@ telephone counseling and control group. Their weights were recorded at
 baseline ($Y_0$), 6 months ($Y_1$) and 18 months ($Y_2$) after the
 trial. Here, we are interested in how the distribution of weights at
 six months and eighteenth months change with covariates. The
-regressors of interest include AGE (50-75), RACE (black and white) and
-weights at baseline ($Y_0$). Weights at the six months ($Y_1$) were
-always observed and 13 out of 224 observations (6\%) were missing at
-18 months ($Y_2$). All weights were scaled by 1/100 for computation
+regressors of interest include AGE, RACE (black and white) and weights
+at baseline ($Y_0$). Weights at the six months ($Y_1$) were always
+observed and 13 out of 224 observations (6\%) were missing at 18
+months ($Y_2$). All weights were scaled by 1/100 for computation
 stability.
 
 We fitted regression models for bivariate responses $\bm Y_i =
-(Y_{i1}, Y_{i2})$ for quantiles (5\%, 30\%, 50\%, 70\%, 95\%).  We ran
-1,000 bootstrap samples to obtain 95\% confidence intervals.
+(Y_{i1}, Y_{i2})$ for quantiles (10\%, 30\%, 50\%, 70\%, 90\%).  We
+ran 100 bootstrap samples to obtain 95\% confidence intervals.
 
 Estimates under MAR are presented in Table \ref{tab:w2}. For weights
-of participants at six months, weights of whites are generally lower
-than those of blacks, because for all quantiles, the coefficients of
-race are negative. For the extreme quantiles (5\% and 95\%), the
-difference is small and not significant. However, when comparing the
-weights for quantiles 30\%, 50\% and 70\%, whites tend to weigh
-significantly less than blacks. The differences are 8kg, 7kg, and 8kg
-separately. Meanwhile, weights of participants show obvious
-heterogeneity by age. Participants tend to weigh less when older. The
-trend is for all quantiles, but the effect is again small and not
-significant.
+of participants at six months, weights of whites are generally 4kg
+lower than those of blacks for all quantiles, and the coefficients of
+race are negative and significant. Meanwhile, weights of participants
+are not affected by age since the coefficients are not
+significant. Difference in quantiles are basically reflected from
+intercept, though only the intercept of 90\% quantile regression is
+significant. The main contribution of the weights at six months or
+eighteen months is the baseline weight. Coefficients of baseline
+weight show strong linearity relationship between baseline weight and
+weights after months. Confidence intervals of coefficients for
+baseline weight are statistically significant away from 1, which is
+another sign that the six-month weight management program is
+effective.
 
 \begin{table}[ht]
   \renewcommand{\arraystretch}{1.3}
@@ -847,31 +850,32 @@ significant.
     \vspace{10pt} \tabcolsep = 0.11cm
     \begin{tabular}{rrrrr}
       \toprule
-           & Intercept           & Age.centered.        & White                & BaseWeight        \\
+      & Intercept           & Age.centered.       & White                & BaseWeight        \\
       \hline
-      Weight at 6 months                                                                           \\
-      5\%  & -0.02 (-0.09, 0.04) & 0.01 (-0.02, 0.02)   & -0.07 (-0.08, 0.01)  & 0.85 (0.80, 0.90) \\
-      30\% & 0.01 (-0.03, 0.04 ) & 0.00 (-0.00, 0.01)   & -0.04 (-0.06, -0.03) & 0.90 (0.86, 0.93) \\
-      50\% & 0.01 (-0.03, 0.04 ) & 0.00 (-0.00, 0.01)   & -0.04 (-0.05, -0.02) & 0.92 (0.88, 0.96) \\
-      70\% & 0.01 (-0.04, 0.05 ) & 0.00 (-0.00, 0.01)   & -0.04 (-0.05, -0.02) & 0.95 (0.90, 0.99) \\
-      95\% & 0.02 (-0.01, 0.06 ) & -0.01 (-0.03, 0.06)  & 0.06 (-0.05, 0.04)   & 1.06 (0.96, 1.06) \\
-      Weight at 18 months                                                                          \\
-      5\%  & 0.06 (0.03, 0.12 )  & 0.01 (-0.03, 0.01)   & -0.08 (-0.10, -0.03) & 0.73 (0.68, 0.81) \\
-      30\% & 0.05 (0.02, 0.09 )  & -0.00 (-0.01, 0.01)  & -0.04 (-0.06, -0.02) & 0.86 (0.82, 0.89) \\
-      50\% & 0.05 (-0.01, 0.08 ) & -0.00 (-0.01, 0.01)  & -0.04 (-0.06, -0.02) & 0.90 (0.85, 0.97) \\
-      70\% & 0.04 (-0.01, 0.07 ) & -0.00  (-0.01, 0.01) & -0.03 (-0.05, -0.01) & 0.94 (0.91, 0.99) \\
-      95\% & 0.10 (0.00, 0.12 )  & -0.01  (-0.03, 0.06) & 0.06 (-0.03, 0.06)   & 1.03 (0.99, 1.07) \\
+      Weight at 6 months                                                                          \\
+      10\%  & -0.06 (-0.10, 0.00) & 0.00 (-0.00, 0.01)  & -0.04 (-0.06, -0.02) & 0.92 (0.87, 0.97) \\
+      30\% & -0.02 (-0.07, 0.03) & 0.00 (-0.00, 0.01)  & -0.04 (-0.06, -0.03) & 0.92 (0.88, 0.97) \\
+      50\% & 0.00 (-0.04, 0.06)  & 0.00 (-0.00, 0.01)  & -0.04 (-0.06, -0.03) & 0.93 (0.88, 0.97) \\
+      70\% & 0.03 (-0.02, 0.08)  & 0.00 (-0.00, 0.01)  & -0.04 (-0.06, -0.03) & 0.93 (0.88, 0.98) \\
+      90\% & 0.05 (0.01, 0.11)   & 0.00 (-0.00, 0.01)  & -0.04 (-0.06, -0.03) & 0.94 (0.89, 0.99) \\
+      Weight at 18 months                                                                         \\
+      10\%  & -0.08 (-0.16, 0.02) & -0.00 (-0.01, 0.01) & -0.03 (-0.06, -0.01) & 0.92 (0.82, 1.00) \\
+      30\% & -0.02 (-0.10, 0.08) & -0.00 (-0.01, 0.01) & -0.03 (-0.06, -0.01) & 0.92 (0.82, 1.00) \\
+      50\% & 0.03 (-0.05, 0.13)  & -0.00 (-0.01, 0.01) & -0.03 (-0.06, -0.01) & 0.92 (0.82, 1.00) \\
+      70\% & 0.06 (-0.01, 0.17)  & -0.00 (-0.01, 0.01) & -0.03 (-0.06, -0.01) & 0.93 (0.83, 1.01) \\
+      90\% & 0.12 (0.04, 0.20)   & 0.00 (-0.01, 0.01)  & -0.03 (-0.06, -0.01) & 0.93 (0.84, 1.01) \\
       \bottomrule
     \end{tabular}
   \end{center}
 \end{table}
 
-For weights at 18 months after baseline, we have similar
-conclusions. Whites still weigh less than blacks for all quantiles,
-but the magnitude is smaller than that at 6th months.  The differences
-are 6kg, 6kg and 6kg instead of 8kg, 7kg and 8kg for quantiles 30\%,
-50\% and 70\%. There is still a decreasing trend of weight with
-increasing age.  However, none of these parameters are significant.
+For weights at 18 months after baseline, we have similar conclusions.
+Although estimates are similar, we can still see that participants at
+18 months regain weights after the 6-month program for all
+quantiles. Intercept increased for all quantiles except for
+10\%. Whites still weigh less than blacks for all quantiles, but the
+magnitude is 1kg smaller than that at 6th months.  All confidence
+intervals of baseline weight include 1 now.
 
 We also did a sensitivity analysis based on missing not at random
 assumption. Based on previous studies of pattern of weight regain
@@ -897,20 +901,20 @@ $Y_2|Y_1, R=0$ in a restriction as:
     \vspace{10pt} \tabcolsep = 0.11cm
     \begin{tabular}{rrrrr}
       \toprule
-      & Intercept          & Age(centered)       & White                & BaseWeight        \\
+      & Intercept           & Age(centered)       & White                & BaseWeight        \\
       \hline
-      Weight at 6 months                                                                         \\
-      5\%  & 0.01 (-0.10, 0.05) & 0.00 (-0.01, 0.01)  & -0.04 (-0.07, -0.01) & 0.84 (0.78, 0.90) \\
-      30\% & 0.00 (-0.07, 0.06) & 0.00 (-0.01, 0.01)  & -0.04 (-0.06, 0.07)  & 0.91 (0.82, 0.94) \\
-      50\% & 0.01 (-0.03, 0.05) & 0.00 (-0.00, 0.01)  & -0.04 (-0.05, -0.02) & 0.92 (0.87, 0.96) \\
-      70\% & 0.02 (-0.02, 0.06) & 0.00 (-0.00, 0.01)  & -0.04 (-0.06, 0.00)  & 0.93 (0.88, 0.97) \\
-      95\% & 0.03 (-0.01, 0.07) & 0.00 (-0.00, 0.02)  & -0.02 (-0.05, 0.00)  & 0.96 (0.93, 1.01) \\
-      Weight at 18 months                                                                        \\
-      5\%  & 0.11 (-0.07, 0.15) & -0.00 (-0.02, 0.02) & -0.07 (-0.10, 0.01)  & 0.72 (0.67, 0.88) \\
-      30\% & 0.05 (-0.04, 0.12) & -0.00 (-0.01, 0.01) & -0.05 (-0.07, 0.08)  & 0.86 (0.75, 0.92) \\
-      50\% & 0.05 (0.01, 0.11)  & -0.00 (-0.01, 0.01) & -0.03 (-0.06, -0.02) & 0.90 (0.83, 0.95) \\
-      70\% & 0.04 (-0.01, 0.10) & 0.00 (-0.01, 0.01)  & -0.03 (-0.06, 0.02)  & 0.94 (0.87, 0.98) \\
-      95\% & 0.04 (-0.01, 0.12) & -0.00 (-0.01, 0.01) & -0.01 (-0.04, 0.02)  & 1.03 (0.95, 1.08) \\
+      Weight at 6 months                                                                          \\
+      10\%  & -0.06 (-0.10, 0.00) & 0.00 (-0.00, 0.01)  & -0.04 (-0.06, -0.02) & 0.92 (0.86, 0.97) \\
+      30\% & -0.02 (-0.06, 0.03) & 0.00 (-0.00, 0.01)  & -0.04 (-0.05, -0.03) & 0.92 (0.87, 0.97) \\
+      50\% & 0.00 (-0.04, 0.05)  & 0.00 (-0.00, 0.01)  & -0.04 (-0.06, -0.03) & 0.93 (0.87, 0.97) \\
+      70\% & 0.03 (-0.02, 0.07)  & 0.00 (-0.00, 0.01)  & -0.04 (-0.06, -0.03) & 0.93 (0.88, 0.98) \\
+      90\% & 0.05 (0.01, 0.11)   & 0.00 (-0.00, 0.01)  & -0.04 (-0.06, -0.03) & 0.95 (0.89, 0.99) \\
+      Weight at 18 months                                                                         \\
+      10\% & -0.09 (-0.15, 0.01) & -0.00 (-0.01, 0.01) & -0.03 (-0.06, 0.00)  & 0.92 (0.80, 0.99) \\
+      30\% & -0.02 (-0.08, 0.06) & -0.00 (-0.01, 0.01) & -0.03 (-0.06, -0.01) & 0.91 (0.82, 0.98) \\
+      50\% & 0.04 (-0.04, 0.11)  & -0.00 (-0.01, 0.01) & -0.04 (-0.07, -0.00) & 0.91 (0.84, 0.98) \\
+      70\% & 0.08 (0.01, 0.16)   & 0.00 (-0.01, 0.01)  & -0.04 (-0.07, -0.01) & 0.91 (0.82, 0.98) \\
+      90\% & 0.15 (0.07, 0.22)   & 0.00 (-0.01, 0.01)  & -0.04 (-0.07, -0.01) & 0.90 (0.82, 0.98) \\
       \bottomrule
     \end{tabular}
   \end{center}
@@ -919,53 +923,44 @@ $Y_2|Y_1, R=0$ in a restriction as:
 Table \ref{tab:toursmnar} presents the estimates and bootstrap
 percentile confidence intervals under the above MNAR mechanism. There
 is no big difference for estimates of $Y_1, Y_2$ due to the missing
-data mechanism assumption change for most of middle
-quantiles. However, estimates for extreme quantiles behaved more
-sensitive than those for middle quantiles.  For example, intercept for
-$Y_2$ for 5\% quantile regression changed from 0.06 to 0.11.  The
-intercept for $Y_2$ for 95\% quantile regression decreased from 0.10
-to 0.04.  Despite this, the significance of coefficients of covariates
-were unchanged. Significant covariates still remained statistical
-significant.
+data mechanism assumption change.
 
 \section{Discussion}
 \label{sec:discussion}
 
 In this paper, we have developed a marginal quantile regression model
 for data with monotone missingness. We use a pattern mixture model to
-jointly model the full data response and missingness. Here marginal
-quantile regression coefficients are of interest instead of
+jointly model the full data response and missingness. Here we
+estimates marginal quantile regression coefficients instead of
 coefficients conditional on random effects as in \citet{yuan2010}. In
 addition, our approach allows non-parallel quantile lines over
-different quantiles via the mixture distribution and heterogeneity of
-variance and allows for sensitivity analysis which is essential for
-the analysis of missing data \citep{nas2010}.
+different quantiles via the mixture distribution and allows for
+sensitivity analysis which is essential for the analysis of missing
+data \citep{nas2010}.
 
-Our method allows the missingness to be MNAR.  We illustrated how to
-put informative priors for Bayesian inference and how to find
-sensitivity parameters to allow different missing data mechanisms.
-The recursive integration algorithm simplifies computation and can be
-easily implemented even in high dimensions.  Simulation studies
-demonstrates that our approach has smaller MSE than the traditional
-frequentist method \textit{rq} function for most cases, especially for
-inferences of partial missing responses. And it has advantages over
-Bottai's appraoch for middle quantiles regression inference when error
-is heavy tailed. We also demonstrated sensitivity analysis and how to
-allow non-ignorable missingness assumptions.
+Our method allows the missingness to be non-ignorable.  We illustrated
+how to put informative priors for Bayesian inference and how to find
+sensitivity parameters to allow different missing data mechanisms in
+general. The recursive integration algorithm simplifies computation
+and can be easily implemented even in high dimensions.  Simulation
+studies demonstrates that our approach has smaller MSE than the
+traditional frequentist method \textit{rq} function for most cases,
+especially for inferences of partial missing responses. And it has
+advantages over Bottai's appraoch for middle quantiles regression
+inference when error is heavy tailed. We also demonstrated sensitivity
+analysis and how to allow non-ignorable missingness assumptions.
 
 Our model assumes a multivariate normal distribution for each
-component in the pattern mixture model, which might be too
-restrictive. Previous simulation results showed that the
-mis-specification on the error term did have impact on the extreme
-quantile regression inferences.  It is possible to replace that with a
-semi-parametric model, for example, the Dirichlet process mixture or
-\polya{} tree.  Meanwhile, even though we use the multivariate normal
-distributions within patterns, which can easily model MNAR departure
-from MAR by difference in means and (co)-variances, we still need
-strong assumptions for sequential multivariate normal distribution
-within each pattern. Otherwise MAR constraints do not exist
-\citep{wang2011}.  It would also be interesting to allow mixture
-probabilities to depend on covariates.
+component in the pattern mixture model, which might be too restrictive
+in some settings. Simulation results showed that the mis-specification
+on the error term did have impact on the extreme quantile regression
+inferences.  It is possible to replace that with a semi-parametric
+model, for example, the Dirichlet process mixture or \polya{} tree.
+Meanwhile, even though we use a multivariate normal distributions
+within patterns, which can easily departures from MAR via differences
+in means and (co)-variances, we still need strong assumptions for
+sequential multivariate normal distribution within each pattern;
+otherwise MAR constraints do not exist \citep{wang2011}.
 
 \section{Acknowledgments}
 
@@ -1182,30 +1177,6 @@ above development.
 
 \end{itemize}
 
-\section{Maximum Likelihood Estimation Using Adaptive Gradient Descent
-  Algorithm}
-\label{sec:agda}
-
-See section \ref{sec:mle} for notation.
-
-The likelihood can be maximized via the following algorithm:
-\begin{enumerate}
-\item initialize $\bm \xi$
-\item \label{item:der} calculate $\partial J(\bm \xi) / \partial
-  \xi_j$ for all $j$,
-\item update $\bm \xi$ by adaptive gradient descent algorithm
-  described in \citep{ried1993} for all $j$
-\item evaluate new $J(\bm \xi)$
-\item if the amount of descent of $J ( \bm \xi)$ is greater than a
-  certain cutoff, then go back to step \ref{item:der} and
-  repeat. Otherwise, algorithm converges.
-\end{enumerate}
-
-We can use numerical approximation to calculate $\partial J(\bm
-\xi)/\partial \xi_j$ in step \ref{item:der}. For example, for $j = 1$,
-\begin{displaymath}
-  \frac{\partial J(\bm \xi)}{\partial \xi_1} \approx \frac{J(\xi_1 + \epsilon, \xi_2, \ldots) - J(\xi_1 - \epsilon, \xi_2, \ldots)}{2\epsilon}.
-\end{displaymath}
 
 \end{document}
 
