@@ -1,6 +1,6 @@
 c===========================================================
 c$$$
-C$$$  Time-stamp: <liuminzhao 08/18/2013 23:03:27>
+C$$$  Time-stamp: <liuminzhao 08/19/2013 00:59:08>
 c$$$  2013/08/16 Bayesian MCMC for QRMissing Univariate single normal
 c$$$
 c===========================================================
@@ -131,7 +131,7 @@ C      print*, fa, fb, fm
       end do
       print*, 'too many bisections in rootfind'
       print*, dot_product(gamma, x), dot_product(beta, x)
-      print*,  a, b, m
+      print*,  a, b, m, x, beta, gamma
       stop 0
       end
 
@@ -221,8 +221,9 @@ C     tmp
       real*8 ratio
 
 C     tuning
-      real*8 sdgamma, sdbeta, arate
-      integer attgamma, attbeta, accgamma, accbeta
+      real*8 sdgamma(xdim), sdbeta(xdim), arate
+      integer attgamma(xdim), attbeta(xdim), accgamma(xdim),
+     &     accbeta(xdim)
 
 C     time
       real*8 sec00, sec0, sec1, sec
@@ -240,6 +241,12 @@ C------------------------------
       do i = 1, xdim
          gamma(i) = 0.d0
          beta(i) = 0.d0
+         sdgamma(i) = 1.d0
+         sdbeta(i) = 1.d0
+         accgamma(i) = 0
+         accbeta(i) = 0
+         attgamma(i) = 0
+         attbeta(i) = 0
       end do
 
       sigma(1) = 1
@@ -247,12 +254,6 @@ C------------------------------
 
       p = 0.5
 
-      sdgamma = 1.d0
-      sdbeta = 1.d0
-      accgamma = 0
-      accbeta = 0
-      attgamma = 0
-      attbeta = 0
       arate = 0.25
 
 c$$$      print*, gamma
@@ -275,7 +276,7 @@ C     first
       loglikeo = likelihood(gamma, beta, sigma, p, tau,
      &     x, xdim, y, R, n)
 
-      print*, loglikeo
+C      print*, loglikeo
 
 C------------------------------
 C     rolling
@@ -287,67 +288,60 @@ C------------------------------
 C     gamma
 C------------------------------
 
-         attgamma = attgamma + 1
-         logpriorc = 0.d0
-         logprioro = 0.d0
-
          do i = 1, xdim
-            gammac(i) = myrnorm(gamma(i), sdgamma)
-            logpriorc = logpriorc + dnrm(gammac(i), gammapm(i),
+            attgamma(i) = attgamma(i) + 1
+            gammac = gamma
+            gammac(i) = myrnorm(gamma(i), sdgamma(i))
+            logpriorc = dnrm(gammac(i), gammapm(i),
      &           gammapv(i), 1)
-            logprioro = logprioro + dnrm(gamma(i), gammapm(i),
+            logprioro = dnrm(gamma(i), gammapm(i),
      &           gammapv(i), 1)
-         end do
 
 c$$$         print*, gammac
 
-         loglikec = likelihood(gammac, beta, sigma, p, tau,
-     &        x, xdim, y, R, n)
+            loglikec = likelihood(gammac, beta, sigma, p, tau,
+     &           x, xdim, y, R, n)
 
-         ratio = loglikec + logpriorc - loglikeo - logprioro
+            ratio = loglikec + logpriorc - loglikeo - logprioro
 
 c$$$         print*, loglikec, loglikeo, logpriorc, logprioro
 c$$$         print*, exp(ratio)
 
-         if (log(dble(myrunif(0.d0, 1.d0))).lt.ratio) then
-            loglikeo = loglikec
-            accgamma = accgamma + 1
-            do i = 1, xdim
-               gamma(i) = gammac(i)
-            end do
-         end if
+            if (log(dble(myrunif(0.d0, 1.d0))).lt.ratio) then
+               loglikeo = loglikec
+               accgamma(i) = accgamma(i) + 1
+               gamma = gammac
+            end if
 
+         end do
 C------------------------------
 C     beta
 C------------------------------
 
-         attbeta = attbeta + 1
-         logpriorc = 0.d0
-         logprioro = 0.d0
-
          do i = 1, xdim
-            betac(i) = myrnorm(beta(i), sdbeta)
-            logpriorc = logpriorc + dnrm(betac(i), betapm(i),
+            attbeta(i) = attbeta(i) + 1
+            betac = beta
+            betac(i) = myrnorm(beta(i), sdbeta(i))
+            logpriorc = dnrm(betac(i), betapm(i),
      &           betapv(i), 1)
-            logprioro = logprioro + dnrm(beta(i), betapm(i),
+            logprioro = dnrm(beta(i), betapm(i),
      &           betapv(i), 1)
-         end do
 
-         loglikec = likelihood(gamma, betac, sigma, p, tau,
-     &        x, xdim, y, R, n)
+            loglikec = likelihood(gamma, betac, sigma, p, tau,
+     &           x, xdim, y, R, n)
 
 c$$$         print*, loglikec, loglikeo, logpriorc, logprioro
 
-         ratio = loglikec + logpriorc - loglikeo - logprioro
+            ratio = loglikec + logpriorc - loglikeo - logprioro
 
-         if (log(dble(myrunif(0.d0, 1.d0))).lt.ratio) then
-            loglikeo = loglikec
-            accbeta = accbeta + 1
-            do i = 1, xdim
-               beta(i) = betac(i)
-            end do
-         end if
+            if (log(dble(myrunif(0.d0, 1.d0))).lt.ratio) then
+               loglikeo = loglikec
+               accbeta(i) = accbeta(i) + 1
+               beta = betac
+            end if
+         end do
 
+         print*, beta
 
 C------------------------------
 C     sigma
@@ -424,26 +418,28 @@ C------------------------------
 C     tuning
 C------------------------------
 
-         if ((attgamma .ge. 100) .and. (iscan .le. nburn)) then
-            if (dble(accgamma)/dble(attgamma) .gt. arate) then
-               sdgamma = sdgamma * 2
-            else
-               sdgamma = sdgamma / 2.d0
-            end if
-            if (dble(accbeta)/dble(attbeta) .gt. arate) then
-               sdbeta = sdbeta * 2
-            else
-               sdbeta = sdbeta / 2.d0
-            end if
-            tmp = dble(accgamma)/dble(attgamma)
-            print*, tmp
-            tmp = dble(accbeta)/dble(attbeta)
-            print*, tmp
-            print*, sdgamma, sdbeta
-            attgamma = 0
-            accgamma = 0
-            attbeta = 0
-            accbeta = 0
+         if ((attgamma(1) .ge. 100) .and. (iscan .le. nburn)) then
+            do i = 1, xdim
+               if (dble(accgamma(i))/dble(attgamma(i)) .gt. arate) then
+                  sdgamma(i) = sdgamma(i) * 2
+               else
+                  sdgamma(i) = sdgamma(i) / 2.d0
+               end if
+               if (dble(accbeta(i))/dble(attbeta(i)) .gt. arate) then
+                  sdbeta(i) = sdbeta(i) * 2
+               else
+                  sdbeta(i) = sdbeta(i) / 2.d0
+               end if
+c$$$               tmp = dble(accgamma)/dble(attgamma)
+c$$$               print*, tmp
+c$$$               tmp = dble(accbeta)/dble(attbeta)
+c$$$               print*, tmp
+c$$$               print*, sdgamma, sdbeta
+               attgamma(i) = 0
+               accgamma(i) = 0
+               attbeta(i) = 0
+               accbeta(i) = 0
+            end do
          end if
 
 C------------------------------
