@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/19/2013 21:40:02>
+##' Time-stamp: <liuminzhao 08/20/2013 12:03:54>
 ##' 2013/08/17 QRMissing Univariate Bayesian single normal
 ##' QRMissingBayesUni.f
 ##' 2013/08/19 using pure R
@@ -42,8 +42,6 @@ ll <- function(gamma, beta, sigma, p, tau, y, X, R){
   xdim <- dim(X)[2]
   num <- sum(R)
 
-  ## d <- apply(X, 1, Delta,
-  ##            gamma = gamma, beta = beta, sigma = sigma, p = p, tau = tau)
   d <- rep(0, n)
   d <- .Fortran("mydelta",
                 x = as.double(X),
@@ -100,7 +98,14 @@ QRMissingBayesUni <- function(y, R, X, tau = 0.5,
   sigmasave <- matrix(0, nsave, 2)
   psave <- rep(0, nsave)
 
-  ## MCMC
+  ## TUNE
+  tunegamma <- tunebeta <- rep(0.3, xdim)
+  tunesigma <- 0.3
+  tunep <- 0.1
+  arate <- 0.25
+  attgamma <- accgamma <- attbeta <- accbeta <- rep(0, xdim)
+  attsigma <- attp <- accsigma <- accp <- 0
+
   ## initial
 
   gamma <- beta <- rep(0, xdim)
@@ -124,8 +129,9 @@ QRMissingBayesUni <- function(y, R, X, tau = 0.5,
   for (iscan in 1:nscan) {
     ## gamma
     for (i in 1:xdim){
+      attgamma[i] = attgamma[i] + 1
       gammac <- gamma
-      gammac[i] <- rnorm(1, gamma[i], 0.3)
+      gammac[i] <- rnorm(1, gamma[i], tunegamma[i])
       logpriorc <- dnorm(gammac[i], gammapm[i], gammapv[i], log = T)
       logprioro <- dnorm(gamma[i], gammapm[i], gammapv[i], log = T)
 
@@ -134,6 +140,7 @@ QRMissingBayesUni <- function(y, R, X, tau = 0.5,
       ratio <- loglikec + logpriorc - loglikeo - logprioro
 
       if (log(runif(1)) <= ratio) {
+        accgamma[i] <- accgamma[i] + 1
         loglikeo <- loglikec
         gamma <- gammac
       }
@@ -141,8 +148,9 @@ QRMissingBayesUni <- function(y, R, X, tau = 0.5,
 
     ## beta
     for (i in 1:xdim){
+      attbeta[i] <- attbeta[i] + 1
       betac <- beta
-      betac[i] <- rnorm(1, beta[i], 0.3)
+      betac[i] <- rnorm(1, beta[i], tunebeta[i])
       logpriorc <- dnorm(betac[i], betapm[i], betapv[i], log = T)
       logprioro <- dnorm(beta[i], betapm[i], betapv[i], log = T)
 
@@ -151,49 +159,67 @@ QRMissingBayesUni <- function(y, R, X, tau = 0.5,
       ratio <- loglikec + logpriorc - loglikeo - logprioro
 
       if (log(runif(1)) <= ratio) {
+        accbeta[i] <- accbeta[i] + 1
         loglikeo <- loglikec
         beta <- betac
       }
     }
 
     ## sigma
+    attsigma <- attsigma + 1
     theta <- log(sigma)
-    thetac <- rnorm(2, theta, 0.3)
+    thetac <- rnorm(2, theta, tunesigma)
     logcgkc <- -sum(theta)
     logcgko <- -sum(thetac)
     sigmac <- exp(thetac)
 
     loglikec <- ll(gamma, beta, sigmac, p, tau, y, X, R)
 
-    logpriorc <- sum(dgamma(sigmac, 1/2, 1/2, log = T))
-    logprioro <- sum(dgamma(sigma, 1/2, 1/2, log = T))
+    logpriorc <- sum(dgamma(sigmac, a/2, b/2, log = T))
+    logprioro <- sum(dgamma(sigma, a/2, b/2, log = T))
 
     ratio <- loglikec + logpriorc - loglikeo - logprioro + logcgkc - logcgko
 
     if (log(runif(1)) <= ratio) {
+      accsigma <- accsigma + 1
       loglikeo <- loglikec
       sigma <- sigmac
     }
 
     ## p
-    pc <- rnorm(1, p, 0.1)
+    attp <- attp + 1
+    pc <- rnorm(1, p, tunep)
     pc <- max(min(pc, 0.99), 0.01)
 
     loglikec <- ll(gamma, beta, sigma, pc, tau, y, X, R)
 
-    logpriorc <- dbeta(pc, 1/2, 1/2, log = T)
-    logprioro <- dbeta(p, 1/2, 1/2, log = T)
+    logpriorc <- dbeta(pc, c/2, d/2, log = T)
+    logprioro <- dbeta(p, c/2, d/2, log = T)
 
     ratio=loglikec + logpriorc -loglikeo -logprioro
 
     if (log(runif(1)) <= ratio) {
+      accp <- accp + 1
       loglikeo <- loglikec
       p <- pc
     }
 
+    ## TUNE
+    if (attgamma[1] >= 100 && iscan < nburn) {
+      tunegamma <- tunegamma*ifelse(accgamma/attgamma > arate,
+                                    2, 0.5)
+      tunebeta <- tunebeta*ifelse(accbeta/attbeta > arate,
+                                    2, 0.5)
+      tunesigma <- tunesigma*ifelse(accsigma/attsigma > arate, 2, 0.5)
+      tunep <- tunep*ifelse(accp/attp > arate, 2, 0.5)
+      attgamma <- accgamma <- attbeta <- accbeta <- rep(0, xdim)
+      attsigma <- accsigma <- attp <- accp <- 0
+##      cat(tunegamma, tunebeta, tunesigma, tunep)
+    }
+
     ## save
 
-    if (iscan >= nburn) {
+    if (iscan > nburn) {
       skipcount = skipcount + 1
       if (skipcount >= nskip) {
         isave <- isave + 1
@@ -209,36 +235,7 @@ QRMissingBayesUni <- function(y, R, X, tau = 0.5,
         }
       }
     }
-
   }
-
-  ## mod <- .Fortran("qrmissingbayesuni",
-  ##                 n = as.integer(n),
-  ##                 xdim = as.integer(xdim),
-  ##                 X = as.double(X),
-  ##                 y = as.double(y),
-  ##                 R = as.integer(R),
-  ##                 tau = as.double(tau),
-  ##                 gammapm = as.double(gammapm),
-  ##                 gammapv = as.double(gammapv),
-  ##                 betapm = as.double(betapm),
-  ##                 betapv = as.double(betapv),
-  ##                 a = as.double(a),
-  ##                 b = as.double(b),
-  ##                 c = as.double(c),
-  ##                 d = as.double(d),
-  ##                 mcmc = as.integer(mcmc),
-  ##                 nsave = as.integer(nsave),
-  ##                 gammasave = as.double(gammasave),
-  ##                 betasave = as.double(betasave),
-  ##                 sigmasave = as.double(sigmasave),
-  ##                 psave = as.double(psave)
-  ##                 )
-
-  ## gammasave <- matrix(mod$gammasave, nsave, xdim)
-  ## betasave <- matrix(mod$betasave, nsave, xdim)
-  ## sigmasave <- matrix(mod$sigmasave, nsave, 2)
-  ## psave <- mod$psave
 
   ans <- list(gammasave = gammasave,
               betasave = betasave,
@@ -249,7 +246,9 @@ QRMissingBayesUni <- function(y, R, X, tau = 0.5,
               y = y,
               X = X,
               R = R,
-              tau = tau
+              tau = tau,
+              tune = list(gamma = tunegamma, beta = tunebeta,
+                sigma = tunesigma, p = tunep)
               )
 
   class(ans) <- 'QRMissingBayes'
