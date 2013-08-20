@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/19/2013 13:12:38>
+##' Time-stamp: <liuminzhao 08/19/2013 21:40:02>
 ##' 2013/08/17 QRMissing Univariate Bayesian single normal
 ##' QRMissingBayesUni.f
 ##' 2013/08/19 using pure R
@@ -42,9 +42,21 @@ ll <- function(gamma, beta, sigma, p, tau, y, X, R){
   xdim <- dim(X)[2]
   num <- sum(R)
 
-  d <- apply(X, 1, Delta,
-             gamma = gamma, beta = beta, sigma = sigma, p = p, tau = tau)
-  lp <- X %*% as.matrix(beta)
+  ## d <- apply(X, 1, Delta,
+  ##            gamma = gamma, beta = beta, sigma = sigma, p = p, tau = tau)
+  d <- rep(0, n)
+  d <- .Fortran("mydelta",
+                x = as.double(X),
+                gamma = as.double(gamma),
+                beta = as.double(beta),
+                sigma = as.double(sigma),
+                p = as.double(p),
+                tau = as.double(tau),
+                n = as.integer(n),
+                xdim = as.integer(xdim),
+                delta = as.double(d))$delta
+
+  lp <- X %*% beta
   mu11 <- d + lp
   mu10 <- d - lp
   ll11 <- sum(dnorm(y, mu11, sigma[1], log=T)[R==1])
