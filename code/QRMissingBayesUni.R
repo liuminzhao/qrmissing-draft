@@ -1,41 +1,8 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/20/2013 12:03:54>
+##' Time-stamp: <liuminzhao 08/22/2013 17:48:21>
 ##' 2013/08/17 QRMissing Univariate Bayesian single normal
 ##' QRMissingBayesUni.f
 ##' 2013/08/19 using pure R
-
-Delta <- function(x, gamma, beta, sigma, p, tau){
-  quan <- x %*% gamma
-  lp <- x %*% beta
-  Target <- function(d, quan, lp, sigma, p, tau){
-    return(tau - p*pnorm((quan - d - lp)/sigma[1]) - (1 - p)*pnorm(
-      (quan - d + lp)/sigma[2]))
-  }
-  interval <- c(-10, 10)
-  ans <- uniroot.all(Target, interval, tau = tau, p = p ,
-                     quan = quan, lp = lp,
-                     sigma = sigma)[1]
-  rootiter <- 0
-  repeat {
-    if (!is.na(ans)) {
-      break
-    } else {
-      interval <- interval * 2
-      ans <- uniroot.all(Target, interval, tau = tau, p = p ,
-                         quan = quan, lp = lp,
-                         sigma = sigma)[1]
-    }
-    rootiter <- rootiter + 1
-    if (rootiter > 50) {
-      print(quan)
-      stop('Error')
-      cat('can not bracket root fot d1 \n')
-      break
-    }
-  }
-
-  return(ans)
-}
 
 ll <- function(gamma, beta, sigma, p, tau, y, X, R){
   n <- length(y)
@@ -68,7 +35,7 @@ QRMissingBayesUni <- function(y, R, X, tau = 0.5,
                               mcmc, prior
                               ){
 
-  if (!is.loaded('qrmissingbayesuni')){
+  if (!is.loaded('mydelta')){
     dyn.load("~/Documents/qrmissing/code/QRMissingBayesUni.so")
   }
 
