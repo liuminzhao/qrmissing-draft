@@ -1,19 +1,13 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/13/2013 13:18:03>
+##' Time-stamp: <liuminzhao 08/25/2013 10:52:01>
 ##' manipulate data TOURS
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
 ##' 2013/08/02 using QRMissingBi
+##' 2013/08/25 using qrmissing package
 
 rm(list=ls())
-library(compiler)
-enableJIT(3)
-enableJIT(3)
-library(rootSolve)
-library(quantreg)
-library(minqa)
-library(numDeriv)
-source('../code/QRMissingBi.R')
+library(qrmissing)
 
 TOURS <- read.csv('~/Documents/qrmissing/tours/tours.csv')
 
@@ -79,13 +73,12 @@ dat <- data.frame(weight2, weight3, trt, age_center, age=TOURS$AGE, race = facto
 ###############
 
 ## y[is.na(y[,2]),2] <- 0
-QRMissingBic <- cmpfun(QRMissingBi)
 
-mod1 <- QRMissingBic(y, R, X, tau = 0.1)
-mod3 <- QRMissingBic(y, R, X, tau = 0.3)
-mod5 <- QRMissingBic(y, R, X, tau = 0.5)
-mod7 <- QRMissingBic(y, R, X, tau = 0.7)
-mod9 <- QRMissingBic(y, R, X, tau = 0.9)
+mod1 <- QRMissingBi(y, R, X, tau = 0.1)
+mod3 <- QRMissingBi(y, R, X, tau = 0.3)
+mod5 <- QRMissingBi(y, R, X, tau = 0.5)
+mod7 <- QRMissingBi(y, R, X, tau = 0.7)
+mod9 <- QRMissingBi(y, R, X, tau = 0.9)
 
 coef1 <- coef(mod1)
 coef3 <- coef(mod3)
@@ -106,4 +99,4 @@ library(xtable)
 print(xtable(coefw2))
 print(xtable(coefw3))
 
-write.table(rbind(coefw2, coefw3), 'ageracebase.txt', row.names=FALSE)
+## write.table(rbind(coefw2, coefw3), 'ageracebase.txt', row.names=FALSE)

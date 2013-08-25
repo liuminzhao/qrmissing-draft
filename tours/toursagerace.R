@@ -1,18 +1,11 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/09/2013 14:06:10>
+##' Time-stamp: <liuminzhao 08/25/2013 13:05:00>
 ##' manipulate data TOURS
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/08/02 using QRMissingBi
 
 rm(list=ls())
-library(compiler)
-enableJIT(3)
-enableJIT(3)
-library(rootSolve)
-library(quantreg)
-library(minqa)
-library(numDeriv)
-source('../code/QRMissingBi.R')
+library(qrmissing)
 
 TOURS <- read.csv('~/Documents/qrmissing/tours/tours.csv')
 
@@ -54,15 +47,14 @@ dat <- data.frame(weight2, weight3, trt, age_center, age=TOURS$AGE, race = facto
 ###############
 
 ## y[is.na(y[,2]),2] <- 0
-QRMissingBic <- cmpfun(QRMissingBi)
 
 start <- proc.time()[3]
 
-mod1 <- QRMissingBic(y, R, X, tau = 0.1)
-mod3 <- QRMissingBic(y, R, X, tau = 0.3)
-mod5 <- QRMissingBic(y, R, X, tau = 0.5)
-mod7 <- QRMissingBic(y, R, X, tau = 0.7)
-mod9 <- QRMissingBic(y, R, X, tau = 0.9)
+mod1 <- QRMissingBi(y, R, X, tau = 0.1)
+mod3 <- QRMissingBi(y, R, X, tau = 0.3)
+mod5 <- QRMissingBi(y, R, X, tau = 0.5)
+mod7 <- QRMissingBi(y, R, X, tau = 0.7)
+mod9 <- QRMissingBi(y, R, X, tau = 0.9)
 
 coef1 <- coef(mod1)
 coef3 <- coef(mod3)
@@ -108,4 +100,4 @@ print(xtable(w3))
 
 cat("time: ", proc.time()[3] - start, '\n')
 
-write.table(rbind(w2, w3), '../tours/agerace.txt', row.names=FALSE)
+## write.table(rbind(w2, w3), '../tours/agerace.txt', row.names=FALSE)
