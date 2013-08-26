@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/13/2013 15:25:26>
+##' Time-stamp: <liuminzhao 08/26/2013 08:18:51>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
@@ -8,18 +8,13 @@
 ##' 2013/07/07 smaller version of t error like normal
 ##' 2013/07/11 keep alpha = 0.5 instead of 0.3 and do MM, RQ, BB together
 ##' 2013/08/01 test on QRMissingBi.R
+##' 2013/08/26 using qrmissing package
 
-sink('sim-t-mnar-mar-0808.txt')
+sink('sim-t-mnar-mar-0826.txt')
 rm(list = ls())
-library(compiler)
-library(quantreg)
-library(rootSolve)
+library(qrmissing)
 library(xtable)
-library(minqa)
 library(doMC)
-enableJIT(3)
-enableJIT(3)
-source('QRMissingBi.R')
 source('sendEmail.R')
 source('Bottai.R')
 registerDoMC()
@@ -39,8 +34,6 @@ alpha <- 0
 boot <- 100
 
 start <- proc.time()[3]
-
-QRMissingBic <- cmpfun(QRMissingBi)
 
 result <- foreach(icount(boot), .combine = rbind) %dopar% {
   R <- rbinom(n, 1, p)
@@ -94,7 +87,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-t-mnar-mar-0808-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-t-mnar-mar-0826-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-t-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -148,7 +141,7 @@ q29 <- lm(y29~xsim)$coef
 
 
 
-result <- read.table('sim-t-mnar-mar-0808-result.txt')
+result <- read.table('sim-t-mnar-mar-0826-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
