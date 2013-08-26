@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/12/2013 14:07:59>
+##' Time-stamp: <liuminzhao 08/26/2013 00:37:32>
 ##' bootstrap on tours data
 ##' weight2 and weight3
 ##' scaled by 1/100
@@ -10,14 +10,9 @@
 ##' and only fit mod1 and mod9
 ##' 2013/08/06 Using ToursMNAR3.R (uobyqa method and homo model)
 ##' 2013/08/08 Age race, baseMNAR,
+##' 2013/08/26 using qrmissing package
 rm(list=ls())
-library(compiler)
-enableJIT(3)
-enableJIT(3)
-library(rootSolve)
-library(quantreg)
-library(minqa)
-source('~/Documents/qrmissing/code/ToursMNAR3.R')
+library(qrmissing)
 source('~/Documents/qrmissing/code/sendEmail.R')
 library(doMC)
 registerDoMC()
@@ -32,12 +27,12 @@ weight3 <- TOURS$wtkg3
 age <- TOURS$AGE
 trt <- TOURS$TREATMENT
 race3 <- as.numeric(TOURS$RACE == 3)
-age_center <- (age-mean(age))/sd(age)
+age_center <- (age-50)/5
 
 ## scaled by 1/100
-weight1 <- weight1/100
-weight2 <- weight2/100
-weight3 <- weight3/100
+weight1 <- weight1/10
+weight2 <- weight2/10
+weight3 <- weight3/10
 
 ## new dataset
 NEWTOURS <- data.frame(w2 = weight2, w3 = weight3, age_center, race3, w1 = weight1)
@@ -45,15 +40,13 @@ NEWTOURS <- data.frame(w2 = weight2, w3 = weight3, age_center, race3, w1 = weigh
 ###############
 ## BOOTSTRAP
 ###############
-boot <- 10
+boot <- 1000
 n <- dim(NEWTOURS)[1]
 y <- matrix(0, n, 2)
 X <- matrix(0, n, 4)
 X[,1] <- 1
 
 start <- proc.time()[3]
-
-ToursMNARc <- cmpfun(ToursMNAR)
 
 result <- foreach(icount(boot), .combine = rbind) %dopar% {
   indices <- sample(n, replace = TRUE)
@@ -66,17 +59,23 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   R <- 1 - as.numeric(is.na(dat$w3))
   y[is.na(y[,2]),2] <- 0
 
-  mod1 <- ToursMNARc(y, R, X, tau = 0.1)
-  mod3 <- ToursMNARc(y, R, X, tau = 0.3)
-  mod5 <- ToursMNARc(y, R, X, tau = 0.5)
-  mod7 <- ToursMNARc(y, R, X, tau = 0.7)
-  mod9 <- ToursMNARc(y, R, X, tau = 0.9)
+  mod1 <- ToursMNAR(y, R, X, tau = 0.1)
+  mod3 <- ToursMNAR(y, R, X, tau = 0.3)
+  mod5 <- ToursMNAR(y, R, X, tau = 0.5)
+  mod7 <- ToursMNAR(y, R, X, tau = 0.7)
+  mod9 <- ToursMNAR(y, R, X, tau = 0.9)
 
   coef1 <- coef(mod1)
   coef3 <- coef(mod3)
   coef5 <- coef(mod5)
   coef7 <- coef(mod7)
   coef9 <- coef(mod9)
+
+  coef1[, c(1, 2, 3)] <- 10 * coef1[, c(1, 2, 3)]
+  coef3[, c(1, 2, 3)] <- 10 * coef3[, c(1, 2, 3)]
+  coef5[, c(1, 2, 3)] <- 10 * coef5[, c(1, 2, 3)]
+  coef7[, c(1, 2, 3)] <- 10 * coef7[, c(1, 2, 3)]
+  coef9[, c(1, 2, 3)] <- 10 * coef9[, c(1, 2, 3)]
 
   count1 <- mod1$ierr
   count3 <- mod3$ierr
@@ -91,7 +90,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "toursbootageracebasemnar-0812.txt", row.names = FALSE, col.names = FALSE)
+write.table(result, file = "toursbootageracebasemnar-0825.txt", row.names = FALSE, col.names = FALSE)
 sendEmail(subject="boot tours age race base mnar", text="done", address="liuminzhao@gmail.com")
 
 print(proc.time()[3] - start)

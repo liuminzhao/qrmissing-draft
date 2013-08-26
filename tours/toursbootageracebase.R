@@ -1,5 +1,5 @@
 #!/bin/Rscript
-## Time-stamp: <liuminzhao 08/08/2013 23:18:15>
+## Time-stamp: <liuminzhao 08/26/2013 00:34:44>
 ## bootstrap on tours data
 ## weight2 and weight3
 ## scaled by 1/100
@@ -7,15 +7,10 @@
 ## 2013/07/29 add init1 and init9 , modfiied saved file name, change to 10 core
 ## 2013/08/03 Using QRMissingBi.R and change boot to 50
 ## 2013/08/08 on Int, age, Race , base
+##' 2013/08/26 using qrmissing package
 rm(list=ls())
-library(compiler)
-enableJIT(3)
-enableJIT(3)
-library(rootSolve)
-library(quantreg)
-library(minqa)
-source('../code/QRMissingBi.R')
-source('~/Documents/qrmissing/code/sendEmail.R')
+library(qrmissing)
+source('../code/sendEmail.R')
 library(doMC)
 registerDoMC()
 options(cores = 10)
@@ -29,12 +24,12 @@ weight3 <- TOURS$wtkg3
 age <- TOURS$AGE
 trt <- TOURS$TREATMENT
 race3 <- as.numeric(TOURS$RACE == 3)
-age_center <- (age-mean(age))/sd(age)
+age_center <- (age-50)/5
 
 ## scaled by 1/100
-weight1 <- weight1/100
-weight2 <- weight2/100
-weight3 <- weight3/100
+weight1 <- weight1/10
+weight2 <- weight2/10
+weight3 <- weight3/10
 
 ## new dataset
 NEWTOURS <- data.frame(w2 = weight2, w3 = weight3, age_center, race3, w1 = weight1)
@@ -42,15 +37,13 @@ NEWTOURS <- data.frame(w2 = weight2, w3 = weight3, age_center, race3, w1 = weigh
 ###############
 ## BOOTSTRAP
 ###############
-boot <- 10
+boot <- 1000
 n <- dim(NEWTOURS)[1]
 y <- matrix(0, n, 2)
 X <- matrix(0, n, 4)
 X[,1] <- 1
 
 start <- proc.time()[3]
-
-QRMissingBic <- cmpfun(QRMissingBi)
 
 result <- foreach(icount(boot), .combine = rbind) %dopar% {
   indices <- sample(n, replace = TRUE)
@@ -63,11 +56,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   R <- 1 - as.numeric(is.na(dat$w3))
   y[is.na(y[,2]),2] <- 0
 
-  mod1 <- QRMissingBic(y, R, X, tau = 0.1)
-  mod3 <- QRMissingBic(y, R, X, tau = 0.3)
-  mod5 <- QRMissingBic(y, R, X, tau = 0.5)
-  mod7 <- QRMissingBic(y, R, X, tau = 0.7)
-  mod9 <- QRMissingBic(y, R, X, tau = 0.9)
+  mod1 <- QRMissingBi(y, R, X, tau = 0.1)
+  mod3 <- QRMissingBi(y, R, X, tau = 0.3)
+  mod5 <- QRMissingBi(y, R, X, tau = 0.5)
+  mod7 <- QRMissingBi(y, R, X, tau = 0.7)
+  mod9 <- QRMissingBi(y, R, X, tau = 0.9)
 
   coef1 <- coef(mod1)
   coef3 <- coef(mod3)
@@ -80,6 +73,12 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   count7 <- mod7$ierr
   count9 <- mod9$ierr
 
+  coef1[, c(1, 2, 3)] <- 10 * coef1[, c(1, 2, 3)]
+  coef3[, c(1, 2, 3)] <- 10 * coef3[, c(1, 2, 3)]
+  coef5[, c(1, 2, 3)] <- 10 * coef5[, c(1, 2, 3)]
+  coef7[, c(1, 2, 3)] <- 10 * coef7[, c(1, 2, 3)]
+  coef9[, c(1, 2, 3)] <- 10 * coef9[, c(1, 2, 3)]
+
   coefw2 <- c(coef1[1,], coef3[1, ], coef5[1, ], coef7[1, ], coef9[1,])
   coefw3 <- c(coef1[2,], coef3[2, ], coef5[2, ], coef7[2, ], coef9[2,])
 
@@ -87,7 +86,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "toursbootageracebase-0808.txt", row.names = FALSE, col.names = FALSE)
+write.table(result, file = "toursbootageracebase-0825.txt", row.names = FALSE, col.names = FALSE)
 sendEmail(subject="boot tours age race base", text="done", address="liuminzhao@gmail.com")
 
 print(proc.time()[3] - start)
