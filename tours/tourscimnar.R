@@ -1,18 +1,13 @@
-##' Time-stamp: "liuminzhao 08/13/2013 13:42:41"
+##' Time-stamp: "liuminzhao 08/26/2013 08:29:58"
 ##' ##' tours data with covariates : age, race, baseline weight
 ##' 2013/07/14 MNAR
 ##' 2013/07/27 new mnar
 ##' new mnar with 200 boot for mod1 and 200 for mod9
 ##' 2013/07/28
 ##' 2013/08/13 uobyqa 100 boot
+##' 2013/08/26 1000 boot using qrmissing
 
-dat1 <- read.table('toursbootageracebasemnar-0812.txt')
-dat2 <- read.table('toursbootageracebasemnar-0812-2.txt')
-dat3 <- read.table('toursbootageracebasemnar-0812-3.txt')
-dat4 <- read.table('toursbootageracebasemnar-0812-4.txt')
-dat5 <- read.table('toursbootageracebasemnar-0812-5.txt')
-
-dat <- rbind(dat1, dat2, dat3, dat4, dat5)
+dat <- read.table('toursbootageracebasemnar-0825.txt')
 
 index1 <- which(dat[,41] == 0)
 index3 <- which(dat[,42] == 0)

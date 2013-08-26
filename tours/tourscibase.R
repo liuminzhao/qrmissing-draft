@@ -1,16 +1,11 @@
 ##' tours data with covariates : age, race, baseline weight
-##' Time-stamp: <liuminzhao 08/13/2013 13:42:47>
+##' Time-stamp: <liuminzhao 08/26/2013 08:27:56>
 ##' 2013/06/23
 ##' 2013/07/29 using new initial and new ci
 ##' 2013/08/13 new method from  uobyqa
+##' 2013/08/26 qrmissing package
 
-dat1 <- read.table('toursbootageracebase-0808.txt')
-dat2 <- read.table('toursbootageracebase-0808-2.txt')
-dat3 <- read.table('toursbootageracebase-0808-3.txt')
-dat4 <- read.table('toursbootageracebase-0808-4.txt')
-dat5 <- read.table('toursbootageracebase-0808-5.txt')
-
-dat <- rbind(dat1, dat2, dat3, dat4, dat5)
+dat <- read.table('toursbootageracebase-0825.txt')
 
 index1 <- which(dat[,41] == 0)
 index3 <- which(dat[,42] == 0)
