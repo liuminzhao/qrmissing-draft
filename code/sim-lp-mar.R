@@ -7,7 +7,7 @@
 ##' 2013/08/01 on QRMissingBi
 ##' 2013/08/01 test on QRMissingBi.R
 
-sink('sim-lp-mar-0828.txt')
+sink('sim-lp-mar-0826.txt')
 rm(list = ls())
 library(xtable)
 library(qrmissing)
@@ -40,10 +40,10 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   w <- rgamma(n, 1, rate = tau)
   for (i in 1:n){
     if (R[i] == 1){
-      y[i, 1] <- 1 + x[i] + (1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(8*w[i]/tau))
+      y[i, 1] <- 2 + x[i] + (1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(8*w[i]/tau))
       y[i, 2] <- 1 - x[i] - y[i, 1]*1/2 + rnorm(1,sd = sqrt(6*w[i]/tau))*(1 + alpha*x[i])
     } else {
-      y[i, 1] <- 1 + (1 + alpha*x[i])* rnorm(1, sd = sqrt(8*w[i]/tau))
+      y[i, 1] <- -2 - x[i] + (1 + alpha*x[i])* rnorm(1, sd = sqrt(8*w[i]/tau))
       y[i, 2] <- 1 - x[i] - y[i, 1]/2 + rnorm(1, sd = sqrt(6*w[i]/tau))*(1 + alpha*x[i])
     }
   }
@@ -80,7 +80,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
            mod1b[,2], mod3b[,2], mod5b[,2], mod7b[,2], mod9b[,2])
 }
 
-write.table(result, file = "sim-lp-mar-0828-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-lp-mar-0826-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-lp-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -96,7 +96,7 @@ pLD <- function(x, tau){
 }
 
 quan1 <- function(y, x, tau, quan){
-  return(quan - .5*pLD(y - 1 - x, tau = tau/(1 + alpha*x) ) - .5*pLD(y - 1, tau = tau/(1 + alpha*x)))
+  return(quan - .5*pLD(y - 2 - x, tau = tau/(1 + alpha*x) ) - .5*pLD(y + 2 + x, tau = tau/(1 + alpha*x)))
 }
 
 SolveQuan1 <- function(x, tau, quan){
@@ -104,7 +104,7 @@ SolveQuan1 <- function(x, tau, quan){
 }
 
 quan2 <- function(y, x, tau, quan){
-  return(quan - .5*pLD(y - 0.5+ (1.5*x), tau = tau/(1 + alpha*x)) - .5*pLD(y - (0.5 - x),tau = tau/(1 + alpha*x)))
+  return(quan - .5*pLD(y + (1.5*x), tau = tau/(1 + alpha*x)) - .5*pLD(y - (2 - 0.5*x),tau = tau/(1 + alpha*x)))
 }
 
 SolveQuan2 <- function(x, tau, quan){
@@ -137,7 +137,7 @@ q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
 
-result <- read.table('sim-lp-mar-0828-result.txt')
+result <- read.table('sim-lp-mar-0826-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 

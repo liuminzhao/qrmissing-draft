@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/28/2013 00:19:39>
+##' Time-stamp: <liuminzhao 08/26/2013 08:19:41>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
@@ -9,7 +9,7 @@
 ##' 2013/07/11 keep alpha = 0.5 instead of 0.3 and do MM, RQ, BB together
 ##' 2013/08/01 test on QRMissingBi.R
 
-sink('sim-t-mar-0828.txt')
+sink('sim-t-mar-0826.txt')
 rm(list = ls())
 library(xtable)
 library(qrmissing)
@@ -45,10 +45,10 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
   for (i in 1:n){
     if (R[i] == 1){
-    y[i, 1] <-  1 + x[i] + (1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(winv[i]))
+    y[i, 1] <-  2 + x[i] + (1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(winv[i]))
     y[i, 2] <-  1 - x[i] - y[i, 1]*1/2  +  (1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(3*winv[i]/4))
   } else {
-    y[i, 1] <-  1 +(1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(winv[i]))
+    y[i, 1] <-  -2 - x[i] +(1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(winv[i]))
     y[i, 2] <-  1 - x[i] - y[i, 1]*1/2  +  (1 + alpha*x[i])*rnorm(1, 0, sd = sqrt(3*winv[i]/4))
     }
   }
@@ -86,7 +86,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-t-mar-0828-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-t-mar-0826-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-t-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -97,7 +97,7 @@ sendEmail(subject="simulation-t-MAR", text="done", address="liuminzhao@gmail.com
 ###############
 
 quan1 <- function(y, x, tau){
-  return(tau - .5*pt((y - 1- x)/(1+alpha*x), df = 3) - .5*pt((y -1)/(1+alpha*x),df = 3))
+  return(tau - .5*pt((y - 2- x)/(1+alpha*x), df = 3) - .5*pt((y+2+x)/(1+alpha*x),df = 3))
 }
 
 SolveQuan1 <- function(x, tau){
@@ -118,7 +118,7 @@ q17 <- lm(y17~xsim)$coef
 q19 <- lm(y19~xsim)$coef
 
 quan2 <- function(y, x, tau){
-  return(tau - .5*pt((y- 0.5 +1.5*x)/(1+alpha*x), df = 3) - .5*pt((y - 0.5 + x)/(1 + alpha*x),df = 3))
+  return(tau - .5*pt((y  + 1.5*x)/(1+alpha*x), df = 3) - .5*pt((y - 2 + 0.5*x)/(1 + alpha*x),df = 3))
 }
 
 SolveQuan2 <- function(x, tau){
@@ -140,7 +140,7 @@ q29 <- lm(y29~xsim)$coef
 
 
 
-result <- read.table('sim-t-mar-0828-result.txt')
+result <- read.table('sim-t-mar-0826-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
