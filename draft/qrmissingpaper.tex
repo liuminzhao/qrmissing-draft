@@ -119,11 +119,10 @@ is not of interest if we are interested in interpreting regression
 coefficients unconditional on random effects.  In addition, they are
 conditional on random effects, which tie together the responses and
 missingness process, so they have slightly different interpretation
-than regular random effects in longitudinal methods.  However, the
-quantile regression. Moreover, due to their full parametric
-specification for the full data, their model does not allow for
-sensitivity analysis, which is a key component in inference for
-incomplete data (NAS 2010).
+than regular random effects in longitudinal methods. Moreover, due to
+their full parametric specification for the full data, their model
+does not allow for sensitivity analysis, which is a key component in
+inference for incomplete data (NAS 2010).
 
 Pattern mixture models were originally proposed to model missing data
 in \citet{rubin1977}. Later mixture models were extended to handle
@@ -133,7 +132,7 @@ introducing a finite mixture of multivariate distribution for
 longitudinal data. When there are many possible dropout time,
 \citet{roy2003} proposed to group them by latent classes.
 
-\citet{roy2008} extended \cite{roy2003} to generalized linear models
+\citet{roy2008} extended \citet{roy2003} to generalized linear models
 and proposed a pattern mixture model for data with nonignorable
 dropout, borrowing ideas from \citet{heagerty1999}.  But their
 approach only estimates the marginal covariate effects on the mean. We
@@ -142,20 +141,20 @@ non-ignorable missingness and sensitivity analysis.
 
 The structure of this article is as follows. First, we introduce a
 quantile regression method to address monotone nonignorable
-missingness in section \ref{sec:model}, including sensitivity analysis
+missingness in section \ref{ch3:sec:model}, including sensitivity analysis
 and computational details.  We use simulation studies to evaluate the
-performance of the model in section \ref{sec:simulation}. We apply our
+performance of the model in section \ref{ch3:sec:simulation}. We apply our
 approach to data from a recent clinical trial in section
-\ref{sec:real}. Finally, discussion and conclusions are given in
-section \ref{sec:discussion}.
+\ref{ch3:sec:real}. Finally, discussion and conclusions are given in
+section \ref{ch3:sec:discussion}.
 
 \section{Model}
-\label{sec:model}
+\label{ch3:sec:model}
 
 In this section, we first introduce some notations, then describe our
-proposed quantile regression model in section \ref{sec:settings}. We
+proposed quantile regression model in section \ref{ch3:sec:settings}. We
 provide details on MAR and MNAR and computation in sections
-\ref{sec:sa} and \ref{sec:computation}.
+\ref{ch3:sec:sa} and \ref{ch3:sec:computation}.
 
 Under monotone dropout, without loss of generality, denote $S_i \in
 \{1, 2, \ldots, J\}$ to be the number of observed $Y_{ij}'s$ for
@@ -163,7 +162,7 @@ subject $i$, and $\bmath Y_i = (Y_{i1}, Y_{i2}, \ldots, Y_{iJ})^{T}$ to
 be the full data response vector for subject $i$, where $J$ is the
 maximum follow up time. We assume $Y_{i1}$ is always observed. We are
 interested in the $\tau$-th marginal quantile regression coefficients
-$\bmath \gamma_j = (\gamma_{j0}, \gamma_{j2}, \ldots, \gamma_{jp})^T$,
+$\bmath \gamma_j = (\gamma_{j1}, \gamma_{j2}, \ldots, \gamma_{jp})^T$,
 \begin{displaymath}
   \prob (Y_{ij} \leq \bmath x_i^{T} \bmath \gamma_j ) = \tau, \mbox{ for } j = 1, \ldots, J,
 \end{displaymath}
@@ -178,7 +177,7 @@ be the densities of response $\bmath Y$ given follow-up time $S=k$ and $S
 \geq k$. And $\prob_k$ be the corresponding probability given $S = k$.
 
 \subsection{Mixture Model Specification}
-\label{sec:settings}
+\label{ch3:sec:settings}
 We adopt a pattern mixture model to jointly model the response and
 missingness \citep{little1994, dh2008}. Mixture models factor the
 joint distribution of response and missingness as
@@ -195,7 +194,7 @@ parameter vector $\bmath \omega$ is partitioned as $(\bmath \theta, \bmath
 
 Furthermore, the conditional distribution of response within patterns
 can be decomposed as
-\begin{equation}\label{eq:decompose}
+\begin{equation}\label{ch3:eq:decompose}
   \pr (\yobs, \ymis | \bmath S, \bmath \theta) = \pr
   (\ymis|\yobs, \bmath S, \bmath \theta_E) \pr (\yobs | \bmath S, \bmath
   \theta_{y, O}),
@@ -231,31 +230,31 @@ Then we specify the conditional distributions as:
       \end{cases}, \mbox{ for } 2 \leq j \leq J,  \\
       \displaystyle S_{ij} = k| \bmath x_{ij} \sim \textrm{Multinomial}(1, \bmath \phi),
     \end{array}
-  \label{eq:model}
+  \label{ch3:eq:model}
 \end{equation}
 where $\bmath y_{ij^{-}} = (y_{i1}, \ldots, y_{i(j-1)})^T$ is the
 response history for subject $i$ up to time point  $(j-1)$; $\bmath \phi =
 (\phi_1, \ldots, \phi_J)$ is the multinomial probability vector for the
 number of observed responses; $\bmath h_j^{(k)} = (h_{j1}^{(k)}, \ldots,
 h_{jp}^{(k)})$ are sensitivity parameters which we will discuss in
-section \ref{sec:sa}.  $\bmath x_{ij}$ is a $p \times 1$ covariate vector;
+section \ref{ch3:sec:sa}.  $\bmath x_{ij}$ is a $p \times 1$ covariate vector;
 $\bmath \beta_{y, j-1}^{(k)} = \big(\beta_{y_1, j-1}^{(k)}, \ldots,
 \beta_{y_{j-1}, j-1}^{(k)} \big)^T$ are autoregressive coefficients
 and $\sigma_j^{(k)}$ is the conditional standard deviation of response
-component $j$. We specify the model as in (\ref{eq:model}) to have
+component $j$. We specify the model as in (\ref{ch3:eq:model}) to have
 multivariate normal distribution within patterns such that MAR exists
-\citep{wang2011}. More details are presented in section \ref{sec:sa}.
+\citep{wang2011}. More details are presented in section \ref{ch3:sec:sa}.
 
-In (\ref{eq:model}), $\Delta_{ij}$ are functions of $\tau, \bmath x_{ij},
+In (\ref{ch3:eq:model}), $\Delta_{ij}$ are functions of $\tau, \bmath x_{ij},
 \bmath \beta, \bmath h, \bmath \sigma, \bmath \gamma_j, \bmath \phi$ and are determined by the marginal
 quantile regressions,
 \begin{equation}
-  \label{eq:deltaeqn1}
+  \label{ch3:eq:deltaeqn1}
   \tau = \prob (Y_{ij} \leq \bmath x_{ij}^T \bmath \gamma_j ) = \sum_{k=1}^J
   \phi_k\prob_k (Y_{ij} \leq \bmath x_{ij}^T \bmath \gamma_j ) \mbox{  for  } j = 1,
 \end{equation}
 and
-\begin{align}\label{eq:deltaeqn2}
+\begin{align}\label{ch3:eq:deltaeqn2}
   \tau &= \prob (Y_{ij} \leq \bmath x_{ij}^{T} \bmath \gamma_j ) =
   \sum_{k=1}^J
   \phi_k\prob_k (Y_{ij} \leq \bmath x_{ij}^{T} \bmath \gamma_j ) \\
@@ -266,11 +265,11 @@ and
   dy_{i(j-1)}\cdots dy_{i1}.  \mbox{  for  } j = 2, \ldots, J .\nonumber
 \end{align}
 Computational details will be given in section
-\ref{sec:computation}.
+\ref{ch3:sec:computation}.
 
 The idea is to model the marginal quantile regressions directly, then
 to embed them in the likelihood through restrictions in the mixture
-model. The mixture model in (\ref{eq:model}) allows the marginal
+model. The mixture model in (\ref{ch3:eq:model}) allows the marginal
 quantile regression coefficients to differ by quantiles. Otherwise,
 the quantile lines would be parallel to each other. Moreover, the
 mixture model also allows sensitivity analysis.
@@ -281,20 +280,20 @@ following restrictions,
  \sum_{k=1}^J \beta_{l1}^{(k)} = 0, l = 1,\ldots, p,
 \end{displaymath}
 Further details on these restrictions can be
-found in Appendix \ref{sec:iden}.
+found in Appendix \ref{ch3:sec:iden}.
 
 \subsection{Missing Data Mechanism and Sensitivity Analysis}
-\label{sec:sa}
+\label{ch3:sec:sa}
 
 In general, mixture models are not identified due to insufficient
 information provided by observed data. Specific forms of missingness
 are needed to induce constraints to identify the distributions for
 incomplete patterns, in particular, the extrapolation distribution in
-(\ref{eq:decompose}). In this section, we explore ways to embed the
+(\ref{ch3:eq:decompose}). In this section, we explore ways to embed the
 missingness mechanism and sensitivity parameters in mixture models for
 our setting.
 
-In the mixture model in (\ref{eq:model}), MAR holds \citep{molen1998,
+In the mixture model in (\ref{ch3:eq:model}), MAR holds \citep{molen1998,
   wang2011} if and only if, for each $j \geq 2$ and $k < j$:
 \begin{displaymath}
   \pr_k(y_j|y_1, \ldots, y_{j-1}) = \pr_{\geq j}(y_j|y_1, \ldots, y_{j-1}).
@@ -349,25 +348,25 @@ without loss of generality, we assume $\bmath \xi_s$ does not depend
 on pattern.
 
 \subsection{Computation}
-\label{sec:computation}
+\label{ch3:sec:computation}
 
-In section \ref{sec:deltacal}, we provide details on calculating
-$\Delta_{ij}$ in (\ref{eq:model}) for $j = 1, \ldots, J$. Then we show
+In section \ref{ch3:sec:deltacal}, we provide details on calculating
+$\Delta_{ij}$ in (\ref{ch3:eq:model}) for $j = 1, \ldots, J$. Then we show
 how to obtain maximum likelihood estimates in section
-\ref{sec:mle}. Finally, we present a Monte Carlo Markov Chain (MCMC)
+\ref{ch3:sec:mle}. Finally, we present a Monte Carlo Markov Chain (MCMC)
 sampling algorithm for Bayesian inference in section
-\ref{sec:bayesian}.
+\ref{ch3:sec:bayesian}.
 
 \subsubsection{Calculation of $\Delta$ }
-\label{sec:deltacal}
-From equation (\ref{eq:deltaeqn1}) and (\ref{eq:deltaeqn2}),
+\label{ch3:sec:deltacal}
+From equation (\ref{ch3:eq:deltaeqn1}) and (\ref{ch3:eq:deltaeqn2}),
 $\Delta_{ij}$ depends on subject-specific covariates $\bmath x_{ij}$,
 thus $\Delta_{ij}$ needs to be calculated for each subject. We now
 illustrate how to calculate $\Delta_{ij}$ given all the other
 parameters $\bmath \xi = (\bmath \xi_m, \xi_s)$.
 
 \begin{itemize}
-\item \textbf{$\Delta_{i1}: $} Expand equation (\ref{eq:deltaeqn1}):
+\item \textbf{$\Delta_{i1}: $} Expand equation (\ref{ch3:eq:deltaeqn1}):
   \begin{align*}
     \tau = \sum_{k = 1}^J \phi_k \Phi \left( \frac{\bmath x_{i1}^T
         \bmath \gamma_1 - \Delta_{i1} - \bmath x_{i1}^T\bmath
@@ -381,7 +380,7 @@ parameters $\bmath \xi = (\bmath \xi_m, \xi_s)$.
 \item \textbf{$\Delta_{ij}, 2\leq j \leq J: $}
 
   First we introduce a lemma:
-  \begin{lem}\label{sec:lemma}
+  \begin{lem}\label{ch3:sec:lemma}
     An integral of a normal CDF with mean $b$ and standard deviation
     $a$ over another normal distribution with mean $\mu$ and standard
     deviation $\sigma$ can be simplified to a closed form in terms of
@@ -398,12 +397,12 @@ parameters $\bmath \xi = (\bmath \xi_m, \xi_s)$.
     where $\Phi(x; \mu, \sigma)$ stands for a CDF of normal
     distribution with mean $\mu$ and standard deviation $\sigma$.
   \end{lem}
-  Proof of \ref{sec:lemma} is in Appendix \ref{sec:proof}.
+  Proof of \ref{ch3:sec:lemma} is in Appendix \ref{ch3:sec:proof}.
 
-  Given the result in Lemma \ref{sec:lemma}, to solve equation
-  (\ref{eq:deltaeqn2}), we propose a recursive approach. For the first
-  multiple integral in equation (\ref{eq:deltaeqn2}), apply lemma
-  \ref{sec:lemma} once to obtain:
+  Given the result in Lemma \ref{ch3:sec:lemma}, to solve equation
+  (\ref{ch3:eq:deltaeqn2}), we propose a recursive approach. For the first
+  multiple integral in equation (\ref{ch3:eq:deltaeqn2}), apply lemma
+  \ref{ch3:sec:lemma} once to obtain:
   \begin{align*}
     \prob_1 (Y_{ij} \leq \bmath x_{ij}^T \bmath \gamma_j) & =
     \int\dots\int
@@ -417,8 +416,8 @@ parameters $\bmath \xi = (\bmath \xi_m, \xi_s)$.
     & \quad \cdots d F (Y_{i1} | S = 1, \bmath x_{ij}).
   \end{align*}
 
-  Then, by recursively applying lemma \ref{sec:lemma} $(j-1)$ times,
-  each multiple integral in equation (\ref{eq:deltaeqn2}) can be
+  Then, by recursively applying lemma \ref{ch3:sec:lemma} $(j-1)$ times,
+  each multiple integral in equation (\ref{ch3:eq:deltaeqn2}) can be
   simplified to single normal CDF. Thus we can easily solve for
   $\Delta_{ij}$ using standard numerical root-finding method as for $j
   = 1$.
@@ -426,11 +425,11 @@ parameters $\bmath \xi = (\bmath \xi_m, \xi_s)$.
 \end{itemize}
 
 \subsubsection{Maximum Likelihood Estimation}
-\label{sec:mle}
+\label{ch3:sec:mle}
 
 The observed data likelihood for an individual $i$ with follow-up time
 $S_i = k$ is
-\begin{align} \label{eq:ll} L_i(\bmath \xi| \bmath y_i, S_{i} = k) & =
+\begin{align} \label{ch3:eq:ll} L_i(\bmath \xi| \bmath y_i, S_{i} = k) & =
   \phi_k\pr_k (y_k | y_1, \ldots, y_{k-1})
   \pr_k (y_{k-1}|y_1, \ldots, y_{k-2}) \cdots \pr_{k} (y_1), \\
   & = \phi_k \pr_{\geq k} (y_k | y_1, \ldots, y_{k-1}) \pr_{\geq k-1}
@@ -465,13 +464,13 @@ subjects and use bootstrap percentile intervals to form confidence
 intervals.
 
 \subsubsection{Goodness of Fit Check}
-\label{sec:goodness}
+\label{ch3:sec:goodness}
 A simple goodness-of-fit check can be done by examining normal QQ
 plots of the fitted residuals from the model. The visual test can help
 to diagnose if the parametric assumptions are suitable for model.
 
 After obtaining the MLE, we use the approach described in section
-\ref{sec:deltacal} to get the fitted $\Delta_{ij}$ for each
+\ref{ch3:sec:deltacal} to get the fitted $\Delta_{ij}$ for each
 subject. Then the fitted residuals can be obtained by plugging in the
 fitted estimates and $\hat{\Delta}_{ij}$ to obtain,
 \begin{displaymath}
@@ -486,7 +485,7 @@ fitted estimates and $\hat{\Delta}_{ij}$ to obtain,
 \end{displaymath}
 
 \subsubsection{Bayesian Framework}
-\label{sec:bayesian}
+\label{ch3:sec:bayesian}
 
 For Bayesian inference, we specify priors on the parameters $\bmath
 \xi$ and use a block Gibbs sampling method to draw samples from the
@@ -504,7 +503,7 @@ of $\bmath \xi_m$ require a Metropolis-Hasting algorithm, while
 $\bmath \xi_s$ samples are drawn directly from priors as desired for
 missingness mechanism assumptions.
 
-As mentioned in section \ref{sec:sa}, MAR or MNAR assumptions are
+As mentioned in section \ref{ch3:sec:sa}, MAR or MNAR assumptions are
 implemented via specific priors. For example, if MAR is assumed with
 no uncertainty, then $ \bmath \xi _s= \bmath 0$ with probability
 1. Details for updating parameters are:
@@ -516,8 +515,8 @@ no uncertainty, then $ \bmath \xi _s= \bmath 0$ with probability
     distribution;
   \item Based on the new candidate parameter $\bmath \xi^c$, calculate
     candidate $\Delta_{ij}^c$ for each subject $i$ as we described in
-    section \ref{sec:deltacal}.
-  \item Plug in $\Delta_{ij}^c$ in likelihood (\ref{eq:ll}) to get
+    section \ref{ch3:sec:deltacal}.
+  \item Plug in $\Delta_{ij}^c$ in likelihood (\ref{ch3:eq:ll}) to get
     candidate likelihood;
   \item Compute Metropolis-Hasting ratio, and accept the candidate
     value or keep the previous value.
@@ -530,9 +529,9 @@ no uncertainty, then $ \bmath \xi _s= \bmath 0$ with probability
 \end{itemize}
 
 \section{Simulation Study}
-\label{sec:simulation}
+\label{ch3:sec:simulation}
 In this section, we compare the performance of our proposed model in
-section \ref{sec:settings} with the \textit{rq} function (noted as RQ) in
+section \ref{ch3:sec:settings} with the \textit{rq} function (noted as RQ) in
 \textit{quantreg} R package \citep{quantreg} and Bottai's algorithm
 \citep{bottai2013} (noted as BZ). The \textit{rq} function
 minimizes the loss (check) function $\sum_{i=1}^n \rho_{\tau} (y_i -
@@ -577,7 +576,7 @@ a shift of 2 in the intercept between $\pr(Y_2|R = 1, Y_1)$ and
 $\pr(Y_2|R = 0, Y_1)$.
 
 Under an MAR assumption, the sensitivity parameter $\bmath \xi_s$ is
-fixed at $\bmath 0$ as discussed in section \ref{sec:sa}. For
+fixed at $\bmath 0$ as discussed in section \ref{ch3:sec:sa}. For
 \textit{rq} function from \textit{quantreg} R package, because only
 $Y_{i2}|R = 1$ is observed, the quantile regression for $Y_{i2}$ can
 only be fit from the information of $Y_{i2}|R = 1$ vs $x$.
@@ -609,7 +608,7 @@ where $\hat{\mbox{sd}}$ is the sample standard deviation and
 $\mbox{Bias} = \hat{\gamma}_{ij} - \gamma_{ij}$ and $N$ is the number
 of simulations.
 
-Table \ref{tab:simh2}, \ref{tab:sim2} and \ref{tab:sim3} present the
+Table \ref{ch3:tab:simh2}, \ref{ch3:tab:sim2} and \ref{ch3:tab:sim3} present the
 MSE for coefficients estimates of quantile 0.1, 0.3, 0.5, 0.7, 0.9
 under each scenario.  Simulation results show estimates from our
 algorithm and Bottai's approach are closer to the true value for all
@@ -641,9 +640,9 @@ MAR, incorrect MAR, and MNAR.
   quantile regression slope estimates for $Y_2$.}
 
 To assess the goodness of fit, we examined the QQ plot of fitted
-residuals in model (\ref{eq:model}) to check the normality assumption
+residuals in model (\ref{ch3:eq:model}) to check the normality assumption
 on the error term for a random sample of the simulated datasets
-(Appendix \ref{sec:gofsim}).  When our error assumption is correct
+(Appendix \ref{ch3:sec:gofsim}).  When our error assumption is correct
 (normal), the QQ plot reflects the fitted residuals follow exact a
 normal distribution. However, when we misspecified the error
 distribution, the proposed diagnostic method did clearly suggest
@@ -659,7 +658,7 @@ when errors are not normal.
       regression coefficients for $Y_{i1}$, and $(\gamma_{02},
       \gamma_{12})$ are ones for $Y_{i2}$. MM stands for our proposed
       method, and RQ stands for the 'rq' function in R package
-      'quantreg'. BZ stands for Bottai's approach.}\label{tab:simh2}
+      'quantreg'. BZ stands for Bottai's approach.}\label{ch3:tab:simh2}
     \vspace{10pt} \tabcolsep = 0.11cm
     \begin{tabular}{rrrrrrrrrrrrrrrr}
       \Hline
@@ -707,7 +706,7 @@ Laplace    &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn
       \gamma_{12})$ are ones for $Y_{i2}$. MM stands for our proposed
       method, and RQ stands for the 'rq' function in R package
       'quantreg'. BZ stands for Bottai's approach.
-      } \label{tab:sim2} \vspace{10pt} \tabcolsep =
+      } \label{ch3:tab:sim2} \vspace{10pt} \tabcolsep =
     0.11cm
     \begin{tabular}{rrrrrrrrrrrrrrrr}
       \Hline
@@ -756,7 +755,7 @@ Laplace    & \multicolumn{15}{c}{MNAR Laplace} \\
       coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$ are
       ones for $Y_{i2}$. MM stands for our proposed method, and RQ
       stands for the 'rq' function in R package 'quantreg'. BZ stands
-      for Bottai's approach.} \label{tab:sim3}
+      for Bottai's approach.} \label{ch3:tab:sim3}
     \vspace{10pt}
  \tabcolsep = 0.11cm
     \begin{tabular}{rrrrrrrrrrrrrrrr}
@@ -798,7 +797,7 @@ Laplace    &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn
 \end{sidewaystable}
 
 \section{Real Data Analysis}
-\label{sec:real}
+\label{ch3:sec:real}
 We apply our quantile regression approach to data from TOURS, a weight
 management clinical trial \citep{perri2008extended}.  This trial was
 designed to test whether a lifestyle modification program could
@@ -820,7 +819,7 @@ We fitted regression models for bivariate responses $\bmath Y_i =
 ran 1000 bootstrap samples to obtain 95\% confidence intervals.
 
 Estimates under MAR and MNAR are presented in Table
-\ref{tab:tours}. For weights of participants at six months, weights of
+\ref{ch3:tab:tours}. For weights of participants at six months, weights of
 whites are generally 4kg lower than those of blacks for all quantiles,
 and the coefficients of race are negative and significant. Meanwhile,
 weights of participants are not affected by age since the coefficients
@@ -834,7 +833,7 @@ with weights after 6 months.
     \caption{Estimated marginal quantile regression coefficients with
       95\% bootstrap percentile confidence interval for weight of
       participants at 6 and 18 months.  Missing data mechanism
-      assumption is MAR.}\label{tab:tours}
+      assumption is MAR.}\label{ch3:tab:tours}
     \vspace{10pt} \tabcolsep = 0.11cm
     \begin{tabular}{rrrrr}
       \Hline
@@ -882,20 +881,20 @@ the distribution of $Y_2|Y_1, R=0$ via the following restriction:
   \Delta_{i2} + \bmath x_{i2}^T \bmath h_2^{(1)} + E(y_{i1}|R=0)(\beta_{y,1}^{(1)} +\eta_1^{(1)} - 1) = 3.6 \mbox{kg}.
 \end{displaymath}
 
-Table \ref{tab:tours} presents the estimates and bootstrap percentile
+Table \ref{ch3:tab:tours} presents the estimates and bootstrap percentile
 confidence intervals under the above MNAR mechanism. There are not
 large differences for estimates for $Y_2$ under MNAR vs MAR. This is
 partly due to the low proportion of missing data in this study.
 
 We also checked the goodness of fit via QQ plots on the fitted
-residuals as described in section \ref{sec:goodness} for each quantile
+residuals as described in section \ref{ch3:sec:goodness} for each quantile
 regression fit.  Plots are presented in Appendix
-\ref{sec:goftours}. The QQ plots showed minimal evidence against the
+\ref{ch3:sec:goftours}. The QQ plots showed minimal evidence against the
 assumption that the residuals were normally distributed; thus we were
 confident with the conclusion of our quantile regression models.
 
 \section{Discussion}
-\label{sec:discussion}
+\label{ch3:sec:discussion}
 
 In this paper, we have developed a marginal quantile regression model
 for data with monotone missingness. We use a pattern mixture model to
@@ -951,7 +950,7 @@ This study is supported by NIH grant CA85295.
 \appendix
 \section{}
 \subsection{Identifiability}
-\label{sec:iden}
+\label{ch3:sec:iden}
 First suppose $y$ is univariate and there are two patterns $R = 1$ and
 $R = 0$.
 
@@ -960,7 +959,7 @@ identifiability problem in mean regression.
 
 Consider a pattern mixture model:
 \begin{align}
-  Y | R = 1 & \sim N(\Delta + \mu_1, \sigma_1), \label{eq:app1} \\
+  Y | R = 1 & \sim N(\Delta + \mu_1, \sigma_1), \label{ch3:eq:app1} \\
   Y | R = 0 & \sim N(\Delta + \mu_0, \sigma_0), \nonumber\\
   \prob (R = 1) & = \phi, \nonumber\\
   E (y ) & = \theta. \nonumber
@@ -971,7 +970,7 @@ Thus by iterated expectation, we have
   \Delta = \theta - \phi \mu_1 - (1 - \phi)\mu_0.
 \end{align*}
 We can see $\Delta$ is determined by $\theta, \mu_1, \mu_0$. Plugging
-in (\ref{eq:app1}), we have
+in (\ref{ch3:eq:app1}), we have
 \begin{align*}
   Y| R = 1 & \sim N(\theta + (1 - \phi)\mu_1 - (1 - \phi)\mu_0, \sigma_1), \\
   Y| R = 0 & \sim N(\theta - \phi \mu_1 + \phi \mu_0, \sigma_0).
@@ -1094,13 +1093,13 @@ coefficient of $y_1$, we must have $\beta_{11} = \beta_{11}^{'}$ and
 $\beta_{10} = \beta_{10}^{'}$, therefore, $\bmath \xi$ is identifiable.
 
 For identifiability issue with the heterogeneous model described in
-section \ref{sec:settings}, it is easy to show there is no trouble
+section \ref{ch3:sec:settings}, it is easy to show there is no trouble
 with the heterogeneity parameters $\alpha$, analogous to the linear
 model case. For the other parameters, it can be found similar to the
 above development.
 
-\subsection{Proof of Lemma \ref{sec:lemma}}
-\label{sec:proof}
+\subsection{Proof of Lemma \ref{ch3:sec:lemma}}
+\label{ch3:sec:proof}
 \begin{itemize}
 \item Denote
   \begin{displaymath}
@@ -1118,7 +1117,7 @@ above development.
   \begin{align}
     I(a,b) &= - \frac{1}{\sqrt{a^2+1}} \int_b^{\infty} \phi \left( \frac{s}{\sqrt{a^2+1}} \right) ds \nonumber \\
     &= \int_{b/\sqrt{a^2+1}}^{\infty} \phi(t) dt \nonumber\\
-    \label{eq:int}
+    \label{ch3:eq:int}
     & = 1- \Phi(b/\sqrt{a^2+1}).
   \end{align}
   For $a < 0$,
@@ -1131,7 +1130,7 @@ above development.
   Since $I(a, -\infty) = 0$:
   \begin{align}
     I(a,b) &= \int^{b/\sqrt{a^2+1}}_{-\infty} \phi(t) dt \nonumber\\
-    \label{eq:intneg}
+    \label{ch3:eq:intneg}
     & = \Phi(b/\sqrt{a^2+1}).
   \end{align}
 \item For integrating over a normal distribution with mean $\mu$ and
@@ -1141,19 +1140,19 @@ above development.
     & = \int \Phi(\sigma t + \mu)\phi(t) dt \\
     & = 1 - \Phi(-\mu/\sigma/\sqrt{1/\sigma^2+1}).
   \end{align*}
-  The last equation holds by (\ref{eq:int})
+  The last equation holds by (\ref{ch3:eq:int})
 \item For integrating a $\textrm{N}(b, a)$ CDF over another normal
   distribution ($\textrm{N}(\mu, \sigma$)):
   \begin{align}
     \int \Phi \left( \frac{x-b}{a} \right) d\Phi(x; \mu, \sigma) & = \int \Phi \left( \frac{x-b}{a} \right) \frac{1}{\sigma} \phi \left( \frac{x-\mu}{\sigma} \right) dx \nonumber\\
     &= \int \Phi \left( \frac{\sigma y + \mu - b}{a}  \right) \phi(y) dy \nonumber \\
-    \label{eq:intg1}
+    \label{ch3:eq:intg1}
     & = 1- \Phi \left( \frac{b-\mu}{\sigma} /
       \sqrt{\frac{a^2}{\sigma^2}+1} \right).
   \end{align}
   If $a < 0$,
   \begin{equation}
-    \label{eq:intg2}
+    \label{ch3:eq:intg2}
     \int \Phi \left( \frac{x-b}{a} \right) d\Phi(x; \mu, \sigma) = \Phi \left( \frac{b-\mu}{\sigma} / \sqrt{\frac{a^2}{\sigma^2}+1} \right).
   \end{equation}
 
@@ -1161,7 +1160,7 @@ above development.
 
 
 \subsection{Goodness of Fit Check for Simulated Data}
-\label{sec:gofsim}
+\label{ch3:sec:gofsim}
 \begin{itemize}
 \item Scenario 1
 \begin{enumerate}
@@ -1213,7 +1212,7 @@ above development.
 
 \end{itemize}
 \subsection{Goodness of Fit Check for Tours Data}
-\label{sec:goftours}
+\label{ch3:sec:goftours}
 \begin{itemize}
 \item Tours MAR:
 
