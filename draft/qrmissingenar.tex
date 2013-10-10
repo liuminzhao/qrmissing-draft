@@ -20,20 +20,22 @@
 
 \label{firstpage}
 
-\begin{abstract} In this paper, we consider the problem of
-longitudinal quantile regression using pattern mixture models when
-there is monotone missingness. Our proposed pattern mixture models
-specify the marginal quantile regression parameters, as well as the
-conditional distribution, thus allowing sensitivity analysis, a key
-component in inference for incomplete data. For computation of the
-likelihood of the parametric model, we proposed a novel way to
-simplify the integral. Both frequentist and Bayesian methods are
-illustrated. The model is applied on a clinical trial study for weight
-management.
+\begin{abstract}
+  In this paper, we develop methods for longitudinal quantile
+  regression when there is monotone missingness. In particular, we
+  propose pattern mixture models with a constraint that provides an
+  interpretation form for the marginal quantile regression
+  parameters. Our approach allows sensitivity analysis and informative
+  priors which are an essential component in inference for incomplete
+  data. To facilitate computation of the likelihood, we propose a
+  novel way to obtain analytic forms for integrals in likelihood. Both
+  frequentist and Bayesian inferences are illustrated. The model is
+  applied to data from a clinical trial on weight management.
 \end{abstract}
 
 \begin{keywords}
-Monotone missingness; Nonignorable missingness; Quantile regression; Sensitivity analysis.
+  Monotone missingness; Non-ignorable missingness; Quantile regression;
+  Sensitivity analysis.
 \end{keywords}
 
 \maketitle
@@ -83,15 +85,15 @@ normal distributions and infinite mixture of Gaussian densities which
 place quantile constraints on the residuals \citep{hjort2007,
   hjort2009, kottas2009,reich2010}.
 
-The above methods focus on complete data.  There are a few articles
-about quantile regression with missingness.  \citet{wei2012} proposed
-a multiple imputation method for quantile regression model when there
-are some covariates missing at random (MAR). They impute the missing
-covariates by specifying its conditional density given observed
-covariates and outcomes, which comes from the estimated conditional
-quantile regression and specification of conditional density of
-missing covariates given observed ones.  However, they put more focus
-on the missing covariates rather than missing outcomes.
+The above methods focus on complete data.  There are only a few
+articles about quantile regression with missingness.  \citet{wei2012}
+proposed a multiple imputation method for quantile regression model
+when there are some covariates missing at random (MAR). They impute
+the missing covariates by specifying its conditional density given
+observed covariates and outcomes, which come from the estimated
+conditional quantile regression and specification of conditional
+density of missing covariates given observed ones.  However, they put
+more focus on the missing covariates rather than missing outcomes.
 \citet{bottai2013} illustrated an imputation method using estimated
 conditional quantiles of missing outcomes given observed data. Their
 approach does not make distributional assumptions.  They assumed the
@@ -101,7 +103,7 @@ distribution with such conditionals may not exist.  In addition, their
 approach does not allow for MNAR.
 
 \citet{yuan2010} introduced a fully parametric Bayesian quantile
-regression approach for longitudinal data with nonignorable missing
+regression approach for longitudinal data with non-ignorable missing
 data. They used shared latent subject-specific random effects to
 explain the within-subject correlation and to associate the response
 process with missing data process, and applied multivariate normal
@@ -109,7 +111,7 @@ priors on the random terms to match the traditional quantile
 regression check function with penalties. However, the quantile
 regression coefficients are conditional on the random effects, which
 is not of interest if we are interested in interpreting regression
-coefficients unconditional on random effects.  In addition, they are
+coefficients unconditionally.  In addition, they are
 conditional on random effects, which tie together the responses and
 missingness process, so they have slightly different interpretation
 than regular random effects in longitudinal methods. Moreover, due to
@@ -126,14 +128,14 @@ longitudinal data. When there are many possible dropout time,
 \citet{roy2003} proposed to group them by latent classes.
 
 \citet{roy2008} extended \citet{roy2003} to generalized linear models
-and proposed a pattern mixture model for data with nonignorable
+and proposed a pattern mixture model for data with non-ignorable
 dropout, borrowing ideas from \citet{heagerty1999}.  But their
 approach only estimates the marginal covariate effects on the mean. We
-will use related ideas for quantile regression models which allows
+will use related ideas for quantile regression models which allows for
 non-ignorable missingness and sensitivity analysis.
 
 The structure of this article is as follows. First, we introduce a
-quantile regression method to address monotone nonignorable
+quantile regression method to address monotone non-ignorable
 missingness in section \ref{sec:model}, including sensitivity analysis
 and computational details.  We use simulation studies to evaluate the
 performance of the model in section \ref{sec:simulation}. We apply our
@@ -144,10 +146,10 @@ section \ref{sec:discussion}.
 \section{Model}
 \label{sec:model}
 
-In this section, we first introduce some notations, then describe our
+In this section, we first introduce some notation, then describe our
 proposed quantile regression model in section \ref{sec:settings}. We
 provide details on MAR and MNAR and computation in sections
-\ref{sec:sa} and \ref{sec:computation}.
+\ref{sec:sa} and \ref{sec:computation} respectively.
 
 Under monotone dropout, without loss of generality, denote $S_i \in
 \{1, 2, \ldots, J\}$ to be the number of observed $Y_{ij}'s$ for
@@ -156,9 +158,9 @@ be the full data response vector for subject $i$, where $J$ is the
 maximum follow up time. We assume $Y_{i1}$ is always observed. We are
 interested in the $\tau$-th marginal quantile regression coefficients
 $\bmath \gamma_j = (\gamma_{j1}, \gamma_{j2}, \ldots, \gamma_{jp})^T$,
-\begin{displaymath}
+\begin{equation}\label{eq:marg}
   \prob (Y_{ij} \leq \bmath x_i^{T} \bmath \gamma_j ) = \tau, \mbox{ for } j = 1, \ldots, J,
-\end{displaymath}
+\end{equation}
 where $\bmath x_i$ is a $p \times 1$ vector of covariates for subject
 $i$.
 
@@ -177,7 +179,7 @@ joint distribution of response and missingness as
 \begin{displaymath}
   \pr (\bmath y, \bmath S, |\bmath x, \bmath \omega) = \pr (\bmath y|\bmath S, \bmath x, \bmath \omega) \pr (\bmath S | \bmath x, \bmath \omega).
 \end{displaymath}
-Thus the full-data response follows the distribution is given by
+Thus the full-data response follows the distribution given by
 \begin{displaymath}
   \pr (\bmath y | \bmath x, \bmath \omega) = \sum_{S \in \mathcal{S}} \pr(\bmath y| \bmath S, \bmath x, \bmath \theta) \pr (\bmath S | \bmath x, \bmath \phi),
 \end{displaymath}
@@ -198,16 +200,11 @@ distribution, the first term on the right hand side and $\bmath
 responses, the second term on the right hand side.
 
 We assume models within pattern to be multivariate normal
-distributions and specify a sequential model parametrization. Let the
-subscript $i$ stand for subject $i$. First we specify the marginal
-quantile regression models as:
-\begin{displaymath}
-  \prob (Y_{ij} \leq \bmath x_{ij}^T \bmath \gamma_j ) = \tau,
-\end{displaymath}
-where $\bmath \gamma_j$ is the $\tau^{th}$ quantile regression
-coefficients of interest for component $j$.
+distributions and specify a sequential model parametrization.
+First we specify the marginal
+quantile regression models from equation \eqref{eq:marg}.
 
-Then we specify the conditional distributions as:
+Then we specify the conditional distributions on $S$ as:
 \begin{equation}
   \begin{array}{l}
       \displaystyle \pr_k(y_{i1}) = N (\Delta_{i1} + \bmath x_{i1}^T \bmath \beta_1^{(k)},
@@ -503,7 +500,7 @@ no uncertainty, then $ \bmath \xi _s= \bmath 0$ with probability
   \begin{enumerate}
   \item Draw ($\bmath \gamma_{1}^c$) candidates from candidate
     distribution;
-  \item Based on the new candidate parameter $\bmath \xi^c$, calculate
+  \item Based on the new candidate parameter $\bmath \gamma^c$, calculate
     candidate $\Delta_{ij}^c$ for each subject $i$ as we described in
     section \ref{sec:deltacal}.
   \item Plug in $\Delta_{ij}^c$ in likelihood (\ref{eq:ll}) to get
@@ -530,7 +527,7 @@ function $\rho_{\tau} (u) = u(\tau - I(u < 0))$ and does not make any
 distributional assumptions. \citet{bottai2013} impute missing
 outcomes using the estimated conditional quantiles of missing outcomes
 given observed data. Their approach does not make distributional
-assumptions similar to \textit{rq} and assumes ignorable missing data.
+assumptions similar to \textit{rq} and assumes MAR missing data.
 
 We considered three scenarios corresponding to both MAR and MNAR
 assumptions for a bivariate response.  In the first scenario, $Y_2$
@@ -606,36 +603,30 @@ quantiles from 0.1 to 0.9.  As expected, under normal errors, the
 proposed methods dominates both \textit{rq} and BZ in most cases for
 MAR, incorrect MAR, and MNAR.
 
-{\bf For the heavier tail distributions, $t_3$ and Laplace
-  distribution, our approach shows better performance in middle
-  quantiles and lose to \textit{rq} for extreme quantiles for observed
-  data $Y_1$. Nevertheless, our algorithm provides larger gains over
-  \textit{rq} function for each marginal quantile for the second
-  component $Y_2$, which are missing for some observations.  No matter
-  what missing data mechanism (MAR or MNAR), what assumption we use in
-  our approach (misspecification or correct specified), our method
-  shows advantages over \textit{rq} function, especially for $Y_2$,
-  because \textit{quantreg} does not consider the missingness
-  mechanism. The difference in MSE becomes larger for the upper
-  quantiles because $Y_2 |R = 0$ tends to be larger than $Y_2 | R =
-  1$; therefore, the \textit{rq} method using only the observed $Y_2$
-  yields larger bias for upper quantiles. Bottai's approach, however,
-  shows great advantage over \textit{rq} function for missing data
-  because its imputing method for missing responses.  It also has
-  smaller MSE than ours on extreme quantiles regression when
-  distribution has heavy tail. However, our approach has advantages on
-  middle quantiles (30\% - 70\%) for marginal inference on missing
-  responses regardless using mis-specification or correct sensitivity
-  parameters. And we can see more gains over \textit{BZ} in the
-  quantile regression slope estimates for $Y_2$.}
+For the heavier tail distributions, $t_3$ and Laplace distribution,
+our approach shows better performance in middle quantiles and worse
+performance for extreme quantiles for observed data $Y_1$. However,
+our algorithm provides larger gains over \textit{rq} function for each
+marginal quantile for the second component $Y_2$, which is missing for
+some units, since \textit{rq} implicitly assumes MAR missingness.  The
+difference in MSE becomes larger for the upper quantiles because $Y_2
+|R = 0$ tends to be larger than $Y_2 | R = 1$; therefore, the
+\textit{rq} method using only the observed $Y_2$ yields larger bias
+for upper quantiles. Bottai's approach does much better than
+\textit{rq} function for missing data because it imputes missing
+responses under MAR.  It also has smaller MSE than ours on extreme
+quantiles when distribution has heavy tail. However, our approach has
+advantages in the middle quantiles (30\% - 70\%).  We also see more
+gains over \textit{BZ} in the quantile regression slope estimates for
+$Y_2$.
 
 To assess the goodness of fit, we examined the QQ plot of fitted
 residuals in model (\ref{eq:model}) to check the normality assumption
 on the error term for a random sample of the simulated datasets.
 When our error assumption is correct
-(normal), the QQ plot reflects the fitted residuals follow exact a
+(normal), the QQ plot reflects the fitted residuals follow  a
 normal distribution. However, when we misspecified the error
-distribution, the proposed diagnostic method did clearly suggest
+distribution, the proposed diagnostic method clearly suggests
 heavier tail error than normal, and this also demonstrates why our
 approach has some disadvantages for regression on extreme quantiles
 when errors are not normal.
@@ -646,9 +637,9 @@ when errors are not normal.
       quantiles 0.1, 0.3, 0.5, 0.7, 0.9 under MAR
       assumptions. $(\gamma_{01}, \gamma_{11})$ are quantile
       regression coefficients for $Y_{i1}$, and $(\gamma_{02},
-      \gamma_{12})$ are ones for $Y_{i2}$. MM stands for our proposed
-      method, and RQ stands for the 'rq' function in R package
-      'quantreg'. BZ stands for Bottai's approach.}\label{tab:simh2}
+      \gamma_{12})$ are coefficients for $Y_{i2}$. MM stands for our proposed
+      method, RQ stands for the 'rq' function in R package
+      'quantreg', and BZ stands for Bottai's approach.}\label{tab:simh2}
     \vspace{10pt} \tabcolsep = 0.11cm
     \begin{tabular}{rrrrrrrrrrrrrrrr}
       \Hline
@@ -693,9 +684,9 @@ Laplace    &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn
       scenario, we adopted MAR assumption for our approach and thus
       misspecified the MDM. $(\gamma_{01}, \gamma_{11})$ are quantile
       regression coefficients for $Y_{i1}$, and $(\gamma_{02},
-      \gamma_{12})$ are ones for $Y_{i2}$. MM stands for our proposed
-      method, and RQ stands for the 'rq' function in R package
-      'quantreg'. BZ stands for Bottai's approach.
+      \gamma_{12})$ are coefficients for $Y_{i2}$. MM stands for our proposed
+      method,  RQ stands for the 'rq' function in R package
+      'quantreg', and BZ stands for Bottai's approach.
       } \label{tab:sim2} \vspace{10pt} \tabcolsep =
     0.11cm
     \begin{tabular}{rrrrrrrrrrrrrrrr}
@@ -741,8 +732,8 @@ Laplace  &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3
       scenario, we used the correct sensitivity parameters for our
       approach. $(\gamma_{01}, \gamma_{11})$ are quantile regression
       coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$ are
-      ones for $Y_{i2}$. MM stands for our proposed method, and RQ
-      stands for the 'rq' function in R package 'quantreg'. BZ stands
+      coefficients for $Y_{i2}$. MM stands for our proposed method,  RQ
+      stands for the 'rq' function in R package 'quantreg', and BZ stands
       for Bottai's approach.} \label{tab:sim3}
     \vspace{10pt}
  \tabcolsep = 0.11cm
@@ -874,10 +865,10 @@ partly due to the low proportion of missing data in this study.
 
 We also checked the goodness of fit via QQ plots on the fitted
 residuals as described in section \ref{sec:goodness} for each quantile
-regression fit. Plots are presented in Appendix
-\ref{sec:goftours}. The QQ plots showed minimal evidence against the
-assumption that the residuals were normally distributed; thus we were
-confident with the conclusion of our quantile regression models.
+regression fit. Plots are presented in the Appendix. The QQ plots
+showed minimal evidence against the assumption that the residuals were
+normally distributed; thus we are confident with the conclusion of
+our quantile regression models.
 
 \section{Discussion}
 \label{sec:discussion}
@@ -893,31 +884,30 @@ is essential for the analysis of missing data (NAS 2010).
 
 Our method allows the missingness to be non-ignorable.  We illustrated
 how to put informative priors for Bayesian inference and how to find
-sensitivity parameters to allow different missing data mechanisms in
-general. The recursive integration algorithm simplifies computation
-and can be easily implemented even in high dimensions. Simulation
-studies demonstrates that our approach has smaller MSE than the
-traditional frequentist method \textit{rq} function for most cases,
-especially for inferences of partial missing responses. And it has
-advantages over Bottai's appraoch for middle quantiles regression
-inference even when the distribution is mis-specified.  However, our
-approach also shows little bias for extreme quantiles comparing to
-\citet{bottai2013} if error is mis-specified. We also illustrated
-sensitivity analysis and how to allow non-ignorable missingness
-assumptions.
+sensitivity parameters to allow different missing data mechanisms. The
+recursive integration algorithm simplifies computation and can be
+easily implemented even in high dimensions. Simulation studies
+demonstrates that our approach has smaller MSE than the traditional
+frequentist method \textit{rq} function for most cases, especially for
+inferences of partial missing responses. And it has advantages over
+Bottai's appraoch for middle quantiles regression inference even when
+the distribution is mis-specified.  However, our approach also shows
+some bias for extreme quantiles comparing to \citet{bottai2013} if
+error is mis-specified and missingness is MAR.
 
 Our model assumes a multivariate normal distribution for each
 component in the pattern mixture model, which might be too restrictive
 in some settings. Simulation results showed that the mis-specification
 of the error term did have a small impact on the extreme quantile
-regression inferences.  It is possible to replace that with a
-semi-parametric model, for example, a Dirichlet process mixture or
+regression inferences.  It is possible to replace it with a
+non-parametric model, for example, a Dirichlet process mixture or
 \polya{} trees. However, computational algorithms would need to be
-developed.  Meanwhile, even though we use a multivariate normal
-distributions within patterns, which can easily departures from MAR
-via differences in means and (co)-variances, we still need strong
-assumptions for sequential multivariate normal distribution within
-each pattern; otherwise MAR constraints do not exist \citep{wang2011}.
+developed for those settings.  In addition, even though we use a
+multivariate normal distributions within patterns, which can easily
+quantify departures from MAR via differences in means and
+(co)-variances, we still need the assumptions of sequential
+multivariate normal distribution within each pattern; otherwise MAR
+constraints do not exist \citep{wang2011}.
 
 
 \backmatter
@@ -938,17 +928,7 @@ This study is supported by NIH grant CA85295.
 
 \subsection{Goodness of Fit Check for Tours Data}
 \label{sec:goftours}
-\begin{itemize}
-\item Tours MAR:
-
 \includegraphics[scale = .4]{../image/ToursGoF}
-
-\item Tours MNAR:
-
-\includegraphics[scale = .4]{../image/ToursMNARGoF}
-
-\end{itemize}
-
 \label{lastpage}
 
 \end{document}
