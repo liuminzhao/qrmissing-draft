@@ -100,7 +100,7 @@ approach does not make distributional assumptions.  They assumed the
 missing data mechanism (MDM) is ignorable. However, because their
 imputation method is not derived from a joint distribution, the joint
 distribution with such conditionals may not exist.  In addition, their
-approach does not allow for MNAR.
+approach does not allow for missing not at random (MNAR).
 
 \citet{yuan2010} introduced a fully parametric Bayesian quantile
 regression approach for longitudinal data with non-ignorable missing
@@ -131,7 +131,7 @@ longitudinal data. When there are many possible dropout time,
 and proposed a pattern mixture model for data with non-ignorable
 dropout, borrowing ideas from \citet{heagerty1999}.  But their
 approach only estimates the marginal covariate effects on the mean. We
-will use related ideas for quantile regression models which allows for
+will use related ideas for quantile regression models which allow for
 non-ignorable missingness and sensitivity analysis.
 
 The structure of this article is as follows. First, we introduce a
@@ -351,7 +351,7 @@ From equation (\ref{eq:deltaeqn1}) and (\ref{eq:deltaeqn2}),
 $\Delta_{ij}$ depends on subject-specific covariates $\bmath x_{ij}$,
 thus $\Delta_{ij}$ needs to be calculated for each subject. We now
 illustrate how to calculate $\Delta_{ij}$ given all the other
-parameters $\bmath \xi = (\bmath \xi_m, \xi_s)$.
+parameters $\bmath \xi = (\bmath \xi_m, \bmath \xi_s)$.
 
 \begin{itemize}
 \item \textbf{$\Delta_{i1}: $} Expand equation (\ref{eq:deltaeqn1}):
@@ -396,7 +396,7 @@ parameters $\bmath \xi = (\bmath \xi_m, \xi_s)$.
     \prob (Y_{ij} \leq \bmath x_{ij}^T\bmath \gamma_j | S=1, \bmath x_{ij}, \bmath Y_{ij^{-}})\\
     & \quad  dF(Y_{i(j-1)}|S=1, \bmath x_{ij}, \bmath Y_{i(j-1)^{-}}) \cdots d F (Y_{i1} | S = 1, \bmath x_{ij}), \\
     & = \int\dots\int
-    \Phi \left( \frac{\bmath x^T \bmath \gamma_j - \mu_{j|1, \ldots, j-1}(\bmath Y_{ij^{-}})}{\sigma_{j|1, \ldots, j-1}} \right) \\
+    \Phi \left( \frac{\bmath x_{ij}^T \bmath \gamma_j - \Delta_{ij} - \bmath x_{ij}^T \bmath h_j^{(1)} - \bmath y_{ij^{-}}^T \bmath \beta_{y,j-1}^{(1)}}{\sigma_{j}^{(1)}} \right) \\
     & \quad   dF(Y_{i(j-1)}|S=1, \bmath x_{ij}, \bmath Y_{i(j-1)^{-}}) \cdots d F (Y_{i1} | S = 1, \bmath x_{ij}), \\
     & = \int\dots\int \Phi \left( \frac{Y_{i(j-2)} - b^{*}}{a^{*}}
     \right) dF(Y_{i(j-2)}|S=1, \bmath x_{ij}, \bmath Y_{i(j-2)^{-}}) \\
@@ -417,12 +417,12 @@ parameters $\bmath \xi = (\bmath \xi_m, \xi_s)$.
 The observed data likelihood for an individual $i$ with follow-up time
 $S_i = k$ is
 \begin{align} \label{eq:ll} L_i(\bmath \xi| \bmath y_i, S_{i} = k) & =
-  \phi_k\pr_k (y_k | y_1, \ldots, y_{k-1})
-  \pr_k (y_{k-1}|y_1, \ldots, y_{k-2}) \cdots \pr_{k} (y_1), \\
-  & = \phi_k \pr_{\geq k} (y_k | y_1, \ldots, y_{k-1}) \pr_{\geq k-1}
-  (y_{k-1}|y_1, \ldots, y_{k-2}) \cdots \pr_{k} (y_1), \nonumber
+  \phi_k\pr_k (y_{ik} | y_{i1}, \ldots, y_{i(k-1)})
+  \pr_k (y_{i(k-1)}|y_{i1}, \ldots, y_{i(k-2)}) \cdots \pr_{k} (y_{i1}), \\
+  & = \phi_k \pr_{\geq k} (y_{ik} | y_{i1}, \ldots, y_{i(k-1)}) \pr_{\geq k-1}
+  (y_{i(k-1)}|y_{i1}, \ldots, y_{i(k-2)}) \cdots \pr_{k} (y_{i1}), \nonumber
 \end{align}
-where $\bmath y_i = (y_1, \ldots, y_k)$.
+where $\bmath y_i = (y_{i1}, \ldots, y_{ik})$.
 
 We use derivative-free optimization algorithms by quadratic
 approximation to compute the maximum likelihood estimates
