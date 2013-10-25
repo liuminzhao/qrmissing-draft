@@ -1,0 +1,138 @@
+\section{Mixture Model with Mixture Normal Error (Univariate)}
+
+First we consider the univariate case.
+Suppose we observe responses $Y_i, i = 1, ..., n$ and missingness indicator of $Y_{i2}$: $R_i = 1, 0$ for $i = 1, ..., n$ with covariates: $\bm x_{i}$.
+What we are interested is the marginal quantile regression of $Y_i$.
+Suppose the model is
+\begin{align*}
+Y_i | R_i = 1                   & \sim \Delta_i + \bm x_i \bm \beta^{(1)} + \epsilon_i^{(1)} \\
+Y_i | R_i = 0                   & \sim \Delta_i + \bm x_i \bm \beta^{(0)} + \epsilon_i^{(0)} \\
+R_i                             & \sim \mbox{Bernoulli}(\pi)                                 \\
+\epsilon_i^{(R)} | G_i= j, R_i  & \sim N(\mu_j, \sigma_j^2) , j = 1, ..., K                  \\
+G_i | R_i                       & \sim \mbox{Multinomial}(\bm \omega_{(R)})                  \\
+p( Y_i \leq \bm x_i \bm \gamma) & = \tau_2,
+\end{align*}
+where $\Delta_i$ is a function of other parameters which will be explained later.
+
+\comment{Here we suppose $\epsilon_i^{(1)}$ and $\epsilon_i^{(0)}$ share the same mixture distributions ($\bm \mu, \bm \sigma$),
+but with different probabilities ($\bm \omega_{(1)}$ and $\bm \omega_{(0)}$).
+We can weaken the assumption with different mixture distributions ($\bm{\mu^{(1)}, \mu^{(0)}, \sigma^{(1)}, \sigma^{(0)}}$).}
+
+\begin{description}
+\item [Priors 0]
+\begin{align*}
+\bm \gamma                      & \sim N (\bm \gamma^p, \bm V_{\gamma}^p)                          \\
+\bm \beta                       & \sim N (\bm \beta^p, \bm V_{\beta}^p)                            \\
+\pi                             & \sim \mbox{Beta} (\alpha_{\pi 1},\alpha_{\pi 2})                 \\
+                                & \propto \pi^{\alpha_{\pi 1} - 1} (1 - \pi) ^{\alpha_{\pi 2} - 1} \\
+\bm \omega_{(R)}                      & \sim \mbox{Dirichlet}(\bm \alpha)                                \\
+\end{align*}
+\item[Priors 1a]
+\begin{align*}
+\mu_j                           & \sim N(m,  r \sigma_j^2)                                         \\
+1/ \sigma_j^2                   & \sim \mbox{Gamma}(a/2, b/2)                                      \\
+\mbox{Hypepriors: } \quad  1/ r & \sim \mbox{Gamma}(c/2, d/2)                                      \\
+m                               & \sim N(m_0, \tau_m)
+\end{align*}
+where $a, b,c ,d , m_0, \tau_m, \bm \alpha$ are fixed and known.
+Fix mean of $\mu_j$ at $m_0$ because of identifiability problem.
+
+\item[Prior 1b]
+To simplify the problem, another priors settings can be specified as
+\begin{align*}
+\mu_j & \sim N(0, 1) \\
+\sigma_j & = 1
+\end{align*}
+\end{description}
+
+To summarize responses and paramters:
+\begin{description}
+\item[Observed: ] $Y_i, \bm x_i, R_i$ for $i = 1, \ldots, n$,
+\item[Updatable: ]
+
+\begin{description}
+\item[parameters:] denote $\bm \theta = (\bm \gamma, \bm \beta, \pi, \bm \omega, \bm \mu, \bm \sigma)$;
+\item[latent variables:] $G_{i}$
+\end{description}
+\end{description}
+
+\subsection{Full Conditional}
+The full conditional distribution is
+\begin{equation}\label{eq:fullcondition}
+p_i(Y_i, G_i = j, R_i | \bm \theta, \bm x_i) = p(Y_i|R_i, G_i = j, \bm x_i, \bm \theta) p(G_i = j | \bm \theta, R_i) p(R_i|\bm \theta).
+\end{equation}
+
+Later we will see $\Delta_i$ is a function of $\bm \theta = (\bm \gamma, \bm \beta, \pi, \bm \omega, \bm \mu, \bm \sigma), \bm x_i$, but not related to $G_i$ and $R_i$.
+
+Expand RHS in (\ref{eq:fullcondition}),
+\begin{align*}
+p(Y_i|R_i, G_i = j, \bm x_i, \bm \theta) & = \phi_N(Y_i; \Delta_i + \mu_j + \bm x_i \bm \beta^{(R_i)}, \sigma_j^2) \\
+p(G_i = j | \bm \theta, R_i)             & = \omega_{1(R_i)}^{I(G_i= 1)} \cdots \omega_{K(R_i)}^{I(G_i=K)}         \\
+p(R_i|\bm \theta)                        & = \pi^{R_i} (1 - \pi)^{1 - R_i}.
+\end{align*}
+
+\subsection{Calculation of $\Delta_i$}
+
+$\Delta_i$ is determined by $\bm \theta = (\bm{\gamma, \beta, \pi, \omega, \mu, \sigma})$ and $\bm x_i$.
+\begin{align*}
+\tau & = P(Y_i \leq \bm x_i \bm \gamma)                                                                                                                        \\
+     & = \pi P(Y_i \le \bm x_i \bm \gamma | R= 1) +  (1- \pi) P(Y_i \le \bm x_i \bm \gamma | R= 0)                                                             \\
+     & = \pi \left[ \sum_{j=1}^K \omega_{j(1)} P(Y_i \le \bm x_i\bm \gamma |R = 1, G_i = j) \right]                                                            \\
+     & \qquad  + (1-\pi) \left[ \sum_{j=1}^K \omega_{j(0)} P(Y_i \le \bm x_i\bm \gamma |R = 0, G_i=j) \right]                                                  \\
+     & = \pi \left( \sum_{j = 1}^K \omega_{j(1)} \Phi \left( \frac{\bm x_i\bm \gamma - (\Delta_i + \bm x_i \bm \beta^{(1)} + \mu_j)}{\sigma_j} \right) \right) \\
+     & \qquad + (1 - \pi) \left( \sum_{j = 1}^K \omega_{j(0)} \Phi \left( \frac{\bm x_i\bm \gamma - (\Delta_i + \bm x_i\bm \beta^{(0)} + \mu_j)}{\sigma_j} \right) \right)
+\end{align*}
+
+Thus $\Delta_i = h(\bm \gamma, \bm \beta, \pi , \bm \omega, \bm \mu,\bm \sigma, \bm x_i)$.
+
+\subsection{MCMC}
+
+All the unknown parameters are (for prior 1a)
+\begin{displaymath}
+  \bm \theta = ( \bm \gamma, \bm \beta,\pi, \bm \omega,  \mu, \sigma^2, m, r), G_i
+\end{displaymath}
+and for prior 1b,
+\begin{displaymath}
+  \bm \theta = ( \bm \gamma, \bm \beta,\pi, \bm \omega,  \mu), G_i.
+\end{displaymath}
+
+We use block Gibbs sampling method to sample posterior distribution of $\bm \theta$ and $\bm G$.
+\begin{description}
+\item[$\bm \theta|\bm Y, \bm X, \bm R, \bm G$:]
+
+\begin{align*}
+p(\bm \theta|\bm Y, \bm X, \bm R, \bm G) & \propto p(\bm Y, \bm G, \bm R|\bm\theta, \bm X) \pi(\bm \theta)                                                              \\
+                                         & = \prod_{i=1}^n \left[ p_i(Y_i, G_i = j, R_i | \bm \theta, \bm x_i) \right] \pi(\bm \theta)                                \\
+                                         & = \prod_{i=1}^n \left[ p(Y_i|R_i, G_i = j, \bm x_i, \bm \theta) p(G_i = j | \bm \omega, R_i) p(R_i|\pi) \right] \pi(\bm \theta) \\
+                                         & = \prod_{i=1}^n \left[ \phi_N(Y_i; \Delta_i+\bm x_i\bm \beta^{(R_i)}+\mu_{G_i}, \sigma_{G_i})\right] \left[ \omega_{1(R_i)}^{\sum I(G_i=1)} \cdots \omega_{K(R_i)}^{\sum I(G_i=K)} \right] \\
+& \qquad  \left[ \pi^{\sum R_i} (1 - \pi)^{n - \sum R_i} \right]
+\end{align*}
+
+Metropolis-Hasting sampling algorithm is needed. We may apply the following candidate distribution:
+\begin{description}
+\item[$\bm \gamma$: ] normal random walk
+\item[$\bm \beta$: ]  normal random walk
+\item[$\pi$:] normal random walk ?
+\item[$\bm \omega$: ] normal random walk ?
+\end{description}
+
+\item[$G | \bm Y, \bm R, \bm X, \bm \theta$:]
+
+\begin{align*}
+p(G_i|\bm Y_i, \bm x_i, R_i, \bm \theta) & \propto p(\bm Y_i, \bm G_i,  R_i|\bm\theta, \bm x_i)           \\
+                                         & = p(Y_i|R_i, G_i, \bm x_i, \bm \theta) p(G_i = j | \bm \omega, R_i) \\
+                                         & = \phi_N(Y_i; \Delta_i+\bm x_i\bm \beta^{(R_i)}+\mu_{G_i}, \sigma_{G_i}) \omega_{G_i(R_i)}
+\end{align*}
+
+Thus the posterior of $G_i$ is still multinomial, but with different parameters $\bm \omega^{*}$:
+\begin{align*}
+p(G_i = j | \bm Y_i, \bm x_i, R_i, \bm \theta) & = \frac{\omega_{j(R_i)}^{*}}{\sum_{k=1}^K \omega_{k(R_i)}^{*}}, \\
+\omega_{j(R_i)}^{*}                                   & = \omega_{j(R_i)} \phi_N(Y_i; \Delta_i + \bm x_i \bm \beta^{(R_i)} + \mu_j, \sigma_j^2).
+\end{align*}
+\end{description}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "mixturenormal"
+%%% End:

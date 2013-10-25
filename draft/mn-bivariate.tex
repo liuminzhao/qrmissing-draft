@@ -1,0 +1,77 @@
+\section{Mixture model with mixture normal error (Bivariate)}
+
+Consider the bivariate case.
+Suppose we observe responses response $Y_i = (Y_{i1}, Y_{i2}), i = 1, ..., n$, missingness indicator of $Y_{i2}$: $R_i = 1, 0; i = 1, ..., n$ and covariates $\bm x_{i}$.
+
+Using pattern mixture model settings,
+\begin{description}
+\item[$Y_{i1}$:]
+\begin{align*}
+Y_{i1} | R_{i}= 1                          & \sim \Delta_{i1} + \bm x_i \bm \beta_1^{(1)} + \epsilon_{i1}^{(1)}                      \\
+Y_{i1} | R_{i}= 0                          & \sim \Delta_{i1} + \bm x_i \bm \beta_1^{(0)} + \epsilon_{i1}^{(0)}                      \\
+R_i                                        & \sim \mbox{Bernoulli}(\pi)                                                              \\
+\epsilon_{i1}^{(R_i)} | G_{i1}= j, R_i     & \sim N(\mu_{1j}, \sigma_{1j}^2) , j = 1, ..., K                                         \\
+G_{i1}|R_i                                 & \sim \mbox{Multinomial} (\bm \omega_{1(R_i)})                                           \\
+\bm \omega_{1(R_i)}                        & = (\omega_{11(R_i)}, ..., \omega_{1K(R_i)})
+\end{align*}
+where $\Delta_{i1}$ is a function of other parameters which will be explained later.
+\item[$Y_{i2}$:]
+  \begin{align*}
+    Y_{i2} | Y_{i1}, R_i= 1                & \sim \Delta_{i2} + \beta_y Y_{i1} + \epsilon_{i2}^{(1)}                                 \\
+    Y_{i2} | Y_{i1}, R_i= 0                & \sim \Delta_{i2} + \bm x_i \bm \beta_2^{(0)} + \beta_{ySP} Y_{i1} + \epsilon_{i2}^{(0)} \\
+    \epsilon_{i2}^{(R_i)} | G_{i2}= j, R_i & \sim N(\mu_{2j}, \sigma_{2j}^2) , j = 1, ..., K                                         \\
+    G_{i2}                                 & \sim \mbox{Multinomial} (\bm \omega_{2(R_i)})                                           \\
+    \bm \omega_{2(R_i)}                    & = (\omega_{21(R_i)}, ..., \omega_{2K(R_i)})
+  \end{align*}
+where $\Delta_{i2}$ is a function of other parameters which will be
+explained later.
+\end{description}
+
+\comment{Here we suppose $\epsilon_{i2}^{(1)}$ and $\epsilon_{i2}^{(0)}$ share the same mixture distributions ($\bm \mu_2, \bm \sigma_2$),
+but with different probabilities ($\bm \omega_{2(1)}$ and $\bm \omega_{2(0)}$).}
+
+Thus $\bm \beta_2^{(0)}$, $\beta_{ySP}$ and $\bm \omega_{2(0)}$ are sensitivity parameters.
+When $\beta_2^{(0)} = \bm 0$, $\beta_{ySP} = \beta_y$ and $\bm \omega_{2(0)}= \bm \omega_{2(1)}$, MAR condition satisfies.
+
+\subsection{Calculation of $\Delta_{i1}$ and $\Delta_{i2}$}
+\begin{description}
+\item[$\Delta_{i1}$:]
+\begin{align*}
+\tau & = P(Y_{i1} \leq \bm x_i \bm \gamma_1)                                                                                                                           \\
+     & = \pi P(Y_{i1} \le \bm x_i \bm \gamma_1 | R_i= 1) +  (1- \pi) P(Y_{i1} \le \bm x_i \bm \gamma_1 | R_i= 0)                                                           \\
+     & = \pi \left[ \sum_{j=1}^K \omega_{1j(1)} P(Y_{i1} \le \bm x_i \bm\gamma_1 |R_i = 1, \mu_{1j}, \sigma_{1j}) \right]                                                   \\
+     & \qquad  + (1-\pi) \left[ \sum_{j=1}^K \omega_{1j(0)} P(Y_{i1} \le \bm x_i \bm\gamma |R_i = 0, \mu_{1j}, \sigma_{1j}) \right]                                         \\
+     & = \pi \left( \sum_{j = 1}^K \omega_{1j(1)} \Phi \left( \frac{\bm x_i \bm\gamma_1 - (\Delta_{i1} + \bm x_i \bm\beta_1^{(1)} + \mu_{1j})}{\sigma_{1j}} \right) \right) \\
+     & \qquad + (1 - \pi) \left( \sum_{j = 1}^K \omega_{1j(0)} \Phi \left( \frac{x_i\gamma_1 - (\Delta_{i1} + x_i\beta_1^{(0)} + \mu_{1j})}{\sigma_{1j}} \right) \right)
+\end{align*}
+
+Thus $\Delta_{i1} = h_1(\bm{\gamma_1, \beta_1^{(R_i)}}, \pi, \bm \omega_{1(R_i)},\bm \mu_{1}, \bm \sigma_{1}, \bm x_i)$.
+
+Every term in the equation is closed form in terms of standard normal CDF. And it is monotone for $\Delta_{i1}$.
+
+\item[$\Delta_{i2}$:]
+
+\begin{align*}
+\tau & = P(Y_{i2} \leq \bm x_i \bm \gamma_2)                                                                                                                                                                                                             \\
+     & = \pi P(Y_{i2} \le \bm x_i \bm \gamma_2 | R_i= 1) +  (1- \pi) P(Y_{i2} \le \bm x_i \bm \gamma_2 | R_i= 0)                                                                                                                                             \\
+     & = \pi \left(\int P(Y_{i2} \le \bm x_i \bm \gamma_2|R_i = 1, Y_1) dF(Y_1|R_i = 1) \right) +  \\
+& \qquad (1 - \pi) \left( \int P(Y_{i2} \le \bm x_i \bm \gamma_2|R_i = 0, Y_1) dF(Y_1|R_i = 0) \right)                                                                  \\
+     & = \pi \left[ \int \sum_{j=1}^K \omega_{2j(1)} P(Y_{i2} \le \bm x_i \bm\gamma_2 |R_i = 1, Y_{1}, G_2= j)d(\sum_{j\p = 1}^K \omega_{1j\p(1)}F(Y_1|R_i = 1, G_1 = j\p))  \right]                                                           \\
+     & \qquad  + (1-\pi) \left[ \int \sum_{j=1}^K \omega_{2j(0)} P(Y_{i2} \le \bm x_i \bm\gamma_2 |R_i = 0, Y_{i1}, G_2= j)d(\sum_{j\p = 1}^K \omega_{1j\p(0)}F(Y_1|R_i = 0, G_1 = j\p))  \right]                                               \\
+     & = \pi \left[ \sum_{j, j\p}^K \omega_{2j(1)} \omega_{1j\p(1)} \int \Phi \left( \frac{\bm x_i \bm\gamma_2 - (\Delta_{i2} + \beta_y Y_{1} + \mu_{2j})}{\sigma_{2j}} \right)dF(Y_{1}; \Delta_{i1} + x_{i}\beta_1^{(1)} + \mu_{1j\p}, \sigma_{1j\p}^2) \right] \\
+     &  \qquad + (1 - \pi)\left[ \sum_{j, j\p}^K \omega_{2j(0)} \omega_{1j\p(0)} \int \Phi \left( \frac{\bm x_i \bm\gamma_2 - (\Delta_{i2} + \bm x_i \bm\beta_2^{(0)} + \beta_{ySP} Y_{1} + \mu_{2j})}{\sigma_{2j}} \right) \right. \\
+& \qquad \quad \left. dF(Y_{1}; \Delta_{i1} + x_{i}\beta_1^{(0)} + \mu_{1j\p}, \sigma_{1j\p}^2) \right]
+\end{align*}
+
+As noted before, each term in above equation is a closed form in terms of standard normal CDF.
+Given all the identifiable parameters and sensitivity parameters, $\Delta_{i2}$ can be determined and a function of
+\begin{displaymath}
+\Delta_{i2} = h_2(\bm \gamma_1, \bm \gamma_2, \bm \beta_1^{(R_i)}, \bm \beta_2^{(0)}, \pi, \bm \omega_1, \bm \omega_2, \tau,\bm  \mu_1, \bm \mu_2, \bm \sigma_1, \bm \sigma_2, \beta_y, \beta_{ySP}, \bm x_i).
+\end{displaymath}
+
+\end{description}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "mixturenormal"
+%%% End:
