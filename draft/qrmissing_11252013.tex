@@ -200,8 +200,8 @@ distribution, the first term on the right hand side and $\bmath
 responses, the second term on the right hand side.
 
 We assume models within pattern to be multivariate normal
-distributions and specify a sequential model parametrization for each multivariate normal distribution;  we specify the model in this way
-as in (\ref{eq:model}) to have
+distributions and specify a sequential model parametrization for each multivariate normal distribution;  we specify the model in this way such that we have 
+%as in (\ref{eq:model}) to have
 multivariate normal distributions on the full data within patterns and that MAR exists
 \citep{wang2011} (More details are presented in section \ref{sec:sa}).
 These distributions have a constraint such that the marginal
@@ -225,12 +225,12 @@ In particular, we specify the  distributions conditional on $S=k$ as:
   \label{eq:model}
 \end{equation}
 where $\bmath y_{ij^{-}} = (y_{i1}, \ldots, y_{i(j-1)})^T$ is the
-response history for subject $i$ up to time point  $(j-1)$,
+response history for subject $i$ up to time point  $(j-1)$, 
 $\bmath x_{ij}$ is a $p \times 1$ covariate vector,
 $\bmath \beta_{y, j-1}^{(k)} = \big(\beta_{y_1, j-1}^{(k)}, \ldots,
 \beta_{y_{j-1}, j-1}^{(k)} \big)^T$ are autoregressive coefficients,
 $\sigma_j^{(k)}$ is the conditional standard deviation of response
-component $j$,
+component $j$, 
 $\bmath \phi =
 (\phi_1, \ldots, \phi_J)$ is the multinomial probability vector for the
 number of observed responses.   For identifiability of the observed data distribution, we use the
@@ -238,10 +238,10 @@ following restrictions,
 \begin{displaymath}
  \sum_{k=1}^J \beta_{l1}^{(k)} = 0, l = 1,\ldots, p.
 \end{displaymath}
-$\Delta_{ij}$ subject/time specific intercepts determined by the parameters in (\ref{eq:model}); more details are given below.
+$\Delta_{ij}$ subject/time specific intercepts determined by the parameters in (\ref{eq:model}); more details are given below.  
 The parameters $\bmath h_j^{(k)} = (h_{j1}^{(k)}, \ldots,
 h_{jp}^{(k)})$ are sensitivity parameters (not identified by the observed data) which we will discuss in
-section \ref{sec:sa}.
+section \ref{sec:sa}.  
 
 In (\ref{eq:model}), $\Delta_{ij}$ are functions of $\tau, \bmath x_{ij},
 \bmath \beta, \bmath h, \bmath \sigma, \bmath \gamma_j, \bmath \phi$ and are determined by the marginal
@@ -265,18 +265,19 @@ and
 Details on computing the $\Delta_{ij}$ will be given in section
 \ref{sec:computation}.
 
-The idea in the above specification
+The idea in the above specification 
 is to model the marginal quantile regressions directly and then
 to embed them in the likelihood through restrictions in the mixture
 model. The mixture model in (\ref{eq:model}) allows the marginal
 quantile regression coefficients to differ by quantiles. Otherwise,
 the quantile lines would be parallel to each other. Moreover, the
-mixture model also allows sensitivity analysis for the missing data. This is an essential component of the analysis of missing data (as discussed in the introduction) and is not permitted in most previous approaches.
+mixture model also allows sensitivity analysis for the missing data.  This is an essential component of the analysis of missing data (as discussed in the introduction) and is not permitted in most previous approaches.
+
 
 \subsection{Missing Data Mechanism and Sensitivity Analysis}
 \label{sec:sa}
 
-Mixture models specified as in Section 2.1 are not identified
+Mixture models specified as in Section 2.1 are not identified 
 by the observed data. Specific forms of missingness
 induce constraints to identify the distributions for
 incomplete patterns, in particular, the extrapolation distribution in
@@ -316,7 +317,7 @@ For fully Bayesian inference, we can put priors on $(\bmath \xi_s,
   p(\bmath \xi_s, \bmath \xi_m) = p(\bmath \xi_s) p(\bmath \xi_m),
 \end{displaymath}
 where $\bmath \xi_m = \big(\bmath \gamma_j, \bmath \beta_{y,
-  j-1}^{(\geq j)}, \bmath \alpha_j^{(\geq j)}, \bmath \phi \big)$ are the
+  j-1}^{(\geq j)}, \bmath \alpha_j^{(\geq j)}, \bmath \phi \big)$ are  the
 identified parameters.  If we assume MAR with
 no uncertainty, the prior of $\bmath \xi_s$ is $\pr(\bmath \xi_s =
 \bmath 0) \equiv 1$. Sensitivity analysis can be executed by putting
@@ -335,7 +336,7 @@ $\textrm{Var}(\bmath \xi_s) \neq \bmath 0$.
 In general, each pattern $S = k$ has its own set of sensitivity
 parameters $\bmath \xi_s^{(k)}$. However, to keep the number of
 sensitivity parameters at a manageable level \citep{dh2008} and
-without loss of generality in what follows, we assume $\bmath \xi_s$ does not depend
+without loss of generality in what follows we assume $\bmath \xi_s$ does not depend
 on pattern.
 
 \subsection{Computation}
@@ -904,7 +905,7 @@ of the error term did have a small impact on the extreme quantile
 regression inferences.  It is possible to replace it with a
 non-parametric model, for example, a Dirichlet process mixture or
 \polya{} trees. However, computational algorithms would need to be
-developed for those settings.  In addition, since we assume
+developed for those settings.  In addition, since we assume 
 multivariate normal distributions within patterns, which can easily
 quantify departures from MAR via differences in means and
 (co)-variances, we need the specification of the model with a sequential
