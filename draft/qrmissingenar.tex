@@ -1,5 +1,6 @@
-\documentclass[useAMS,usenatbib,referee]{enar}
+\documentclass[useAMS,usenatbib,referee]{biom}
 
+% OWN MACROS
 \newtheorem{thm}{Theorem}[section] \newtheorem{deff}[thm]{Definition}
 \newtheorem{rmk}[thm]{Remark} \newtheorem{prf}[thm]{Proof}
 \newtheorem{cor}[thm]{Corollary} \newtheorem{emp}[thm]{Example}
@@ -11,13 +12,40 @@
 \newcommand{\ymis}{\bmath y_{\itl{mis}}}
 
 \usepackage[figuresright]{rotating}
-
 \usepackage{amsmath}
 
-\title[ ]{Quantile Regression in the Presence of Monotone Missingness with Sensitivity Analysis}
-\author{Minzhao Liu, Mike Daniels, and Michael Perri}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setcounter{footnote}{2}
+
+\title[Quantile Regression with Missingness]{Quantile Regression in the Presence of Monotone Missingness with Sensitivity Analysis}
+
+\author{Minzhao Liu$^{1,*}$\email{liuminzhao@ufl.edu},
+  Michael J. Daniels$^{2,**}$\email{mjdaniels@austin.utexas.edu}, and
+Michael G. Perri$^{3,***}$\email{mperri@phhp.ufl.edu} \\
+  $^1$Department of Statistics, University of Florida, FL 32601, USA.\\
+  $^2$Section of Integrative Biology, Division of Statistics and Scientific
+  Computation\\
+The University of Texas at Austin, 141MC Patterson Hall
+  Austin, TX 78712, USA.\\
+$^3$College of Public Health and Health Professions,
+ University of Florida\\
+ 1225 Center Drive,
+ HPNP Suite 4101,
+ Gainesville, FL 32611, USA.
+}
+
 
 \begin{document}
+
+\date{}
+
+\pagerange{\pageref{firstpage}--\pageref{lastpage}}
+\volume{59}
+\pubyear{2006}
+\artmonth{December}
+
+\doi{10.1111/j.1541-0420.2005.00454.x}
 
 \label{firstpage}
 
@@ -26,12 +54,11 @@
   regression when there is monotone missingness. In particular, we
   propose pattern mixture models with a constraint that provides an
   interpretation form for the marginal quantile regression
-  parameters. Our approach allows sensitivity analysis and informative
-  priors which are an essential component in inference for incomplete
+  parameters. Our approach allows elicitation and sensitivity analysis
+ which are an essential component in inference for incomplete
   data. To facilitate computation of the likelihood, we propose a
-  novel way to obtain analytic forms for required integrals. Both
-  frequentist and Bayesian inferences are illustrated. The model is
-  applied to data from a clinical trial on weight management.
+  novel way to obtain analytic forms for required integrals.
+  The model is applied to data from a clinical trial on weight management.
 \end{abstract}
 
 \begin{keywords}
@@ -93,14 +120,14 @@ when there are some covariates missing at random (MAR). They impute
 the missing covariates by specifying its conditional density given
 observed covariates and outcomes, which come from the estimated
 conditional quantile regression and specification of conditional
-density of missing covariates given observed ones.  However, they put
-more focus on the missing covariates rather than missing outcomes.
+density of missing covariates given observed ones.
+However, they focus more on the missing covariates than missing outcomes.
 \citet{bottai2013} illustrated an imputation method using estimated
 conditional quantiles of missing outcomes given observed data. Their
 approach does not make distributional assumptions.  They assumed the
-missing data mechanism (MDM) is ignorable. However, because their
+missing data mechanism (MDM) is MAR. However, because their
 imputation method is not derived from a joint distribution, the joint
-distribution with such conditionals may not exist.  In addition, their
+distribution under such conditionals may not exist.  In addition, their
 approach does not allow for missing not at random (MNAR).
 
 \citet{yuan2010} introduced a fully parametric Bayesian quantile
@@ -114,7 +141,7 @@ regression coefficients are conditional on the random effects, which
 is not of interest if we are interested in interpreting regression
 coefficients unconditionally.  In addition, they are
 conditional on random effects, which tie together the responses and
-missingness process, so they have slightly different interpretation
+missingness process, so they have a slightly different interpretation
 than regular random effects in longitudinal methods. Moreover, due to
 their full parametric specification for the full data, their model
 does not allow for sensitivity analysis, which is a key component in
@@ -206,7 +233,7 @@ as in (\ref{eq:model}) to have
 multivariate normal distributions on the full data within patterns and that MAR exists
 \citep{wang2011} (More details are presented in section \ref{sec:sa}).
 These distributions include a constraint such that the marginal
-quantile regression models from equation \eqref{eq:marg} hold.
+quantile regression models from equation \ref{eq:marg} hold.
 In particular, we specify the  distributions conditional on $S=k$ as:
 \begin{equation}
   \begin{array}{l}
@@ -239,7 +266,7 @@ following restrictions (without loss of generality),
 \begin{displaymath}
  \sum_{k=1}^J \beta_{l1}^{(k)} = 0, l = 1,\ldots, p.
 \end{displaymath}
-In (\ref{eq:model}), the conditional distributions $\pr_k(y_{ij}|\bmath y_{ij^{-}})$ (and all there respective parameters) are identified for $k \geq j$, but not for $k < j$
+In (\ref{eq:model}), the conditional distributions $\pr_k(y_{ij}|\bmath y_{ij^{-}})$ (and all there respective parameters) are identified for $k \geq j$, but not for $k < j$.
 $\Delta_{ij}$ are subject/time specific intercepts determined by the parameters in (\ref{eq:model}) and (\ref{eq:marg}); more details are given below.
 The parameters $\bmath h_j^{(k)} = (h_{j1}^{(k)}, \ldots,
 h_{jp}^{(k)})$ are sensitivity parameters (not identified by the observed data) which we will discuss in
@@ -271,7 +298,7 @@ The idea in the above specification
 is to model the marginal quantile regressions directly and then
 to embed them in the likelihood through restrictions in the mixture
 model. The mixture model in (\ref{eq:model}) allows the marginal
-quantile regression coefficients to differ by quantiles. Otherwise,
+quantile regression coefficients to differ by quantiles; otherwise,
 the quantile lines would be parallel to each other. Moreover, the
 mixture model also allows sensitivity analysis for the missing data. This is an essential component of the analysis of missing data (as discussed in the introduction) and is not permitted in most previous approaches.
 
@@ -312,28 +339,6 @@ $\bmath \xi_s$ is fixed at $\bmath \xi_s \neq \bmath \xi_{s0}$, the
 missingness mechanism is MNAR. We can vary $\bmath \xi_s$ around
 $\bmath 0$ to examine the impact of different MNAR mechanisms.
 
-For fully Bayesian inference, we can put priors on $(\bmath \xi_s,
-\bmath \xi_m)$ as :
-\begin{displaymath}
-  p(\bmath \xi_s, \bmath \xi_m) = p(\bmath \xi_s) p(\bmath \xi_m),
-\end{displaymath}
-where $\bmath \xi_m = \big(\bmath \gamma_j, \bmath \beta_{y,
-  j-1}^{(\geq j)}, \bmath \alpha_j^{(\geq j)}, \bmath \phi \big)$ are the
-identified parameters.  If we assume MAR with
-no uncertainty, the prior of $\bmath \xi_s$ is $\pr(\bmath \xi_s =
-\bmath 0) \equiv 1$. Sensitivity analysis can be executed by putting
-point mass priors on $\bmath \xi_s$ to examine the effect of priors on
-the posterior inference about quantile regression coefficients $\bmath
-\gamma_{j}^{\tau}$. For example, if MAR is assumed with uncertainty,
-priors can be assigned as $\textrm{E}(\bmath \xi_s) = \bmath \xi_{s0}
-= \bmath 0$ with $\textrm{Var}(\bmath \xi_s) \neq \bmath 0$. If we
-assume MNAR with no uncertainty, we can put priors satisfying
-$\textrm{E}(\bmath \xi_s) = \Delta_{\xi}$, where $\Delta_{\xi} \neq
-\bmath 0$ and $\textrm{Var}(\bmath \xi_s) = \bmath 0$. If MNAR is
-assumed with uncertainty, then priors could be $\textrm{E}(\bmath
-\xi_s) = \Delta_{\xi}$, where $\Delta_{\xi} \neq \bmath 0 $ and
-$\textrm{Var}(\bmath \xi_s) \neq \bmath 0$.
-
 In general, each pattern $S = k$ has its own set of sensitivity
 parameters $\bmath \xi_s^{(k)}$. However, to keep the number of
 sensitivity parameters at a manageable level \citep{dh2008} and
@@ -346,9 +351,7 @@ on pattern.
 In section \ref{sec:deltacal}, we provide details on calculating
 $\Delta_{ij}$ in (\ref{eq:model}) for $j = 1, \ldots, J$. Then we show
 how to obtain maximum likelihood estimates in section
-\ref{sec:mle}. Finally, we present a Monte Carlo Markov Chain (MCMC)
-sampling algorithm for Bayesian inference in section
-\ref{sec:bayesian}.
+\ref{sec:mle}.
 
 \subsubsection{Calculation of $\Delta$ }
 \label{sec:deltacal}
@@ -423,7 +426,7 @@ The observed data likelihood for an individual $i$ with follow-up time
 $S_i = k$ is
 \begin{align} \label{eq:ll} L_i(\bmath \xi| \bmath y_i, S_{i} = k) & =
   \phi_k\pr_k (y_{ik} | y_{i1}, \ldots, y_{i(k-1)})
-  \pr_k (y_{i(k-1)}|y_{i1}, \ldots, y_{i(k-2)}) \cdots \pr_{k} (y_{i1}), \\
+  \pr_k (y_{i(k-1)}|y_{i1}, \ldots, y_{i(k-2)}) \cdots \pr_{k} (y_{i1}) \\
   & = \phi_k \pr_{\geq k} (y_{ik} | y_{i1}, \ldots, y_{i(k-1)}) \pr_{\geq k-1}
   (y_{i(k-1)}|y_{i1}, \ldots, y_{i(k-2)}) \cdots \pr_{k} (y_{i1}), \nonumber
 \end{align}
@@ -458,7 +461,7 @@ intervals.
 \subsubsection{Goodness of Fit Check}
 \label{sec:goodness}
 A simple goodness-of-fit check can be done by examining normal QQ
-plots of the fitted residuals from the model. The visual test can help
+plots of the fitted residuals from the model. This visual test can help
 to diagnose if the parametric assumptions are suitable for model.
 
 After obtaining the MLE, we use the approach described in section
@@ -476,50 +479,6 @@ fitted estimates and $\hat{\Delta}_{ij}$ to obtain,
   \end{cases}.
 \end{displaymath}
 
-\subsubsection{Bayesian Framework}
-\label{sec:bayesian}
-
-For Bayesian inference, we specify priors on the parameters $\bmath
-\xi$ and use a block Gibbs sampling method to draw samples from the
-posterior distribution. Denote all the parameters to sample as :
-\begin{align*}
-  \bmath \xi_m &= \left\{ \bmath \gamma_j,
-    \bmath \beta_{y,j-1}^{(\geq j)}, \bmath \alpha_j^{(\geq j)} \right\}
-  \mbox{ for } j = 1, \ldots, J ,\\
-  \bmath \xi_s &= \left\{ \bmath h_j^{(k)}, \bmath \eta_{j-1}^{(k)},  \delta_j^{(k)}
-  \right\}
-  \mbox{ for } k = 1, \ldots, j-1; 2 \leq j \leq J.
-\end{align*}
-Comma separated parameters are marked to sample as a block.  Updates
-of $\bmath \xi_m$ require a Metropolis-Hasting algorithm, while
-$\bmath \xi_s$ samples are drawn directly from priors as desired for
-missingness mechanism assumptions.
-
-As mentioned in section \ref{sec:sa}, MAR or MNAR assumptions are
-implemented via specific priors. For example, if MAR is assumed with
-no uncertainty, then $ \bmath \xi _s= \bmath 0$ with probability
-1. Details for updating parameters are:
-
-\begin{itemize}
-\item $\bmath \gamma_{1} $: Use Metropolis-Hasting algorithm.
-  \begin{enumerate}
-  \item Draw ($\bmath \gamma_{1}^c$) candidates from candidate
-    distribution;
-  \item Based on the new candidate parameter $\bmath \gamma^c$, calculate
-    candidate $\Delta_{ij}^c$ for each subject $i$ as we described in
-    section \ref{sec:deltacal}.
-  \item Plug in $\Delta_{ij}^c$ in likelihood (\ref{eq:ll}) to get
-    candidate likelihood;
-  \item Compute Metropolis-Hasting ratio, and accept the candidate
-    value or keep the previous value.
-  \end{enumerate}
-\item For the rest of the identifiable parameters, algorithms for
-  updating the samples are all similar to $\bmath \gamma_j$.
-\item For sensitivity parameters, because we do not get any
-  information from the data, we sample them from priors, which are
-  specified based on assumptions about the missingness.
-\end{itemize}
-
 \section{Simulation Study}
 \label{sec:simulation}
 In this section, we compare the performance of our proposed model in
@@ -532,7 +491,8 @@ function $\rho_{\tau} (u) = u(\tau - I(u < 0))$ and does not make any
 distributional assumptions. \citet{bottai2013} impute missing
 outcomes using the estimated conditional quantiles of missing outcomes
 given observed data. Their approach does not make distributional
-assumptions similar to \textit{rq} and assumes MAR missing data.
+assumptions similar to \textit{rq} and assumes MAR missing data,
+but does not allow MNAR missingness.
 
 We considered three scenarios corresponding to both MAR and MNAR
 assumptions for a bivariate response.  In the first scenario, $Y_2$
@@ -636,8 +596,10 @@ heavier tail error than normal, and this also demonstrates why our
 approach has some disadvantages for regression on extreme quantiles
 when errors are not normal.
 
-  \begin{sidewaystable}[ht]
-    \renewcommand{\arraystretch}{1.3} \scriptsize \centering
+  \begin{sidewaystable}
+    % \renewcommand{\arraystretch}{1.3}
+ \scriptsize
+\centering
     \caption{Scenario 1: MSE(MCSE) for coefficients estimates of
       quantiles 0.1, 0.3, 0.5, 0.7, 0.9 under MAR
       assumptions. $(\gamma_{01}, \gamma_{11})$ are quantile
@@ -682,8 +644,10 @@ Laplace    &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn
 
 \end{sidewaystable}
 
-  \begin{sidewaystable}[h]
-    \renewcommand{\arraystretch}{1.3} \scriptsize \centering
+  \begin{sidewaystable}
+    % \renewcommand{\arraystretch}{1.3}
+ \scriptsize
+\centering
     \caption{Scenario 2: MSE(MCSE) for coefficients estimates of
       quantiles 0.1, 0.3, 0.5, 0.7, 0.9 under MNAR scenario. In this
       scenario, we adopted MAR assumption for our approach and thus
@@ -730,8 +694,10 @@ Laplace  &  \multicolumn{3}{c}{0.1} &  \multicolumn{3}{c}{0.3} &  \multicolumn{3
 
 \end{sidewaystable}
 
-  \begin{sidewaystable}[h]
-    \renewcommand{\arraystretch}{1.3} \scriptsize \centering
+  \begin{sidewaystable}
+    % \renewcommand{\arraystretch}{1.3}
+\scriptsize
+ \centering
     \caption{Scenario 3: MSE(MCSE) for coefficients estimates of
       quantiles 0.1, 0.3, 0.5, 0.7, 0.9 under MNAR scenario. In this
       scenario, we used the correct sensitivity parameters for our
@@ -809,8 +775,8 @@ are not significant. Difference in quantiles are reflected by the
 intercept.  Coefficients of baseline weight show a strong relationship
 with weights after 6 months.
 
-\begin{table}[ht]
-  \renewcommand{\arraystretch}{1.3}
+\begin{table}
+  % \renewcommand{\arraystretch}{1.3}
   \begin{center}
     \caption{Estimated marginal quantile regression coefficients with
       95\% bootstrap percentile confidence interval for weight of
@@ -856,10 +822,13 @@ assume that
   E(Y_2 - Y_1| R=0) = 3.6 \mbox{kg},
 \end{displaymath}
 which corresponds to 0.3kg regain per month after finishing the
-initial 6-month program. We incorporate the sensitivity parameters in
+initial 6-month program.
+From (\ref{eq:model}), we have $E(Y_{i2}|Y_{i1}, R = 0) = \Delta_{i2} + \bmath x_{i2}^T \bmath h_2^{(1)} + Y_{i1}\beta_{y,1}^{(1)}$ and
+by sensitivity parameters settings, $\beta_{y, 1}^{(1)} = \beta_{y, 1}^{(\ge 2)} + \eta_1^{(1)}$.
+Thus we can incorporate the sensitivity parameters in
 the distribution of $Y_2|Y_1, R=0$ via the following restriction:
 \begin{displaymath}
-  \Delta_{i2} + \bmath x_{i2}^T \bmath h_2^{(1)} + E(y_{i1}|R=0)(\beta_{y,1}^{(1)} +\eta_1^{(1)} - 1) = 3.6 \mbox{kg}.
+  \Delta_{i2} + \bmath x_{i2}^T \bmath h_2^{(1)} + E(Y_{i1}|R=0)(\beta_{y,1}^{(\ge 2)} +\eta_1^{(1)} - 1) = 3.6 \mbox{kg}.
 \end{displaymath}
 
 Table \ref{tab:tours} presents the estimates and bootstrap percentile
@@ -886,35 +855,43 @@ approach allows non-parallel quantile lines over different quantiles
 via the mixture distribution and allows for sensitivity analysis which
 is essential for the analysis of missing data (NAS 2010).
 
-Our method allows the missingness to be non-ignorable.  We illustrated
-how to put informative priors for Bayesian inference and how to find
-sensitivity parameters to allow different missing data mechanisms. The
+Our method allows the missingness to be non-ignorable.
+We illustrated how to find sensitivity parameters to allow different missing data mechanisms. The
 recursive integration algorithm simplifies computation and can be
 easily implemented even in high dimensions. Simulation studies
 demonstrates that our approach has smaller MSE than the traditional
 frequentist method \textit{rq} function for most cases, especially for
 inferences of partial missing responses. And it has advantages over
-Bottai's appraoch for middle quantiles regression inference even when
+Bottai's approach for middle quantiles regression inference even when
 the distribution is mis-specified.  However, our approach also shows
 some bias for extreme quantiles comparing to \citet{bottai2013} if
-error is mis-specified and missingness is MAR.
+error is mis-specified.
 
 Our model assumes a multivariate normal distribution for each
 component in the pattern mixture model, which might be too restrictive
 in some settings. Simulation results showed that the mis-specification
-of the error term did have a small impact on the extreme quantile
+of the error term did have an impact on the extreme quantile
 regression inferences.  It is possible to replace it with a
 non-parametric model, for example, a Dirichlet process mixture or
 \polya{} trees. However, computational algorithms would need to be
-developed for those settings.  In addition, since we assume
+developed for those settings and we are currently working on this. In addition, since we assume
 multivariate normal distributions within patterns, which can easily
 quantify departures from MAR via differences in means and
 (co)-variances, we need the specification of the model with a sequential
 multivariate normal distribution within each pattern; otherwise MAR
 constraints do not exist \citep{wang2011}.
 
-
 \backmatter
+
+%%%%%% include this section if you wish to acknowledge people,
+%%%%%% grant support, etc.
+
+\section*{Supplementary Materials}
+
+Web Appendix referenced in Section~\ref{sec:real} showing goodness of fit check for Tours data is available with this paper at the Biometrics website on Wiley Online Library.
+The supplemental materials associated to this paper also include R package ``qrmissing'' which can be downloaded from author's website.
+\vspace*{-8pt}
+
 
 \section*{Acknowledgments}
 
@@ -924,6 +901,7 @@ This study is supported by NIH grant CA85295.
 %  include this section!!  See Instructions for Authors at the journal
 %  website http://www.biometrics.tibs.org
 
+
 \bibliographystyle{biom}
 \bibliography{qr-missing-reference}
 
@@ -932,7 +910,9 @@ This study is supported by NIH grant CA85295.
 
 \subsection{Goodness of Fit Check for Tours Data}
 \label{sec:goftours}
-\includegraphics[scale = .4]{../image/ToursGoF}
+
+\centerline{\includegraphics[scale = .4 ]{../image/ToursGoF}}
+
 \label{lastpage}
 
 \end{document}
