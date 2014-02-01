@@ -1,3 +1,6 @@
+% modify sensitivity parameter in unobserved likelihood
+% Time-stamp: <liuminzhao 02/01/2014 15:15:46>
+
 \documentclass[useAMS,usenatbib,referee]{biom}
 
 % OWN MACROS
@@ -236,16 +239,14 @@ In particular, we specify the  distributions conditional on $S=k$ as:
         \textrm{N} \big (\Delta_{ij} + \bmath y_{ij^{-}}^T \bmath
         \beta_{y,j-1}^{(\geq j)},
         \sigma_j^{(\geq j)} \big), & k \geq j ;  \\
-        \textrm{N} \big (\Delta_{ij} + h_{0}^{(k)} +
-        \bmath y_{ij^{-}}^T \bmath \beta_{y,j-1}^{(k)},
+        \textrm{N} \big ( \chi(\bmath x_{ij}, \bmath y_{ij^{-}}),
         \sigma_j^{(k)} \big), & k < j ;  \\
       \end{cases}, \mbox{ for } 2 \leq j \leq J,  \\
       \displaystyle S_{ij} = k \sim \textrm{Multinomial}(1, \bmath \phi),
     \end{array}
   \label{eq:model}
 \end{equation}
-where $\bmath y_{ij^{-}} = (y_{i1}, \ldots, y_{i(j-1)})^T$ is the
-response history for subject $i$ up to time point  $(j-1)$,
+where, $\bmath y_{ij^{-}} = (y_{i1}, \ldots, y_{i(j-1)})^T$ is the response history for subject $i$ up to time point  $(j-1)$,
 $\bmath x_{ij}$ is a $p \times 1$ covariate vector,
 $\bmath \beta_{y, j-1}^{(k)} = \big(\beta_{y_1, j-1}^{(k)}, \ldots,
 \beta_{y_{j-1}, j-1}^{(k)} \big)^T$ are autoregressive coefficients,
@@ -253,18 +254,26 @@ $\sigma_j^{(k)}$ is the conditional standard deviation of response
 component $j$, and
 $\bmath \phi =
 (\phi_1, \ldots, \phi_J)$ is the multinomial probability vector for the
-number of observed responses. For identifiability of the distribution of the observed data, we use the
+number of observed responses.
+In addition, $\chi(\bmath x_{ij}, \bmath y_{ij^{-}})$ is a function of $(\bmath x_{ij}, \bmath y_{ij^{-}})$, which stands for the mean of the unobserved data distribution and allows sensitivity analysis by putting different assumptions on $\chi$.
+Particularly, in this section we specify
+\begin{equation}
+\label{eq:model2}
+\chi(\bmath x_{ij}, \bmath y_{ij^{-}}) = \Delta_{ij} + h_{0}^{(k)} + \bmath y_{ij^{-}}^T \bmath \beta_{y,j-1}^{(k)} ,
+\end{equation}
+where $h_0^{(k)}$ is a sensitivity parameter which indicates the intercept shift. More details about sensitivity parameters are shown in section~\ref{sec:sa}.
+
+For identifiability of the distribution of the observed data, we use the
 following restrictions (without loss of generality),
 \begin{displaymath}
  \sum_{k=1}^J \beta_{l1}^{(k)} = 0, l = 1,\ldots, p.
 \end{displaymath}
-In (\ref{eq:model}), the conditional distributions $\pr_k(y_{ij}|\bmath y_{ij^{-}})$ (and all there respective parameters) are identified for $k \geq j$, but not for $k < j$.
-$\Delta_{ij}$ are subject/time specific intercepts determined by the parameters in (\ref{eq:model}) and (\ref{eq:marg}); more details are given below.
-The parameters $\bmath h_j^{(k)} = (h_{j1}^{(k)}, \ldots,
-h_{jp}^{(k)})$ are sensitivity parameters (not identified by the observed data) which we will discuss in
+In (\ref{eq:model}) and ~(\ref{eq:model2}), the conditional distributions $\pr_k(y_{ij}|\bmath y_{ij^{-}})$ (and all there respective parameters) are identified for $k \geq j$, but not for $k < j$.
+$\Delta_{ij}$ are subject/time specific intercepts determined by the parameters in (\ref{eq:model}), (\ref{eq:model2}) and (\ref{eq:marg}); more details are given below.
+The parameters $h_0^{(k)}$s are sensitivity parameters (not identified by the observed data) which we will discuss in
 section \ref{sec:sa}.
 
-In (\ref{eq:model}), $\Delta_{ij}$ are functions of $\tau, \bmath x_{ij},
+In (\ref{eq:model}) and (\ref{eq:model2}), $\Delta_{ij}$ are functions of $\tau, \bmath x_{ij},
 \bmath \beta, \bmath h, \bmath \sigma, \bmath \gamma_j, \bmath \phi$ and are determined by the marginal
 quantile regressions,
 \begin{equation}
@@ -311,7 +320,7 @@ In the mixture model in (\ref{eq:model}), MAR holds \citep{molen1998,
   \pr_k(y_j|y_1, \ldots, y_{j-1}) = \pr_{\geq j}(y_j|y_1, \ldots, y_{j-1}).
 \end{displaymath}
 When $2 \leq j \leq J$ and $k < j$, $Y_j$ is not observed, thus
-$\bmath h_j^{(k)}$ and $ \sigma_j^{(k)}$, $ \bmath \beta_{y,
+$h_0^{(k)}$ and $ \sigma_j^{(k)}$, $ \bmath \beta_{y,
   j-1}^{(k)} = \big(\beta_{y_1,j}^{(k)}, \ldots,
 \beta_{y_{j-1},j-1}^{(k)} \big)^T $ can not be identified from the
 observed data. Denote
@@ -322,7 +331,7 @@ observed data. Denote
 \end{align*}
 where $\bmath \eta_{j-1}^{(k)} = \big( \eta_{y_1,j-1}^{(k)}, \ldots,
 \eta_{y_{j-1}, j-1}^{(k)} \big)$ for $k < j$. Then $\bmath \xi_s = (
-\bmath h_j^{(k)}, \bmath \eta_{j-1}^{(k)}, \delta_j^{(k)})$ is a set
+h_0^{(k)}, \bmath \eta_{j-1}^{(k)}, \delta_j^{(k)})$ is a set
 of sensitivity parameters \citep{dh2008}, where $k < j, 2 \leq j \leq
 J $.
 
@@ -396,7 +405,7 @@ parameters $\bmath \xi = (\bmath \xi_m, \bmath \xi_s)$.
     \prob (Y_{ij} \leq \bmath x_{ij}^T\bmath \gamma_j | S=1, \bmath x_{ij}, \bmath Y_{ij^{-}})\\
     & \quad  dF(Y_{i(j-1)}|S=1, \bmath x_{ij}, \bmath Y_{i(j-1)^{-}}) \cdots d F (Y_{i1} | S = 1, \bmath x_{ij}), \\
     & = \int\dots\int
-    \Phi \left( \frac{\bmath x_{ij}^T \bmath \gamma_j - \Delta_{ij} - \bmath x_{ij}^T \bmath h_j^{(1)} - \bmath y_{ij^{-}}^T \bmath \beta_{y,j-1}^{(1)}}{\sigma_{j}^{(1)}} \right) \\
+    \Phi \left( \frac{\bmath x_{ij}^T \bmath \gamma_j - \Delta_{ij} - h_0^{(1)} - \bmath y_{ij^{-}}^T \bmath \beta_{y,j-1}^{(1)}}{\sigma_{j}^{(1)}} \right) \\
     & \quad   dF(Y_{i(j-1)}|S=1, \bmath x_{ij}, \bmath Y_{i(j-1)^{-}}) \cdots d F (Y_{i1} | S = 1, \bmath x_{ij}), \\
     & = \int\dots\int \Phi \left( \frac{Y_{i(j-2)} - b^{*}}{a^{*}}
     \right) dF(Y_{i(j-2)}|S=1, \bmath x_{ij}, \bmath Y_{i(j-2)^{-}}) \\
@@ -815,12 +824,9 @@ assume that
 \end{displaymath}
 which corresponds to 0.3kg regain per month after finishing the
 initial 6-month program.
-From (\ref{eq:model}), we have $E(Y_{i2}|Y_{i1}, R = 0) = \Delta_{i2} + \bmath x_{i2}^T \bmath h_2^{(1)} + Y_{i1}\beta_{y,1}^{(1)}$ and
-by sensitivity parameters settings, $\beta_{y, 1}^{(1)} = \beta_{y, 1}^{(\ge 2)} + \eta_1^{(1)}$.
-Thus we can incorporate the sensitivity parameters in
-the distribution of $Y_2|Y_1, R=0$ via the following restriction:
+Therefore, we incorporate the sensitivity parameters in $\chi(\bmath x_{i2}, Y_{i1})$ in the distribution of $Y_2|Y_1, R=0$ in (\ref{eq:model2}):
 \begin{displaymath}
-  \Delta_{i2} + \bmath x_{i2}^T \bmath h_2^{(1)} + E(Y_{i1}|R=0)(\beta_{y,1}^{(\ge 2)} +\eta_1^{(1)} - 1) = 3.6 \mbox{kg}.
+\chi(\bmath x_{ij},  y_{i1}) = 3.6 \mbox{kg} + y_{i1}.
 \end{displaymath}
 
 Table \ref{tab:tours} presents the estimates and bootstrap percentile
