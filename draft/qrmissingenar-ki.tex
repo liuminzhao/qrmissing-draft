@@ -1,5 +1,5 @@
 % modify sensitivity parameter in unobserved likelihood
-% Time-stamp: <liuminzhao 02/01/2014 15:15:46>
+% Time-stamp: <liuminzhao 02/04/2014 17:58:22>
 
 \documentclass[useAMS,usenatbib,referee]{biom}
 
@@ -232,7 +232,7 @@ quantile regression models from equation \ref{eq:marg} hold.
 In particular, we specify the  distributions conditional on $S=k$ as:
 \begin{equation}
   \begin{array}{l}
-      \displaystyle \pr_k(y_{i1}) = N (\Delta_{i1} + \bmath x_{i1}^T \bmath \beta_1^{(k)},
+      \displaystyle \pr_k(y_{i1}) = N (\Delta_{i1} +  \beta_1^{(k)},
       \sigma_1^{(k)}  ), k = 1, \ldots, J,\\
        \displaystyle \pr_k(y_{ij}|\bmath y_{ij^{-}}) =
       \begin{cases}
@@ -240,13 +240,14 @@ In particular, we specify the  distributions conditional on $S=k$ as:
         \beta_{y,j-1}^{(\geq j)},
         \sigma_j^{(\geq j)} \big), & k \geq j ;  \\
         \textrm{N} \big ( \chi(\bmath x_{ij}, \bmath y_{ij^{-}}),
-        \sigma_j^{(k)} \big), & k < j ;  \\
+        \sigma_j^{(\ge j)} \big), & k < j ;  \\
       \end{cases}, \mbox{ for } 2 \leq j \leq J,  \\
       \displaystyle S_{ij} = k \sim \textrm{Multinomial}(1, \bmath \phi),
     \end{array}
   \label{eq:model}
 \end{equation}
-where, $\bmath y_{ij^{-}} = (y_{i1}, \ldots, y_{i(j-1)})^T$ is the response history for subject $i$ up to time point  $(j-1)$,
+where, $\beta_1^{(k)}$ is the intercept shift for distribution of $Y_{i1} | S = k$,
+$\bmath y_{ij^{-}} = (y_{i1}, \ldots, y_{i(j-1)})^T$ is the response history for subject $i$ up to time point  $(j-1)$,
 $\bmath x_{ij}$ is a $p \times 1$ covariate vector,
 $\bmath \beta_{y, j-1}^{(k)} = \big(\beta_{y_1, j-1}^{(k)}, \ldots,
 \beta_{y_{j-1}, j-1}^{(k)} \big)^T$ are autoregressive coefficients,
@@ -255,13 +256,16 @@ component $j$, and
 $\bmath \phi =
 (\phi_1, \ldots, \phi_J)$ is the multinomial probability vector for the
 number of observed responses.
-In addition, $\chi(\bmath x_{ij}, \bmath y_{ij^{-}})$ is a function of $(\bmath x_{ij}, \bmath y_{ij^{-}})$, which stands for the mean of the unobserved data distribution and allows sensitivity analysis by putting different assumptions on $\chi$.
-Particularly, in this section we specify
+$\chi(\bmath x_{ij}, \bmath y_{ij^{-}})$ is a function of $(\bmath x_{ij}, \bmath y_{ij^{-}})$, which is the mean of the unobserved data distribution and allows sensitivity analysis by varying assumptions on $\chi$.
+For example, here we specify
 \begin{equation}
 \label{eq:model2}
-\chi(\bmath x_{ij}, \bmath y_{ij^{-}}) = \Delta_{ij} + h_{0}^{(k)} + \bmath y_{ij^{-}}^T \bmath \beta_{y,j-1}^{(k)} ,
+\chi(\bmath x_{ij}, \bmath y_{ij^{-}}) = \Delta_{ij}  + \bmath y_{ij^{-}}^T \bmath \beta_{y,j-1}^{(\ge j)}+ h_{0}^{(k)} ,
 \end{equation}
-where $h_0^{(k)}$ is a sensitivity parameter which indicates the intercept shift. More details about sensitivity parameters are shown in section~\ref{sec:sa}.
+$h_0^{(k)}$ is a sensitivity parameter which indicates the intercept shift.
+Comparing (\ref{eq:model}) and (\ref{eq:model2}), the unknown distribution of
+$\pr_k(y_{ij}|\bmath y_{ij^{-}})$ when $k < j$ is characterized as an intercept shift from observed distribution.
+More details about sensitivity parameters are given in section~\ref{sec:sa}.
 
 For identifiability of the distribution of the observed data, we use the
 following restrictions (without loss of generality),
@@ -270,8 +274,7 @@ following restrictions (without loss of generality),
 \end{displaymath}
 In (\ref{eq:model}) and ~(\ref{eq:model2}), the conditional distributions $\pr_k(y_{ij}|\bmath y_{ij^{-}})$ (and all there respective parameters) are identified for $k \geq j$, but not for $k < j$.
 $\Delta_{ij}$ are subject/time specific intercepts determined by the parameters in (\ref{eq:model}), (\ref{eq:model2}) and (\ref{eq:marg}); more details are given below.
-The parameters $h_0^{(k)}$s are sensitivity parameters (not identified by the observed data) which we will discuss in
-section \ref{sec:sa}.
+The parameters $h_0^{(k)}$ are sensitivity parameters (not identified by the observed data).
 
 In (\ref{eq:model}) and (\ref{eq:model2}), $\Delta_{ij}$ are functions of $\tau, \bmath x_{ij},
 \bmath \beta, \bmath h, \bmath \sigma, \bmath \gamma_j, \bmath \phi$ and are determined by the marginal
@@ -320,18 +323,9 @@ In the mixture model in (\ref{eq:model}), MAR holds \citep{molen1998,
   \pr_k(y_j|y_1, \ldots, y_{j-1}) = \pr_{\geq j}(y_j|y_1, \ldots, y_{j-1}).
 \end{displaymath}
 When $2 \leq j \leq J$ and $k < j$, $Y_j$ is not observed, thus
-$h_0^{(k)}$ and $ \sigma_j^{(k)}$, $ \bmath \beta_{y,
-  j-1}^{(k)} = \big(\beta_{y_1,j}^{(k)}, \ldots,
-\beta_{y_{j-1},j-1}^{(k)} \big)^T $ can not be identified from the
-observed data. Denote
-\begin{align*}
-  \log \sigma_j^{(k)} &= \log \sigma_j^{(\geq j)} +  \delta_{j}^{(k)}, \\
-  \bmath \beta_{y, j-1}^{(k)} &= \bmath \beta_{y, j-1}^{(\geq j)} +
-  \bmath \eta_{j-1}^{(k)},
-\end{align*}
-where $\bmath \eta_{j-1}^{(k)} = \big( \eta_{y_1,j-1}^{(k)}, \ldots,
-\eta_{y_{j-1}, j-1}^{(k)} \big)$ for $k < j$. Then $\bmath \xi_s = (
-h_0^{(k)}, \bmath \eta_{j-1}^{(k)}, \delta_j^{(k)})$ is a set
+$h_0^{(k)}$ can not be identified from the
+observed data.
+Then $\bmath \xi_s = (h_0^{(k)})$ is a set
 of sensitivity parameters \citep{dh2008}, where $k < j, 2 \leq j \leq
 J $.
 
@@ -824,7 +818,7 @@ assume that
 \end{displaymath}
 which corresponds to 0.3kg regain per month after finishing the
 initial 6-month program.
-Therefore, we incorporate the sensitivity parameters in $\chi(\bmath x_{i2}, Y_{i1})$ in the distribution of $Y_2|Y_1, R=0$ in (\ref{eq:model2}):
+Therefore, we specify the sensitivity parameters for $\chi(\bmath x_{i2}, Y_{i1})$ as
 \begin{displaymath}
 \chi(\bmath x_{ij},  y_{i1}) = 3.6 \mbox{kg} + y_{i1}.
 \end{displaymath}
