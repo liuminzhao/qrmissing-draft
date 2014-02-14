@@ -1,5 +1,5 @@
 % modify sensitivity parameter in unobserved likelihood
-% Time-stamp: <liuminzhao 02/04/2014 18:57:02>
+% Time-stamp: <liuminzhao 02/14/2014 16:08:57>
 
 \documentclass[useAMS,usenatbib,referee]{biom}
 
@@ -31,7 +31,7 @@ Michael G. Perri$^{3,***}$\email{mperri@phhp.ufl.edu} \\
   Computation\\
 The University of Texas at Austin, 141MC Patterson Hall,
   Austin, TX 78712, USA.\\
-$^3$College of Public Health and Health Professions,
+$^3$Department of Clinical and Health Psychology,
  University of Florida, Gainesville, FL 32611, USA.
 }
 
@@ -50,9 +50,9 @@ $^3$College of Public Health and Health Professions,
 
 \begin{abstract}
   In this paper, we develop methods for longitudinal quantile regression when there is monotone missingness.
-  In particular, we propose pattern mixture models with a constraint that provides an interpretation form for the marginal quantile regression parameters.
+  In particular, we propose pattern mixture models with a constraint that provides a straightforward interpretation of the marginal quantile regression parameters.
   Our approach allows sensitivity analysis which is an essential component in inference for incomplete data.
-  To facilitate computation of the likelihood, we propose a novel way to obtain analytic forms for required integrals.
+  To facilitate computation of the likelihood, we propose a novel way to obtain analytic forms for the required integrals.  We conduct simulations to examine the robustness of our approach to modelling assumptions and compare its performance to competing approaches.
   The model is applied to data from a clinical trial on weight management.
 \end{abstract}
 
@@ -87,28 +87,32 @@ The traditional frequentist approach was proposed by
 minimizing a loss function. The popularity of this approach is due to
 its computational efficiency, well-developed asymptotic properties,
 and straightforward extensions to simultaneous quantile regression and
-random effect models. However, asymptotic inference may not be
-accurate for small sample sizes and the approach does not naturally
+random effect models. However, the approach does not naturally
 extend to missing data.
+Extensions of minimizing loss function include the use of regularization.
+\citet{koenker2004} adopted $l_1$ regularization methods to shrink a large number of individual effects to a common value for quantile regression models for longitudinal data.
+\citet{li2008} considered $L_1$-norm (LASSO) regularized quantile regression.
+\citet{wu2009} demonstrated using a smoothly clipped absolute deviation model for variable selection in penalized quantile regression.
+In terms of Bayesian inference, both parametric and semiparametric Bayesian appraoches have been proposed in the literature \citep{yu2001,walker1999,hanson2002,reich2010}.
 
-Bayesian approaches offer exact inference in small samples. Motivated
-by the loss (check) function, \citet{yu2001} proposed an asymmetric
-Laplace distribution for the error term, such that maximizing the
-posterior distribution is equivalent to minimizing the check function.
-Also semiparametric methods have been proposed for median
-regression. \citet{walker1999} used a diffuse finite \polya{} Tree
-prior for the error term. \citet{kottas2001} modeled the error by two
-families of median zero distribution using a mixture Dirichlet process
-priors, which is very useful for unimodal error
-distributions. \citet{hanson2002} adopted mixture of \polya{} Tree
-prior in median regression, which is more robust in terms of
-multimodality and skewness. Other recent approaches include quantile
-pyramid priors, mixture of Dirichlet process priors of multivariate
-normal distributions and infinite mixture of Gaussian densities which
-place quantile constraints on the residuals \citep{hjort2007,
-  hjort2009, kottas2009,reich2010}.
+% Bayesian approaches offer exact inference in small samples. Motivated
+% by the loss (check) function, \citet{yu2001} proposed an asymmetric
+% Laplace distribution for the error term, such that maximizing the
+% posterior distribution is equivalent to minimizing the check function.
+% Also semiparametric methods have been proposed for median
+% regression. \citet{walker1999} used a diffuse finite \polya{} Tree
+% prior for the error term. \citet{kottas2001} modeled the error by two
+% families of median zero distribution using a mixture Dirichlet process
+% priors, which is very useful for unimodal error
+% distributions. \citet{hanson2002} adopted mixture of \polya{} Tree
+% prior in median regression, which is more robust in terms of
+% multimodality and skewness. Other recent approaches include quantile
+% pyramid priors, mixture of Dirichlet process priors of multivariate
+% normal distributions and infinite mixture of Gaussian densities which
+% place quantile constraints on the residuals \citep{hjort2007,
+%   hjort2009, kottas2009,reich2010}.
 
-The above methods focus on complete data.  There are only a few
+All the above methods focus on complete data.  There are only a few
 articles about quantile regression with missingness.  \citet{wei2012}
 proposed a multiple imputation method for quantile regression model
 when there are some covariates missing at random (MAR). They impute
@@ -140,7 +144,7 @@ missingness process, so they have a slightly different interpretation
 than regular random effects in longitudinal methods. Moreover, due to
 their full parametric specification for the full data, their model
 does not allow for sensitivity analysis, which is a key component in
-inference for incomplete data (NAS 2010).
+inference for incomplete data \citep{nas2010}.
 
 Pattern mixture models were originally proposed to model missing data
 in \citet{rubin1977}. Later mixture models were extended to handle
@@ -226,9 +230,9 @@ We assume models within pattern to be multivariate normal
 distributions and specify a sequential model parametrization for each multivariate normal distribution;  we specify the model in this way
 as in (\ref{eq:model}) to have
 multivariate normal distributions on the full data within patterns and that MAR exists
-\citep{wang2011} (More details are presented in section \ref{sec:sa}).
+\citep{wang2011}; more details are presented in section \ref{sec:sa}.
 These distributions include a constraint such that the marginal
-quantile regression models from equation \ref{eq:marg} hold.
+quantile regression models in (\ref{eq:marg}) hold.
 In particular, we specify the  distributions conditional on $S=k$ as:
 \begin{equation}
   \begin{array}{l}
@@ -239,16 +243,16 @@ In particular, we specify the  distributions conditional on $S=k$ as:
         \textrm{N} \big (\Delta_{ij} + \bmath y_{ij^{-}}^T \bmath
         \beta_{y,j-1}^{(\geq j)},
         \sigma_j^{(\geq j)} \big), & k \geq j ;  \\
-        \textrm{N} \big ( \chi(\bmath x_{ij}, \bmath y_{ij^{-}}),
+        \textrm{N} \big ( \chi(\bmath x_{i}, \bmath y_{ij^{-}}),
         \sigma_j^{(\ge j)} \big), & k < j ;  \\
       \end{cases}, \mbox{ for } 2 \leq j \leq J,  \\
       \displaystyle S_{ij} = k \sim \textrm{Multinomial}(1, \bmath \phi),
     \end{array}
   \label{eq:model}
 \end{equation}
-where, $\beta_1^{(k)}$ is the intercept shift for distribution of $Y_{i1} | S = k$,
+where $\beta_1^{(k)}$ is the intercept shift for distribution of $Y_{i1} | S = k$,
 $\bmath y_{ij^{-}} = (y_{i1}, \ldots, y_{i(j-1)})^T$ is the response history for subject $i$ up to time point  $(j-1)$,
-$\bmath x_{ij}$ is a $p \times 1$ covariate vector,
+$\bmath x_{i}$ is a $p \times 1$ covariate vector,
 $\bmath \beta_{y, j-1}^{(k)} = \big(\beta_{y_1, j-1}^{(k)}, \ldots,
 \beta_{y_{j-1}, j-1}^{(k)} \big)^T$ are autoregressive coefficients,
 $\sigma_j^{(k)}$ is the conditional standard deviation of response
@@ -256,41 +260,42 @@ component $j$, and
 $\bmath \phi =
 (\phi_1, \ldots, \phi_J)$ is the multinomial probability vector for the
 number of observed responses.
-$\chi(\bmath x_{ij}, \bmath y_{ij^{-}})$ is a function of $(\bmath x_{ij}, \bmath y_{ij^{-}})$, which is the mean of the unobserved data distribution and allows sensitivity analysis by varying assumptions on $\chi$.
+$\Delta_{ij}$ are subject/time specific intercepts determined by the parameters in (\ref{eq:model}), (\ref{eq:model2}) and (\ref{eq:marg}); more details are given in what follows.
+$\chi(\bmath x_{i}, \bmath y_{ij^{-}})$
+is the mean of the unobserved data distribution and allows sensitivity analysis by varying assumptions on $\chi$.
 For example, here we specify
 \begin{equation}
 \label{eq:model2}
-\chi(\bmath x_{ij}, \bmath y_{ij^{-}}) = \Delta_{ij}  + \bmath y_{ij^{-}}^T \bmath \beta_{y,j-1}^{(\ge j)}+ h_{0}^{(k)} ,
+\chi(\bmath x_{i}, \bmath y_{ij^{-}}) = \Delta_{ij}  + \bmath y_{ij^{-}}^T \bmath \beta_{y,j-1}^{(\ge j)}+ h_{0}^{(k)} ,
 \end{equation}
-$h_0^{(k)}$ is a sensitivity parameter which indicates the intercept shift.
-Comparing (\ref{eq:model}) and (\ref{eq:model2}), the unknown distribution of
-$\pr_k(y_{ij}|\bmath y_{ij^{-}})$ when $k < j$ is characterized by an intercept shift from observed distribution.
+$h_0^{(k)}$ is a sensitivity parameter and $\Delta_{ij}$ depends on $x_i$.
+Comparing (\ref{eq:model}) and (\ref{eq:model2}), the mean of the unidentified distribution,
+$\pr_k(y_{ij}|\bmath y_{ij^{-}})$ for $k < j$
+is characterized by an intercept shift from identified observed data distribution,
+$\pr_k(y_{ij}|\bmath y_{ij^{-}})$ for $k \geq j$.
 More details about sensitivity parameters are given in section~\ref{sec:sa}.
 
 For identifiability of the distribution of the observed data, we use the
 following restrictions (without loss of generality),
 \begin{displaymath}
- \sum_{k=1}^J \beta_{l1}^{(k)} = 0, l = 1,\ldots, p.
+ \sum_{k=1}^J \beta_{1}^{(k)} = 0.
 \end{displaymath}
-In (\ref{eq:model}) and ~(\ref{eq:model2}), the conditional distributions $\pr_k(y_{ij}|\bmath y_{ij^{-}})$ (and all there respective parameters) are identified for $k \geq j$, but not for $k < j$.
-$\Delta_{ij}$ are subject/time specific intercepts determined by the parameters in (\ref{eq:model}), (\ref{eq:model2}) and (\ref{eq:marg}); more details are given below.
-The parameters $h_0^{(k)}$ are sensitivity parameters (not identified by the observed data).
 
-In (\ref{eq:model}) and (\ref{eq:model2}), $\Delta_{ij}$ are functions of $\tau, \bmath x_{ij},
+In (\ref{eq:model}) and (\ref{eq:model2}), $\Delta_{ij}$ are functions of $\tau, \bmath x_{i},
 \bmath \beta, \bmath h, \bmath \sigma, \bmath \gamma_j, \bmath \phi$ and are determined by the marginal
 quantile regressions,
 \begin{equation}
   \label{eq:deltaeqn1}
-  \tau = \prob (Y_{ij} \leq \bmath x_{ij}^T \bmath \gamma_j ) = \sum_{k=1}^J
-  \phi_k\prob_k (Y_{ij} \leq \bmath x_{ij}^T \bmath \gamma_j ) \mbox{  for  } j = 1,
+  \tau = \prob (Y_{ij} \leq \bmath x_{i}^T \bmath \gamma_j ) = \sum_{k=1}^J
+  \phi_k\prob_k (Y_{ij} \leq \bmath x_{i}^T \bmath \gamma_j ) \mbox{  for  } j = 1,
 \end{equation}
 and
 \begin{align}\label{eq:deltaeqn2}
-  \tau &= \prob (Y_{ij} \leq \bmath x_{ij}^{T} \bmath \gamma_j ) =
+  \tau &= \prob (Y_{ij} \leq \bmath x_{i}^{T} \bmath \gamma_j ) =
   \sum_{k=1}^J
-  \phi_k\prob_k (Y_{ij} \leq \bmath x_{ij}^{T} \bmath \gamma_j ) \\
+  \phi_k\prob_k (Y_{ij} \leq \bmath x_{i}^{T} \bmath \gamma_j ) \\
   & = \sum_{k=1}^J \phi_k \int\cdots \int \prob_k (Y_{ij} \leq \bmath
-  x_{ij}^{T} \bmath \gamma_j | \bmath y_{ij^{-}}
+  x_{i}^{T} \bmath \gamma_j | \bmath y_{ij^{-}}
   ) \pr_k (y_{i(j-1)}| \bmath y_{i(j-1)^{-}})  \nonumber \\
   & \quad \cdots \pr_k (y_{i2}| y_{i1}) \pr_k(y_{i1})
   dy_{i(j-1)}\cdots dy_{i1}.  \mbox{  for  } j = 2, \ldots, J .\nonumber
@@ -309,8 +314,8 @@ mixture model also allows sensitivity analysis for the missing data. This is an 
 \subsection{Missing Data Mechanism and Sensitivity Analysis}
 \label{sec:sa}
 
-Mixture models specified as in Section 2.1 are not identified
-by the observed data. Specific forms of missingness
+Mixture models as specified in Section 2.1 are not identified
+by the observed data (as stated in the previous subsection). Specific forms of missingness
 induce constraints to identify the distributions for
 incomplete patterns, in particular, the extrapolation distribution in
 (\ref{eq:decompose}). In this section, we explore ways to embed the
@@ -323,11 +328,10 @@ In the mixture model in (\ref{eq:model}), MAR holds \citep{molen1998,
   \pr_k(y_j|y_1, \ldots, y_{j-1}) = \pr_{\geq j}(y_j|y_1, \ldots, y_{j-1}).
 \end{displaymath}
 When $2 \leq j \leq J$ and $k < j$, $Y_j$ is not observed, thus
-$h_0^{(k)}$ can not be identified from the
+$(h_0^{(1)},\ldots,h_0^{(J-1)})$ can not be identified from the
 observed data.
 Then $\bmath \xi_s = (h_0^{(k)})$ is a set
-of sensitivity parameters \citep{dh2008}, where $k < j, 2 \leq j \leq
-J $.
+of sensitivity parameters \citep{dh2008} as mentioned earlier.
 
 When $\bmath \xi_s = \bmath \xi_{s0} = \bmath 0$, MAR holds. If
 $\bmath \xi_s$ is fixed at $\bmath \xi_s \neq \bmath \xi_{s0}$, the
@@ -351,7 +355,7 @@ how to obtain maximum likelihood estimates in section
 \subsubsection{Calculation of $\Delta$ }
 \label{sec:deltacal}
 From equation (\ref{eq:deltaeqn1}) and (\ref{eq:deltaeqn2}),
-$\Delta_{ij}$ depends on subject-specific covariates $\bmath x_{ij}$,
+$\Delta_{ij}$ depends on subject-specific covariates $\bmath x_{i}$,
 thus $\Delta_{ij}$ needs to be calculated for each subject. We now
 illustrate how to calculate $\Delta_{ij}$ given all the other
 parameters $\bmath \xi = (\bmath \xi_m, \bmath \xi_s)$.
@@ -359,9 +363,8 @@ parameters $\bmath \xi = (\bmath \xi_m, \bmath \xi_s)$.
 \begin{itemize}
 \item \textbf{$\Delta_{i1}: $} Expand equation (\ref{eq:deltaeqn1}):
   \begin{align*}
-    \tau = \sum_{k = 1}^J \phi_k \Phi \left( \frac{\bmath x_{i1}^T
-        \bmath \gamma_1 - \Delta_{i1} - \bmath x_{i1}^T\bmath
-        \beta_1^{(k)}}{ \sigma_1^{(k)} } \right),
+    \tau = \sum_{k = 1}^J \phi_k \Phi \left( \frac{\bmath x_{i}^T
+        \bmath \gamma_1 - \Delta_{i1} - \beta_1^{(k)}}{ \sigma_1^{(k)} } \right),
   \end{align*}
   where $\Phi$ is the standard normal CDF. Because the above equation
   is continuous and monotone in $\Delta_{i1}$, it can be solved by a
@@ -394,16 +397,16 @@ parameters $\bmath \xi = (\bmath \xi_m, \bmath \xi_s)$.
   multiple integral in equation (\ref{eq:deltaeqn2}), apply lemma
   \ref{sec:lemma} once to obtain:
   \begin{align*}
-    \prob_1 (Y_{ij} \leq \bmath x_{ij}^T \bmath \gamma_j) & =
+    \prob_1 (Y_{ij} \leq \bmath x_{i}^T \bmath \gamma_j) & =
     \int\dots\int
-    \prob (Y_{ij} \leq \bmath x_{ij}^T\bmath \gamma_j | S=1, \bmath x_{ij}, \bmath Y_{ij^{-}})\\
-    & \quad  dF(Y_{i(j-1)}|S=1, \bmath x_{ij}, \bmath Y_{i(j-1)^{-}}) \cdots d F (Y_{i1} | S = 1, \bmath x_{ij}), \\
+    \prob (Y_{ij} \leq \bmath x_{i}^T\bmath \gamma_j | S=1, \bmath x_{i}, \bmath Y_{ij^{-}})\\
+    & \quad  dF(Y_{i(j-1)}|S=1, \bmath x_{i}, \bmath Y_{i(j-1)^{-}}) \cdots d F (Y_{i1} | S = 1, \bmath x_{i}), \\
     & = \int\dots\int
-    \Phi \left( \frac{\bmath x_{ij}^T \bmath \gamma_j - \Delta_{ij} - h_0^{(1)} - \bmath y_{ij^{-}}^T \bmath \beta_{y,j-1}^{(1)}}{\sigma_{j}^{(1)}} \right) \\
-    & \quad   dF(Y_{i(j-1)}|S=1, \bmath x_{ij}, \bmath Y_{i(j-1)^{-}}) \cdots d F (Y_{i1} | S = 1, \bmath x_{ij}), \\
+    \Phi \left( \frac{\bmath x_{i}^T \bmath \gamma_j - \Delta_{ij} - h_0^{(1)} - \bmath y_{ij^{-}}^T \bmath \beta_{y,j-1}^{(1)}}{\sigma_{j}^{(1)}} \right) \\
+    & \quad   dF(Y_{i(j-1)}|S=1, \bmath x_{i}, \bmath Y_{i(j-1)^{-}}) \cdots d F (Y_{i1} | S = 1, \bmath x_{i}), \\
     & = \int\dots\int \Phi \left( \frac{Y_{i(j-2)} - b^{*}}{a^{*}}
-    \right) dF(Y_{i(j-2)}|S=1, \bmath x_{ij}, \bmath Y_{i(j-2)^{-}}) \\
-    & \quad \cdots d F (Y_{i1} | S = 1, \bmath x_{ij}).
+    \right) dF(Y_{i(j-2)}|S=1, \bmath x_{i}, \bmath Y_{i(j-2)^{-}}) \\
+    & \quad \cdots d F (Y_{i1} | S = 1, \bmath x_{i}).
   \end{align*}
 
   Then, by recursively applying lemma \ref{sec:lemma} $(j-1)$ times,
@@ -448,7 +451,7 @@ derivatives and log-likelihood to quicken computations. We have
 incorporated those functions implementing the algorithm into the new R
 \citep{R} package ``qrmissing''.
 
-We use the bootstrap \citep{efron1979,efron1993,divison1997} to
+We use the bootstrap \citep{efron1993} to
 construct confidence interval and make inferences.  We resample
 subjects and use bootstrap percentile intervals to form confidence
 intervals.
@@ -466,8 +469,7 @@ fitted estimates and $\hat{\Delta}_{ij}$ to obtain,
 \begin{displaymath}
   \hat{\epsilon}_{ij} =
   \begin{cases}
-    (y_{ij} - \hat{\Delta}_{ij} - \bmath{x_{ij}^T
-    \hat{\beta}_1^{(k)}})/\hat{\sigma}_1^{(k)},& j = 1 \\
+    (y_{ij} - \hat{\Delta}_{ij} - \hat{\beta}_1^{(k)})/\hat{\sigma}_1^{(k)},& j = 1 \\
     (y_{ij} - \hat{\Delta}_{ij} - \bmath{y_{ij^{-}}^T
     \hat{\beta}_{y,j-1}^{(\geq j)}})/\hat{\sigma}_j^{(\geq j)},& j >
     1
@@ -477,9 +479,9 @@ fitted estimates and $\hat{\Delta}_{ij}$ to obtain,
 \section{Simulation Study}
 \label{sec:simulation}
 In this section, we compare the performance of our proposed model in
-section \ref{sec:settings} with the \textit{rq} function (noted as RQ) in
+section \ref{sec:settings} with the \textit{rq} function (denoted as RQ) in
 \textit{quantreg} R package \citep{quantreg} and Bottai's algorithm
-\citep{bottai2013} (noted as BZ). The \textit{rq} function
+\citep{bottai2013} (denoted as BZ). The \textit{rq} function
 minimizes the loss (check) function $\sum_{i=1}^n \rho_{\tau} (y_i -
 \bmath x_i^T \bmath \beta)$ in terms of $\bmath \beta$, where the loss
 function $\rho_{\tau} (u) = u(\tau - I(u < 0))$ and does not make any
@@ -506,7 +508,7 @@ full data response $\bmath Y_i$ were:
 \begin{align*}
   Y_{i1} | R = 1 & \sim 2 + x_i +  \epsilon_{i1} , \\
   Y_{i1}| R = 0 & \sim  -2 - x_i +  \epsilon_{i1} , \\
-  Y_{i2}| R = 1, Y_{i1}&\sim 1 - x_i - 1/2Y_{i1} + \epsilon_{i2},
+  Y_{i2}| R = 1, Y_{i1}&\sim 1 - x_i - 0.5Y_{i1} + \epsilon_{i2},
 \end{align*}
 where $\epsilon_{i1}, \epsilon_{i2} \iid \textrm{N}(0, 1)$, $t_3$ or
 $\mbox{LP}(\mbox{rate} = 1)$ distribution within each scenario.
@@ -549,9 +551,9 @@ for $Y_{i1}$, $(\gamma_{02}, \gamma_{12})$ for $Y_{i2}$).
 Monte Carlo standard error (MCSE) is used to evaluate the significance
 of difference between methods. It is calculated by
 \begin{displaymath}
-  \mbox{MCSE} = \hat{\mbox{sd}}(\mbox{Bias}^2)/\sqrt{N},
+  \mbox{MCSE} = \widehat{\mbox{sd}}(\mbox{Bias}^2)/\sqrt{N},
 \end{displaymath}
-where $\hat{\mbox{sd}}$ is the sample standard deviation and
+where $\widehat{\mbox{sd}}$ is the sample standard deviation and
 $\mbox{Bias} = \hat{\gamma}_{ij} - \gamma_{ij}$ and $N$ is the number
 of simulations.
 
@@ -560,7 +562,7 @@ MSE for coefficients estimates of quantile 0.1, 0.3, 0.5, 0.7, 0.9
 under each scenario.  Simulation results show estimates from our
 algorithm and Bottai's approach are closer to the true value for all
 quantiles from 0.1 to 0.9.  As expected, under normal errors, the
-proposed methods dominates both \textit{rq} and BZ in most cases for
+proposed method dominates both RQ and BZ in most cases for
 MAR, incorrect MAR, and MNAR.
 
 For the heavier tail distributions, $t_3$ and Laplace distribution,
@@ -568,7 +570,7 @@ our approach shows better performance in middle quantiles and worse
 performance for extreme quantiles for observed data $Y_1$. However,
 our algorithm provides larger gains over \textit{rq} function for each
 marginal quantile for the second component $Y_2$, which is missing for
-some units, since \textit{rq} implicitly assumes MAR missingness.  The
+some units, since \textit{rq} implicitly assumes MCAR missingness.  The
 difference in MSE becomes larger for the upper quantiles because $Y_2
 |R = 0$ tends to be larger than $Y_2 | R = 1$; therefore, the
 \textit{rq} method using only the observed $Y_2$ yields larger bias
@@ -577,7 +579,7 @@ for upper quantiles. Bottai's approach does much better than
 responses under MAR.  It also has smaller MSE than ours on extreme
 quantiles when distribution has heavy tail. However, our approach has
 advantages in the middle quantiles (30\% - 70\%).  We also see more
-gains over \textit{BZ} in the quantile regression slope estimates for
+gains over BZ in the quantile regression slope estimates for
 $Y_2$.
 
 To assess the goodness of fit, we examined the QQ plot of fitted
@@ -820,13 +822,13 @@ which corresponds to 0.3kg regain per month after finishing the
 initial 6-month program.
 Therefore, we specify the sensitivity parameters for $\chi(\bmath x_{i2}, Y_{i1})$ as
 \begin{displaymath}
-\chi(\bmath x_{ij},  y_{i1}) = 3.6 \mbox{kg} + y_{i1}.
+\chi(\bmath x_{i},  y_{i1}) = 3.6 \mbox{kg} + y_{i1}.
 \end{displaymath}
 
-Table \ref{tab:tours} presents the estimates and bootstrap percentile
-confidence intervals under the above MNAR mechanism. There are not
-large differences for estimates for $Y_2$ under MNAR vs MAR. This is
-partly due to the low proportion of missing data in this study.
+We did not include the similar results in this article,
+because there are not large differences for estimates for $Y_2$ under MNAR vs MAR.
+This is partly due to the low proportion of missing data in this study.
+
 
 We also checked the goodness of fit via QQ plots on the fitted
 residuals as described in section \ref{sec:goodness} for each quantile
@@ -851,12 +853,12 @@ Our method allows the missingness to be non-ignorable.
 We illustrated how to find sensitivity parameters to allow different missing data mechanisms. The
 recursive integration algorithm simplifies computation and can be
 easily implemented even in high dimensions. Simulation studies
-demonstrates that our approach has smaller MSE than the traditional
+demonstrate that our approach has smaller MSE than the traditional
 frequentist method \textit{rq} function for most cases, especially for
 inferences of partial missing responses. And it has advantages over
-Bottai's approach for middle quantiles regression inference even when
+BZ for middle quantiles regression inference even when
 the distribution is mis-specified.  However, our approach also shows
-some bias for extreme quantiles comparing to \citet{bottai2013} if
+some bias for extreme quantiles comparing to BZ if the
 error is mis-specified.
 
 Our model assumes a multivariate normal distribution for each
@@ -872,7 +874,7 @@ quantify departures from MAR via differences in means and
 (co)-variances, we need the specification of the model with a sequential
 multivariate normal distribution within each pattern; otherwise MAR
 constraints do not exist \citep{wang2011}.
-The R package ``qrmissing'' which can be downloaded from the author's website.
+The R package ``qrmissing'' can be downloaded from the author's website.
 
 \backmatter
 
