@@ -1,5 +1,5 @@
 % modify sensitivity parameter in unobserved likelihood
-% Time-stamp: <liuminzhao 02/17/2014 16:33:53>
+% Time-stamp: <liuminzhao 02/17/2014 16:50:20>
 
 \documentclass[useAMS,usenatbib,referee]{biom}
 
@@ -413,12 +413,12 @@ parameters $\bmath \xi = (\bmath \xi_m, \bmath \xi_s)$.
   \end{align*}
 where
 \begin{align*}
-a^{*} & = \sqrt{\sigma_j^2/\beta_{y_{j-1}, j-1}^2 + \sigma_{j-1}^2} \big / \left( - \frac{\beta_{y_{j-2}, j-1}}{\beta_{y_{j-1}, j-1}} - \beta_{y_{j-2}, j-2} \right)\\
+a^{*} & = \sqrt{\sigma_j^2/\beta_{y_{j-1}, j-1}^2 + \sigma_{j-1}^2} \big / \left( - \frac{\beta_{y_{j-2}, j-1}}{\beta_{y_{j-1}, j-1}} - \beta_{y_{j-2}, j-2} \right), \\
 b^{*} & =
 \frac{ (\bmath x_i^T \bmath \gamma_j - \Delta_{ij} - h_0^{(1)})/\beta_{y_{j-1}, j-1} - (\Delta_{i(j-1)} +
-\sum_{k=1}^{j-3} Y_{i(k)} \beta_{y_k, j-2} + h_0^{(1)})}{\frac{\beta_{y_{j-2}, j-1}}{\beta_{y_{j-1}, j-1}} + \beta_{y_{j-2}, j-2}}
+\sum_{k=1}^{j-3} Y_{i(k)} \beta_{y_k, j-2} + h_0^{(1)})}{\frac{\beta_{y_{j-2}, j-1}}{\beta_{y_{j-1}, j-1}} + \beta_{y_{j-2}, j-2}},
 \end{align*}
-when $\xi(\bmath x_i, \bmath y_{ij^{-}})$ is the linear form in (\ref{eq:model2}) and $\beta_{y_{j-1}, j-1} > 0$.
+$\xi(\bmath x_i, \bmath y_{ij^{-}})$ is the linear form in (\ref{eq:model2}) with  $\beta_{y_{j-1}, j-1} > 0$.
 %\Delta_{ij} - h_0^{(1)} - \bmath y_{ij^{-}}^T \bmath %\beta_{y,j-1}^{(1)}}{\sigma_{j}^{(1)}}
 
   Then, by recursively applying lemma \ref{sec:lemma} $(j-1)$ times,
@@ -886,7 +886,7 @@ quantify departures from MAR via differences in means and
 (co)-variances, we need the specification of the model with a sequential
 multivariate normal distribution within each pattern; otherwise MAR
 constraints do not exist \citep{wang2011}.
-Our approach cab ne implemented with the R package ``qrmissing'' which can be downloaded from the author's website: \url{https://github.com/liuminzhao/qrmissing}.
+Our approach is implemented with the R package ``qrmissing'' which can be downloaded from the author's website: \url{https://github.com/liuminzhao/qrmissing}.
 
 \backmatter
 
