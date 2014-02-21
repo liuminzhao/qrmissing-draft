@@ -1,5 +1,5 @@
 % modify sensitivity parameter in unobserved likelihood
-% Time-stamp: <liuminzhao 02/17/2014 16:50:20>
+% Time-stamp: <liuminzhao 02/20/2014 19:04:34>
 
 \documentclass[useAMS,usenatbib,referee]{biom}
 
@@ -54,7 +54,7 @@ $^3$Department of Clinical and Health Psychology,
   In particular, we propose pattern mixture models with a constraint that provides a straightforward interpretation of the marginal quantile regression parameters.
   Our approach allows sensitivity analysis which is an essential component in inference for incomplete data.
   To facilitate computation of the likelihood, we propose a novel way to obtain analytic forms for the required integrals.  We conduct simulations to examine the robustness of our approach to modeling assumptions and compare its performance to competing approaches.
-  The model is applied to data from a clinical trial on weight management.
+  The model is applied to data from a recent clinical trial on weight management.
 \end{abstract}
 
 \begin{keywords}
@@ -142,7 +142,7 @@ is not of interest if we are interested in interpreting regression
 coefficients unconditionally.  In addition, they are
 conditional on random effects, which tie together the responses and
 missingness process, so they have a slightly different interpretation
-than regular random effects in longitudinal methods. Moreover, due to
+than typical random effects in longitudinal methods. Moreover, due to
 their full parametric specification for the full data, their model
 does not allow for sensitivity analysis, which is a key component in
 inference for incomplete data \citep{nas2010}.
@@ -226,10 +226,11 @@ where $\bmath \theta_E$ indexes the parameters in the extrapolation
 distribution, the first term on the right hand side and $\bmath
 \theta_{y, O}$ indexes parameters in the distribution of observed
 responses, the second term on the right hand side.
-In addition, we denote $\bmath \xi(\bmath \omega) = (\bmath \xi_m, \bmath \xi_s)$ as a reparametrization, where $\bmath \xi_s$ is a sensitivity parameter \cite{dh2008}.
+As in \cite{dh2008}, we denote $\bmath \xi(\bmath \omega) = (\bmath \xi_m, \bmath \xi_s)$ as a reparametrization of the parameters in the full data model above where $\bmath \xi_s$ are sensitivity parameters (not identified by the observed data) and $\bmath \xi_m$ are identified by the observed data (just the parameters of the observed data distribution).
+%\cite{dh2008}.
 
 We assume models within pattern to be multivariate normal
-distributions and specify a sequential model parametrization for each multivariate normal distribution;  we specify the model in this way
+distributions and specify a sequential model parametrization for each multivariate normal distribution.  We specify the model in this way
 to have
 multivariate normal distributions on the full data within patterns and such that MAR exists
 \citep{wang2011}; more details are presented in section \ref{sec:sa}.
@@ -254,7 +255,7 @@ In particular, we specify the  distributions conditional on $S=k$ as:
 \end{equation}
 where $\beta_1^{(k)}$ is the intercept shift for distribution of $Y_{i1} | S = k$,
 $\bmath y_{ij^{-}} = (y_{i1}, \ldots, y_{i(j-1)})^T$ is the response history for subject $i$ up to time point  $(j-1)$,
-$\bmath x_{i}$ is a $p \times 1$ covariate vector,
+%$\bmath x_{i}$ is a $p \times 1$ covariate vector,
 $\bmath \beta_{y, j-1} = \big(\beta_{y_1, j-1}, \ldots,
 \beta_{y_{j-1}, j-1} \big)^T$ are autoregressive coefficients,
 $\sigma_j$ is the conditional standard deviation of response
@@ -264,7 +265,7 @@ $\bmath \phi =
 number of observed responses.
 $\Delta_{ij}$ are subject/time specific intercepts determined by the parameters in (\ref{eq:model}) and (\ref{eq:marg}); more details are given in what follows.
 $\chi(\bmath x_{i}, \bmath y_{ij^{-}})$
-is the mean of the unobserved data distribution and allows sensitivity analysis by varying assumptions on $\chi$.
+is the mean of the unobserved data distribution and allows sensitivity analysis by varying assumptions on $\chi$; for computational reasons we assume that $\chi$ is linear in $y_{ij^{-}}$.
 For example, here we specify
 \begin{equation}
 \label{eq:model2}
@@ -277,7 +278,7 @@ is characterized by an intercept shift from identified observed data distributio
 $\pr_k(y_{ij}|\bmath y_{ij^{-}})$ for $k \geq j$.
 More details about sensitivity parameters are given in section~\ref{sec:sa}.
 
-For identifiability of the distribution of the observed data, we use the
+For (standard) identifiability of the distribution of the observed data, we use the
 following restrictions (without loss of generality),
 \begin{displaymath}
  \sum_{k=1}^J \beta_{1}^{(k)} = 0.
@@ -418,7 +419,7 @@ b^{*} & =
 \frac{ (\bmath x_i^T \bmath \gamma_j - \Delta_{ij} - h_0^{(1)})/\beta_{y_{j-1}, j-1} - (\Delta_{i(j-1)} +
 \sum_{k=1}^{j-3} Y_{i(k)} \beta_{y_k, j-2} + h_0^{(1)})}{\frac{\beta_{y_{j-2}, j-1}}{\beta_{y_{j-1}, j-1}} + \beta_{y_{j-2}, j-2}},
 \end{align*}
-$\xi(\bmath x_i, \bmath y_{ij^{-}})$ is the linear form in (\ref{eq:model2}) with  $\beta_{y_{j-1}, j-1} > 0$.
+when $\chi(\bmath x_i, \bmath y_{ij^{-}})$ takes the linear form given in (\ref{eq:model2}) with  $\beta_{y_{j-1}, j-1} > 0$.  Similar results hold as long as $\chi(\cdot,\cdot)$ is linear in $\bmath y_{ij^{-}}$.
 %\Delta_{ij} - h_0^{(1)} - \bmath y_{ij^{-}}^T \bmath %\beta_{y,j-1}^{(1)}}{\sigma_{j}^{(1)}}
 
   Then, by recursively applying lemma \ref{sec:lemma} $(j-1)$ times,
@@ -476,7 +477,7 @@ to diagnose if the parametric assumptions are suitable for model.
 
 After obtaining the MLE, we use the approach described in section
 \ref{sec:deltacal} to get the fitted $\Delta_{ij}$ for each
-subject. Then the fitted residuals can be obtained by plugging in the
+subject. Then the fitted residuals for the observed data can be obtained by plugging in the
 fitted estimates and $\hat{\Delta}_{ij}$ to obtain,
 \begin{displaymath}
   \hat{\epsilon}_{ij} =
@@ -489,8 +490,7 @@ fitted estimates and $\hat{\Delta}_{ij}$ to obtain,
 
 \section{Simulation Study}
 \label{sec:simulation}
-In this section, we compare the performance of our proposed model in
-section \ref{sec:settings} with the \textit{rq} function (denoted as RQ) in
+In this section, we compare the performance of our proposed model with the \textit{rq} function (denoted as RQ) in
 \textit{quantreg} R package \citep{quantreg} and Bottai's algorithm
 \citep{bottai2013} (denoted as BZ). The \textit{rq} function
 minimizes the loss (check) function $\sum_{i=1}^n \rho_{\tau} (y_i -
@@ -531,7 +531,7 @@ observed data.
 In the first scenario, $Y_2$ is missing at random, thus $\pr(Y_{i2} |
 R = 0, Y_{i1}) = \pr(Y_{i2}|R = 1, Y_{i1}) $. In the last two
 scenarios, $Y_2$ are missing not at random. We assume $Y_{i2}| R = 0,
-Y_{i1} \sim 3 - x_i - 1/2Y_{i1} + \epsilon_{i2}$. Therefore, there is
+Y_{i1} \sim 3 - x_i - 0.5Y_{i1} + \epsilon_{i2}$. Therefore, there is
 a shift of 2 in the intercept between $\pr(Y_2|R = 1, Y_1)$ and
 $\pr(Y_2|R = 0, Y_1)$.
 
@@ -588,7 +588,7 @@ difference in MSE becomes larger for the upper quantiles because $Y_2
 for upper quantiles. BZ does much better than
 \textit{rq} function for missing data because it imputes missing
 responses under MAR.  It also has smaller MSE than ours on extreme
-quantiles when distribution has heavy tail. However, our approach has
+quantiles when the distribution has heavy tails. However, our approach has
 advantages in the middle quantiles (30\% - 70\%).  We also see more
 gains over BZ in the quantile regression slope estimates for
 $Y_2$.
@@ -832,19 +832,19 @@ assume that
 \end{displaymath}
 which corresponds to 0.3kg regain per month after finishing the
 initial 6-month program.
-Therefore, we specify the sensitivity parameters for $\chi(\bmath x_{i2}, Y_{i1})$ as
+Therefore, we specify  $\chi(\bmath x_{i}, Y_{i1})$ as
 \begin{displaymath}
-\chi(\bmath x_{i},  y_{i1}) = 3.6 \mbox{kg} + y_{i1}.
+\chi(\bmath x_{i},  y_{i1}) = 3.6  + y_{i1},
 \end{displaymath}
-
+where $h_0^{(1)} = 3.6 + y_{i1} - (\Delta_{ij} + y_{i1} \beta_{y,1})$.
 Table \ref{tab:tours} presents the estimates and bootstrap percentile
 confidence intervals under the above MNAR mechanism. There are not
-large differences for estimates for $Y_2$ under MNAR vs MAR. This is
+large differences from the estimates for $Y_2$ under MNAR vs MAR. This is
 partly due to the low proportion of missing data in this study.
 
 We also checked the goodness of fit via QQ plots on the fitted
 residuals as described in section \ref{sec:goodness} for each quantile
-regression fit. Plots are presented in the Appendix. The QQ plots
+regression fit. Plots are presented in Figure~\ref{fig1}. The QQ plots
 showed minimal evidence against the assumption that the residuals were
 normally distributed; thus we are confident with the conclusion of
 our quantile regression models.
@@ -869,9 +869,9 @@ demonstrate that our approach has smaller MSE than the traditional
 frequentist method \textit{rq} function for most cases, especially for
 inferences with missing responses. And it has advantages over
 BZ for middle quantile regression inference even when
-the distribution is mis-specified.  However, our approach also shows
-some bias for extreme quantiles comparing to BZ if the
-error is mis-specified.
+the tails of the distribution are mis-specified.  However, our approach also shows
+some bias for extreme quantiles compared to BZ if the
+tails are mis-specified.
 
 Our model assumes a multivariate normal distribution for each
 component in the pattern mixture model, which might be too restrictive
@@ -880,12 +880,13 @@ of the error term did have an impact on the extreme quantile
 regression inferences.  It is possible to replace it with a
 non-parametric model, for example, a Dirichlet process mixture or
 \polya{} trees. However, computational algorithms would need to be
-developed for those settings and we are currently working on this. In addition, since we assume
+developed for those settings;  we are currently working on this. In addition, since we assume
 multivariate normal distributions within patterns, which can easily
 quantify departures from MAR via differences in means and
-(co)-variances, we need the specification of the model with a sequential
-multivariate normal distribution within each pattern; otherwise MAR
-constraints do not exist \citep{wang2011}.
+(co)-variances.
+% we need the specification of the model with a sequential
+%multivariate normal distribution within each pattern; otherwise MAR
+%constraints do not exist \citep{wang2011}.
 Our approach is implemented with the R package ``qrmissing'' which can be downloaded from the author's website: \url{https://github.com/liuminzhao/qrmissing}.
 
 \backmatter
@@ -912,13 +913,13 @@ This study is supported by NIH grant CA85295.
 \bibliographystyle{biom}
 \bibliography{qr-missing-reference}
 
-\appendix
-\section{}
-
-\subsection{Goodness of Fit Check for Tours Data}
-\label{sec:goftours}
-
+%\appendix
+%\section{}
+\begin{figure}
 \centerline{\includegraphics[scale = .4 ]{../image/ToursGoF}}
+\caption{QQ plots for the TOURS data.}
+\label{fig1}
+\end{figure}
 
 \label{lastpage}
 
