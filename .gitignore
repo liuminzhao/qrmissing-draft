@@ -1,5 +1,5 @@
 review/
-diff*
+diff-*
 reference
 /.DS_Store
 /code/.Rhistory
@@ -144,3 +144,7 @@ draft/*.dvi
 /draft/qrmissingenar-ki_0220.tex
 /draft/qrmissingenar-ki.fff
 /code/out
+/auto/diff.el
+/draft/diff.tex
+/draft/diff.ttt
+/draft/diff-0828.pdf
