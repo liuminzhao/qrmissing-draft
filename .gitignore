@@ -1,3 +1,5 @@
+code/*.png
+*.el
 review/
 diff-*
 reference
@@ -148,3 +150,5 @@ draft/*.dvi
 /draft/diff.tex
 /draft/diff.ttt
 /draft/diff-0828.pdf
+/agenda.html
+/code/single-1kdata-30ksave-3thin-0.1tune.pdf

@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/26/2013 08:18:42>
+##' Time-stamp: <liuminzhao 04/22/2014 22:58:33>
 ##' Simulation Bivariate case with MNAR using heter2
 ##' MNAR 1 shift in intercept
 ##' correct heterogeneity parameters
@@ -8,7 +8,7 @@
 ##' 2013/07/15 specify SP = (1,0,0,0,0)
 ##' 2013/08/01 test on QRMissingBi.R
 
-sink('sim-t-mnar-mnar-0826.txt')
+sink('sim-t-mnar-mnar-0422.txt')
 library(qrmissing)
 library(xtable)
 library(doMC)
@@ -53,17 +53,17 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   X[,1] <- 1
   X[,2] <- x
 
-  mod1 <- QRMissingBi(y, R, X, tau = 0.1, sp = c(2,0,0,0))
-  mod3 <- QRMissingBi(y, R, X, tau = 0.3, sp = c(2,0,0,0))
-  mod5 <- QRMissingBi(y, R, X, tau = 0.5, sp = c(2,0,0,0))
-  mod7 <- QRMissingBi(y, R, X, tau = 0.7, sp = c(2,0,0,0))
-  mod9 <- QRMissingBi(y, R, X, tau = 0.9, sp = c(2,0,0,0))
+  mod1 <- QRMissingBiMixMLE(y, R, X, tau = 0.1, sp = 2, K = 2)
+  mod3 <- QRMissingBiMixMLE(y, R, X, tau = 0.3, sp = 2, K = 2)
+  mod5 <- QRMissingBiMixMLE(y, R, X, tau = 0.5, sp = 2, K = 2)
+  mod7 <- QRMissingBiMixMLE(y, R, X, tau = 0.7, sp = 2, K = 2)
+  mod9 <- QRMissingBiMixMLE(y, R, X, tau = 0.9, sp = 2, K = 2)
 
-  mod1mm <- coef(mod1)
-  mod3mm <- coef(mod3)
-  mod5mm <- coef(mod5)
-  mod7mm <- coef(mod7)
-  mod9mm <- coef(mod9)
+  mod1mm <- rbind(coef(mod1)$gamma1, coef(mod1)$gamma2)
+  mod3mm <- rbind(coef(mod3)$gamma1, coef(mod3)$gamma2)
+  mod5mm <- rbind(coef(mod5)$gamma1, coef(mod5)$gamma2)
+  mod7mm <- rbind(coef(mod7)$gamma1, coef(mod7)$gamma2)
+  mod9mm <- rbind(coef(mod9)$gamma1, coef(mod9)$gamma2)
 
   mod1rq <- as.vector(rq(y[,1]~x, tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
   mod2rq <- as.vector(rq(y[,2][R==1]~x[R==1], tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
@@ -83,7 +83,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-t-mnar-mnar-0826-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-t-mnar-mnar-0422-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-t-mnar", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -131,7 +131,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-t-mnar-mnar-0826-result.txt')
+result <- read.table('sim-t-mnar-mnar-0422-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
