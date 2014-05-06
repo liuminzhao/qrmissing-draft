@@ -7,7 +7,7 @@
 ##' 2013/08/01 on QRMissingBi
 ##' 2013/08/01 test on QRMissingBi.R
 
-sink('sim-lp-mar-0422.txt')
+sink('sim-lp-mar-0506.txt')
 rm(list = ls())
 library(xtable)
 library(qrmissing)
@@ -80,7 +80,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
            mod1b[,2], mod3b[,2], mod5b[,2], mod7b[,2], mod9b[,2])
 }
 
-write.table(result, file = "sim-lp-mar-0422-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-lp-mar-0506-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-lp-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -137,7 +137,7 @@ q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
 
-result <- read.table('sim-lp-mar-0422-result.txt')
+result <- read.table('sim-lp-mar-0506-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 

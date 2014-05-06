@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 04/22/2014 20:38:13>
+##' Time-stamp: <liuminzhao 05/06/2014 17:04:39>
 ##' Simulation Bivariate case with MAR using heter2
 ##' Real MAR , not MCAR
 ##' correct heterogeneity parameters
@@ -10,7 +10,7 @@
 ##' 2013/08/25 using qrmissing package
 ##' using QRMissingMLEMix
 
-sink('sim-normal-mar-0422.txt')
+sink('sim-normal-mar-0506.txt')
 rm(list = ls())
 library(qrmissing)
 library(xtable)
@@ -80,7 +80,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-normal-mar-result-0422.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-normal-mar-result-0506.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-normal-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -128,7 +128,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-normal-mar-result-0422.txt')
+result <- read.table('sim-normal-mar-result-0506.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
