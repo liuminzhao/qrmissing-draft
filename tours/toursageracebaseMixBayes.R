@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 05/07/2014 16:29:59>
+##' Time-stamp: <liuminzhao 05/08/2014 15:22:26>
 ##' manipulate data TOURS
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
@@ -50,7 +50,6 @@ dat <- data.frame(weight2, weight3, trt, age_center, age=TOURS$AGE, race = facto
 ###############
 mcmc <- list(nsave = 30000, nskip = 2, nburn = 10000, ndisp = 10000)
 
-mcmc <- list(nsave = 10000, nskip = 2, nburn = 4000, ndisp = 1000)
 ## prior
 q <- dim(X)[2]
 betapm <- 0
@@ -113,8 +112,39 @@ rownames(coefw3) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau =
 colnames(coefw2) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
 colnames(coefw3) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
 
-library(xtable)
-print(xtable(coefw2))
-print(xtable(coefw3))
+arrange <- function(mod){
+    cigamma1 <- confint(mod)$gamma1
+    cigamma1[, 1:3] <- 10 * cigamma1[, 1:3]
+    cigamma1 <- c(cigamma1)
 
-write.table(rbind(coefw2, coefw3), 'ageracebaseMixMLE.txt', row.names=FALSE)
+    cigamma2 <- confint(mod)$gamma2
+    cigamma2[, 1:3] <- 10 * cigamma2[, 1:3]
+    cigamma2 <- c(cigamma2)
+
+    return(rbind(cigamma1, cigamma2))
+
+}
+
+ci1 <- arrange(mod1)
+ci3 <- arrange(mod3)
+ci5 <- arrange(mod5)
+ci7 <- arrange(mod7)
+ci9 <- arrange(mod9)
+
+ciw2 <- rbind(ci1[1,], ci3[1, ], ci5[1, ], ci7[1, ], ci9[1,])
+ciw3 <- rbind(ci1[2,], ci3[2, ], ci5[2, ], ci7[2, ], ci9[2,])
+
+rownames(ciw2) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.9')
+rownames(ciw3) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau = 0.9')
+
+matw2 <- cbind(coefw2, ciw2)
+matw2 <- matw2[, c(1, 5,6, 2, 7, 8, 3, 9, 10, 4, 11, 12)]
+
+matw3 <- cbind(coefw3, ciw3)
+matw3 <- matw3[, c(1, 5,6, 2, 7, 8, 3, 9, 10, 4, 11, 12)]
+
+library(xtable)
+print(xtable(matw2))
+print(xtable(matw3))
+
+write.table(rbind(matw2, matw3), 'ageracebaseMixBayes.txt', row.names=FALSE)
