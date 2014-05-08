@@ -1,5 +1,5 @@
 #!/bin/Rscript
-## Time-stamp: <liuminzhao 08/26/2013 00:34:44>
+## Time-stamp: <liuminzhao 05/08/2014 11:11:03>
 ## bootstrap on tours data
 ## weight2 and weight3
 ## scaled by 1/100
@@ -10,7 +10,6 @@
 ##' 2013/08/26 using qrmissing package
 rm(list=ls())
 library(qrmissing)
-source('../code/sendEmail.R')
 library(doMC)
 registerDoMC()
 options(cores = 10)
@@ -86,7 +85,6 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "toursbootageracebase-0825.txt", row.names = FALSE, col.names = FALSE)
-sendEmail(subject="boot tours age race base", text="done", address="liuminzhao@gmail.com")
+write.table(result, file = "toursbootageracebase-0508.txt", row.names = FALSE, col.names = FALSE)
 
 print(proc.time()[3] - start)
