@@ -1,4 +1,4 @@
-##' Time-stamp: "liuminzhao 05/09/2014 10:00:11"
+##' Time-stamp: "liuminzhao 05/09/2014 11:54:25"
 ##' ##' tours data with covariates : age, race, baseline weight
 ##' 2013/07/14 MNAR
 ##' 2013/07/27 new mnar
@@ -7,7 +7,7 @@
 ##' 2013/08/13 uobyqa 100 boot
 ##' 2013/08/26 1000 boot using qrmissing
 
-dat <- read.table('toursbootageracebasemnar-0508.txt')
+dat <- read.table('toursbootageracebasemnar-mixmle-0508.txt')
 
 index1 <- which(dat[,41] == 0)
 index3 <- which(dat[,42] == 0)
@@ -25,7 +25,7 @@ datsummary5 <- apply(coef5, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
 datsummary7 <- apply(coef7, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
 datsummary9 <- apply(coef9, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
 
-datest <- read.table('ageracebasemnar-0508.txt', header = T)
+datest <- read.table('ageracebasemnar-mix-mle-0508.txt', header = T)
 
 ci1 <- matrix(c(datsummary1), 2, 8, byrow = TRUE)
 ci3 <- matrix(c(datsummary3), 2, 8, byrow = TRUE)

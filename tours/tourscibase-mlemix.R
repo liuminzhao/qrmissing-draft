@@ -1,13 +1,11 @@
-##' Time-stamp: "liuminzhao 05/09/2014 10:00:11"
-##' ##' tours data with covariates : age, race, baseline weight
-##' 2013/07/14 MNAR
-##' 2013/07/27 new mnar
-##' new mnar with 200 boot for mod1 and 200 for mod9
-##' 2013/07/28
-##' 2013/08/13 uobyqa 100 boot
-##' 2013/08/26 1000 boot using qrmissing
+##' tours data with covariates : age, race, baseline weight
+##' Time-stamp: <liuminzhao 05/08/2014 23:44:34>
+##' 2013/06/23
+##' 2013/07/29 using new initial and new ci
+##' 2013/08/13 new method from  uobyqa
+##' 2013/08/26 qrmissing package
 
-dat <- read.table('toursbootageracebasemnar-0508.txt')
+dat <- read.table('toursbootageracebaseMixMLE-0508.txt')
 
 index1 <- which(dat[,41] == 0)
 index3 <- which(dat[,42] == 0)
@@ -20,12 +18,12 @@ coef5 <- dat[index5, c(9:12, 29:32)]
 coef7 <- dat[index7, c(13:16, 33:36)]
 coef9 <- dat[index9, c(17:20, 37:40)]
 datsummary1 <- apply(coef1, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
+datsummary9 <- apply(coef9, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
 datsummary3 <- apply(coef3, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
 datsummary5 <- apply(coef5, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
 datsummary7 <- apply(coef7, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
-datsummary9 <- apply(coef9, 2, function(x) quantile(x, probs = c(0.025, 0.975)))
 
-datest <- read.table('ageracebasemnar-0508.txt', header = T)
+datest <- read.table('ageracebaseMixMLE.txt', header = T)
 
 ci1 <- matrix(c(datsummary1), 2, 8, byrow = TRUE)
 ci3 <- matrix(c(datsummary3), 2, 8, byrow = TRUE)
