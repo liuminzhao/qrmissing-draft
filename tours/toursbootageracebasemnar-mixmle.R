@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 05/09/2014 00:09:16>
+##' Time-stamp: <liuminzhao 05/09/2014 10:07:53>
 ##' bootstrap on tours data
 ##' weight2 and weight3
 ##' scaled by 1/100
@@ -64,11 +64,11 @@ mod5 <- ToursMNARMixMLE(y, R, X, tau = 0.5, K = 2)
 mod7 <- ToursMNARMixMLE(y, R, X, tau = 0.7, K = 2)
 mod9 <- ToursMNARMixMLE(y, R, X, tau = 0.9, K = 2)
 
-  coef1 <- coef(mod1)
-  coef3 <- coef(mod3)
-  coef5 <- coef(mod5)
-  coef7 <- coef(mod7)
-  coef9 <- coef(mod9)
+  coef1 <- rbind(coef(mod1)$gamma1, coef(mod1)$gamma2)
+  coef3 <- rbind(coef(mod3)$gamma1, coef(mod3)$gamma2)
+  coef5 <- rbind(coef(mod5)$gamma1, coef(mod5)$gamma2)
+  coef7 <- rbind(coef(mod7)$gamma1, coef(mod7)$gamma2)
+  coef9 <- rbind(coef(mod9)$gamma1, coef(mod9)$gamma2)
 
   coef1[, c(1, 2, 3)] <- 10 * coef1[, c(1, 2, 3)]
   coef3[, c(1, 2, 3)] <- 10 * coef3[, c(1, 2, 3)]
