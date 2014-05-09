@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 08/26/2013 00:26:24>
+##' Time-stamp: <liuminzhao 05/08/2014 23:56:18>
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
 ##' 2013/07/05 MNAR
@@ -88,4 +88,4 @@ library(xtable)
 print(xtable(coefw2))
 print(xtable(coefw3))
 
-write.table(rbind(coefw2, coefw3), 'ageracebasemnar.txt', row.names=FALSE)
+write.table(rbind(coefw2, coefw3), 'ageracebasemnar-0508.txt', row.names=FALSE)
