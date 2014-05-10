@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 05/08/2014 23:56:18>
+##' Time-stamp: <liuminzhao 05/10/2014 17:00:03>
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
 ##' 2013/07/05 MNAR
@@ -12,7 +12,6 @@ library(qrmissing)
 TOURS <- read.csv('~/Documents/qrmissing/tours/tours.csv')
 
 TOURS <- subset(TOURS, RACE==1 | RACE==3)
-
 weight1 <- TOURS$wtkg1
 weight2 <- TOURS$wtkg2
 weight3 <- TOURS$wtkg3
@@ -27,13 +26,10 @@ race3 <- as.numeric(TOURS$RACE == 3)
 weight1 <- weight1/10
 weight2 <- weight2/10
 weight3 <- weight3/10
-
 n <- length(age)
 y <- matrix(0, n, 2)
 y[,1] <- weight2
 y[,2] <- weight3
-
-
 X <- matrix(0, n, 4)
 X[,1] <- 1
 X[,2] <- age_center
@@ -41,7 +37,6 @@ X[,3] <- race3
 X[,4] <- weight1
 
 R <- 1 - as.numeric(is.na(weight3))
-
 dat <- data.frame(weight2, weight3, trt, age_center, age=TOURS$AGE, race = factor(TOURS$RACE), base = weight1)
 
 ###############
@@ -88,4 +83,4 @@ library(xtable)
 print(xtable(coefw2))
 print(xtable(coefw3))
 
-write.table(rbind(coefw2, coefw3), 'ageracebasemnar-0508.txt', row.names=FALSE)
+write.table(rbind(coefw2, coefw3), 'ageracebasemnar-0510.txt', row.names=FALSE)
