@@ -1,5 +1,5 @@
 #!/bin/Rscript
-## Time-stamp: <liuminzhao 05/08/2014 12:08:09>
+## Time-stamp: <liuminzhao 05/10/2014 12:02:01>
 ## bootstrap on tours data
 ## weight2 and weight3
 ## scaled by 1/100
@@ -86,6 +86,6 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "toursbootageracebaseMixMLE-0508.txt", row.names = FALSE, col.names = FALSE)
+write.table(result, file = "toursbootageracebaseMixMLE-0510.txt", row.names = FALSE, col.names = FALSE)
 
 print(proc.time()[3] - start)

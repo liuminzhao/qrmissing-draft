@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 05/07/2014 11:26:49>
+##' Time-stamp: <liuminzhao 05/10/2014 12:01:26>
 ##' manipulate data TOURS
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
@@ -78,8 +78,17 @@ rownames(coefw3) <- c('tau = 0.1', 'tau = 0.3', 'tau = 0.5', 'tau = 0.7', 'tau =
 colnames(coefw2) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
 colnames(coefw3) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
 
+mod1$ierr
+mod3$ierr
+mod5$ierr
+mod7$ierr
+mod9$ierr
+
+coefw2
+coefw3
+
 library(xtable)
 print(xtable(coefw2))
 print(xtable(coefw3))
 
-write.table(rbind(coefw2, coefw3), 'ageracebaseMixMLE.txt', row.names=FALSE)
+write.table(rbind(coefw2, coefw3), 'ageracebaseMixMLE-0510-K2.txt', row.names=FALSE)
