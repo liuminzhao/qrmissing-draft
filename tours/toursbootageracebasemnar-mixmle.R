@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 05/09/2014 10:07:53>
+##' Time-stamp: <liuminzhao 05/10/2014 21:12:55>
 ##' bootstrap on tours data
 ##' weight2 and weight3
 ##' scaled by 1/100
@@ -89,6 +89,6 @@ mod9 <- ToursMNARMixMLE(y, R, X, tau = 0.9, K = 2)
 
 }
 
-write.table(result, file = "toursbootageracebasemnar-mixmle-0508.txt", row.names = FALSE, col.names = FALSE)
+write.table(result, file = "toursbootageracebasemnar-mixmle-0510.txt", row.names = FALSE, col.names = FALSE)
 
 print(proc.time()[3] - start)
