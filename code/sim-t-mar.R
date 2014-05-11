@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 05/06/2014 17:04:38>
+##' Time-stamp: <liuminzhao 05/11/2014 16:01:19>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
@@ -9,7 +9,7 @@
 ##' 2013/07/11 keep alpha = 0.5 instead of 0.3 and do MM, RQ, BB together
 ##' 2013/08/01 test on QRMissingBi.R
 
-sink('sim-t-mar-0506.txt')
+sink('sim-t-mar-0511.txt')
 rm(list = ls())
 library(xtable)
 library(qrmissing)
@@ -86,7 +86,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-t-mar-0506-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-t-mar-0511-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-t-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -140,7 +140,7 @@ q29 <- lm(y29~xsim)$coef
 
 
 
-result <- read.table('sim-t-mar-0506-result.txt')
+result <- read.table('sim-t-mar-0511-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 

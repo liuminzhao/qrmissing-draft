@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 05/06/2014 17:04:38>
+##' Time-stamp: <liuminzhao 05/11/2014 16:01:18>
 ##' Simulation Bivariate case with MNAR using heter2
 ##' MNAR 1 shift in intercept
 ##' correct heterogeneity parameters
@@ -8,7 +8,7 @@
 ##' 2013/07/15 specify SP = (1,0,0,0,0)
 ##' 2013/08/01 test on QRMissingBi.R
 
-sink('sim-t-mnar-mnar-0506.txt')
+sink('sim-t-mnar-mnar-0511.txt')
 library(qrmissing)
 library(xtable)
 library(doMC)
@@ -83,7 +83,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-t-mnar-mnar-0506-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-t-mnar-mnar-0511-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-t-mnar", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -131,7 +131,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-t-mnar-mnar-0506-result.txt')
+result <- read.table('sim-t-mnar-mnar-0511-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
