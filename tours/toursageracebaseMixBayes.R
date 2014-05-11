@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 05/08/2014 15:22:26>
+##' Time-stamp: <liuminzhao 05/11/2014 10:37:41>
 ##' manipulate data TOURS
 ##' 2013/06/05 focus on AGE and RACE
 ##' 2013/06/22 add baseline y0 as a covariate
@@ -113,11 +113,11 @@ colnames(coefw2) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
 colnames(coefw3) <- c('Intercept', 'Age(centered)', 'White', 'BaseWeight')
 
 arrange <- function(mod){
-    cigamma1 <- confint(mod)$gamma1
+    cigamma1 <- confintQRMissingBiBayesMix(mod)$gamma1
     cigamma1[, 1:3] <- 10 * cigamma1[, 1:3]
     cigamma1 <- c(cigamma1)
 
-    cigamma2 <- confint(mod)$gamma2
+    cigamma2 <- confintQRMissingBiBayesMix(mod)$gamma2
     cigamma2[, 1:3] <- 10 * cigamma2[, 1:3]
     cigamma2 <- c(cigamma2)
 
