@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 05/07/2014 23:15:34>
+##' Time-stamp: <liuminzhao 05/14/2014 00:51:08>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
@@ -10,7 +10,7 @@
 ##' 2013/08/01 test on QRMissingBi.R
 ##' 2013/08/26 using qrmissing package
 
-sink('sim-mle-t-mnar-mar-0507.txt')
+sink('sim-mle-t-mnar-mar-0514.txt')
 rm(list = ls())
 library(qrmissing)
 library(xtable)
@@ -58,11 +58,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   X[,1] <- 1
   X[,2] <- x
 
-  mod1 <- QRMissingBi(y, R, X, tau = 0.1)
-  mod3 <- QRMissingBi(y, R, X, tau = 0.3)
-  mod5 <- QRMissingBi(y, R, X, tau = 0.5)
-  mod7 <- QRMissingBi(y, R, X, tau = 0.7)
-  mod9 <- QRMissingBi(y, R, X, tau = 0.9)
+  mod1 <- QRMissingBi(y, R, X, tau = 0.1, model = 'slope')
+  mod3 <- QRMissingBi(y, R, X, tau = 0.3, model = 'slope')
+  mod5 <- QRMissingBi(y, R, X, tau = 0.5, model = 'slope')
+  mod7 <- QRMissingBi(y, R, X, tau = 0.7, model = 'slope')
+  mod9 <- QRMissingBi(y, R, X, tau = 0.9, model = 'slope')
 
   mod1mm <- coef(mod1)
   mod3mm <- coef(mod3)
@@ -87,7 +87,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-mle-t-mnar-mar-0507-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-mle-t-mnar-mar-0514-result.txt", row.names = F, col.names = F)
 
 ###############
 ## AFTER SIM; GET SUMMARY
@@ -140,7 +140,7 @@ q29 <- lm(y29~xsim)$coef
 
 
 
-result <- read.table('sim-mle-t-mnar-mar-0507-result.txt')
+result <- read.table('sim-mle-t-mnar-mar-0514-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
