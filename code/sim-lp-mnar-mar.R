@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 05/11/2014 16:01:19>
+##' Time-stamp: <liuminzhao 05/16/2014 11:46:18>
 ##' Simulation Bivariate case with MNAR using heter2
 ##' MNAR 1 shift in intercept
 ##' correct heterogeneity parameters
@@ -8,7 +8,7 @@
 ##' 2013/07/17 use +-4 +- 2x
 ##' 2013/08/01 test on QRMissingBi.R
 
-sink('sim-lp-mnar-mar-0511.txt')
+sink('sim-lp-mnar-mar-0516.txt')
 rm(list = ls())
 library(xtable)
 library(qrmissing)
@@ -53,11 +53,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   X[,1] <- 1
   X[,2] <- x
 
-  mod1 <- QRMissingBiMixMLE(y, R, X, tau = 0.1, K = 2)
-  mod3 <- QRMissingBiMixMLE(y, R, X, tau = 0.3, K = 2)
-  mod5 <- QRMissingBiMixMLE(y, R, X, tau = 0.5, K = 2)
-  mod7 <- QRMissingBiMixMLE(y, R, X, tau = 0.7, K = 2)
-  mod9 <- QRMissingBiMixMLE(y, R, X, tau = 0.9, K = 2)
+  mod1 <- QRMissingBiMixMLE(y, R, X, tau = 0.1, K = 2, model = 'slope')
+  mod3 <- QRMissingBiMixMLE(y, R, X, tau = 0.3, K = 2, model = 'slope')
+  mod5 <- QRMissingBiMixMLE(y, R, X, tau = 0.5, K = 2, model = 'slope')
+  mod7 <- QRMissingBiMixMLE(y, R, X, tau = 0.7, K = 2, model = 'slope')
+  mod9 <- QRMissingBiMixMLE(y, R, X, tau = 0.9, K = 2, model = 'slope')
 
   mod1mm <- rbind(coef(mod1)$gamma1, coef(mod1)$gamma2)
   mod3mm <- rbind(coef(mod3)$gamma1, coef(mod3)$gamma2)
@@ -83,7 +83,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-lp-mnar-mar-0511-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-lp-mnar-mar-0516-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-lp-mnar-mar", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -134,7 +134,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-lp-mnar-mar-0511-result.txt')
+result <- read.table('sim-lp-mnar-mar-0516-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 

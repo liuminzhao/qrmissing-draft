@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 05/11/2014 16:01:19>
+##' Time-stamp: <liuminzhao 05/16/2014 11:46:18>
 ##' Simulation Bivariate case with MAR using heter2
 ##' Real MAR , not MCAR
 ##' correct heterogeneity parameters
@@ -10,7 +10,7 @@
 ##' 2013/08/25 using qrmissing package
 ##' using QRMissingMLEMix
 
-sink('sim-normal-mar-0511.txt')
+sink('sim-normal-mar-0516.txt')
 rm(list = ls())
 library(qrmissing)
 library(xtable)
@@ -53,11 +53,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   X[,1] <- 1
   X[,2] <- x
 
-  mod1 <- QRMissingBiMixMLE(y, R, X, tau = 0.1, K = 2)
-  mod3 <- QRMissingBiMixMLE(y, R, X, tau = 0.3, K = 2)
-  mod5 <- QRMissingBiMixMLE(y, R, X, tau = 0.5, K = 2)
-  mod7 <- QRMissingBiMixMLE(y, R, X, tau = 0.7, K = 2)
-  mod9 <- QRMissingBiMixMLE(y, R, X, tau = 0.9, K = 2)
+  mod1 <- QRMissingBiMixMLE(y, R, X, tau = 0.1, K = 2, model = 'slope')
+  mod3 <- QRMissingBiMixMLE(y, R, X, tau = 0.3, K = 2, model = 'slope')
+  mod5 <- QRMissingBiMixMLE(y, R, X, tau = 0.5, K = 2, model = 'slope')
+  mod7 <- QRMissingBiMixMLE(y, R, X, tau = 0.7, K = 2, model = 'slope')
+  mod9 <- QRMissingBiMixMLE(y, R, X, tau = 0.9, K = 2, model = 'slope')
 
   mod1mm <- rbind(coef(mod1)$gamma1, coef(mod1)$gamma2)
   mod3mm <- rbind(coef(mod3)$gamma1, coef(mod3)$gamma2)
@@ -80,7 +80,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
 }
 
-write.table(result, file = "sim-normal-mar-result-0511.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-normal-mar-result-0516.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-normal-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -128,7 +128,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-normal-mar-result-0511.txt')
+result <- read.table('sim-normal-mar-result-0516.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 

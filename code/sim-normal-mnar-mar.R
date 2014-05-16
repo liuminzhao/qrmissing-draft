@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 05/11/2014 16:01:19>
+##' Time-stamp: <liuminzhao 05/16/2014 11:46:18>
 ##' Simulation Bivariate case with MNAR using heter2
 ##' Normal
 ##' correct heterogeneity parameters
@@ -8,7 +8,7 @@
 ##' 2013/08/05 test on new QRMissingBi.R
 ##' 2013/08/07 using new uobyqa default method and simulate homo model
 
-sink('sim-normal-mnar-mar-0511.txt')
+sink('sim-normal-mnar-mar-0516.txt')
 rm(list = ls())
 library(xtable)
 library(qrmissing)
@@ -51,11 +51,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   X[,1] <- 1
   X[,2] <- x
 
-  mod1 <- QRMissingBiMixMLE(y, R, X, tau = 0.1, K = 2)
-  mod3 <- QRMissingBiMixMLE(y, R, X, tau = 0.3, K = 2)
-  mod5 <- QRMissingBiMixMLE(y, R, X, tau = 0.5, K = 2)
-  mod7 <- QRMissingBiMixMLE(y, R, X, tau = 0.7, K = 2)
-  mod9 <- QRMissingBiMixMLE(y, R, X, tau = 0.9, K = 2)
+  mod1 <- QRMissingBiMixMLE(y, R, X, tau = 0.1, K = 2, model = 'slope')
+  mod3 <- QRMissingBiMixMLE(y, R, X, tau = 0.3, K = 2, model = 'slope')
+  mod5 <- QRMissingBiMixMLE(y, R, X, tau = 0.5, K = 2, model = 'slope')
+  mod7 <- QRMissingBiMixMLE(y, R, X, tau = 0.7, K = 2, model = 'slope')
+  mod9 <- QRMissingBiMixMLE(y, R, X, tau = 0.9, K = 2, model = 'slope')
 
   mod1mm <- rbind(coef(mod1)$gamma1, coef(mod1)$gamma2)
   mod3mm <- rbind(coef(mod3)$gamma1, coef(mod3)$gamma2)
@@ -80,7 +80,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
            mod1b[,2], mod3b[,2], mod5b[,2], mod7b[,2], mod9b[,2])
 }
 
-write.table(result, file = "sim-normal-mnar-mar-0511-result.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-normal-mnar-mar-0516-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-normal-MNAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
@@ -128,7 +128,7 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
-result <- read.table('sim-normal-mnar-mar-0511-result.txt')
+result <- read.table('sim-normal-mnar-mar-0516-result.txt')
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
