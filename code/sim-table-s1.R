@@ -37,24 +37,20 @@ q23 <- lm(y23~xsim)$coef
 q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
-result1a <- read.table('sim-mle-normal-mar-result-0514.txt')
-result1b <- read.table('sim-normal-mar-result-0516.txt')
+
+result1 <- read.table('sim-normal-mar-result-0626.txt')
 
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
-trueq <- rep(trueq, 3)
-mse <- rep(0, 60)
-for (i in 1:60){
-  mse[i] <- mean((result1a[,i] - trueq[i])^2, trim = 0.05)
+trueq <- rep(trueq, 4)
+mse <- rep(0, 80)
+for (i in 1:80){
+  mse[i] <- mean((result1[,i] - trueq[i])^2)
 }
-msem1 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
 
-mse <- rep(0, 60)
-for (i in 1:60){
-  mse[i] <- mean((result1b[,i] - trueq[i])^2, trim = 0.05)
-}
-msem2 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
-mserq <- rbind(matrix(mse[21:30], 2, 5), matrix(mse[31:40], 2, 5))
-msebb <- rbind(matrix(mse[41:50], 2, 5), matrix(mse[51:60], 2, 5))
+msem1 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
+msem2 <- rbind(matrix(mse[21:30], 2, 5), matrix(mse[31:40], 2, 5))
+mserq <- rbind(matrix(mse[41:50], 2, 5), matrix(mse[51:60], 2, 5))
+msebb <- rbind(matrix(mse[61:70], 2, 5), matrix(mse[71:80], 2, 5))
 
 s1N <- cbind(c(msem1), c(msem2), c(mserq), c(msebb))
 colnames(s1N) <- c('M1', 'M2', 'RQ', 'BB')
@@ -108,22 +104,19 @@ q29 <- lm(y29~xsim)$coef
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
 trueq <- rep(trueq, 3)
 
-result1a <- read.table('sim-mle-t-mar-0514-result.txt')
-result1b <- read.table('sim-t-mar-0516-result.txt')
+result1 <- read.table('sim-t-mar-0626-result.txt')
 
-mse <- rep(0, 60)
-for (i in 1:60){
-  mse[i] <- mean((result1a[,i] - trueq[i])^2, trim = 0.05)
+trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
+trueq <- rep(trueq, 4)
+mse <- rep(0, 80)
+for (i in 1:80){
+  mse[i] <- mean((result1[,i] - trueq[i])^2)
 }
+
 msem1 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
-
-mse <- rep(0, 60)
-for (i in 1:60){
-  mse[i] <- mean((result1b[,i] - trueq[i])^2, trim = 0.05)
-}
-msem2 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
-mserq <- rbind(matrix(mse[21:30], 2, 5), matrix(mse[31:40], 2, 5))
-msebb <- rbind(matrix(mse[41:50], 2, 5), matrix(mse[51:60], 2, 5))
+msem2 <- rbind(matrix(mse[21:30], 2, 5), matrix(mse[31:40], 2, 5))
+mserq <- rbind(matrix(mse[41:50], 2, 5), matrix(mse[51:60], 2, 5))
+msebb <- rbind(matrix(mse[61:70], 2, 5), matrix(mse[71:80], 2, 5))
 
 s1t <- cbind(c(msem1), c(msem2), c(mserq), c(msebb))
 colnames(s1t) <- c('M1', 'M2', 'RQ', 'BB')
@@ -177,27 +170,19 @@ q25 <- lm(y25~xsim)$coef
 q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
+result1 <- read.table('sim-lp-mar-0626-result.txt')
 
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
-trueq <- rep(trueq, 3)
-
-
-result1a <- read.table('sim-mle-lp-mar-0514-result.txt')
-result1b <- read.table('sim-lp-mar-0516-result.txt')
-
-mse <- rep(0, 60)
-for (i in 1:60){
-  mse[i] <- mean((result1a[,i] - trueq[i])^2, trim = 0.05)
+trueq <- rep(trueq, 4)
+mse <- rep(0, 80)
+for (i in 1:80){
+  mse[i] <- mean((result1[,i] - trueq[i])^2)
 }
+
 msem1 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
-
-mse <- rep(0, 60)
-for (i in 1:60){
-  mse[i] <- mean((result1b[,i] - trueq[i])^2, trim = 0.05)
-}
-msem2 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
-mserq <- rbind(matrix(mse[21:30], 2, 5), matrix(mse[31:40], 2, 5))
-msebb <- rbind(matrix(mse[41:50], 2, 5), matrix(mse[51:60], 2, 5))
+msem2 <- rbind(matrix(mse[21:30], 2, 5), matrix(mse[31:40], 2, 5))
+mserq <- rbind(matrix(mse[41:50], 2, 5), matrix(mse[51:60], 2, 5))
+msebb <- rbind(matrix(mse[61:70], 2, 5), matrix(mse[71:80], 2, 5))
 
 s1lp <- cbind(c(msem1), c(msem2), c(mserq), c(msebb))
 colnames(s1lp) <- c('M1', 'M2', 'RQ', 'BB')
@@ -249,25 +234,19 @@ q27 <- lm(y27~xsim)$coef
 q29 <- lm(y29~xsim)$coef
 
 ## result
+result1b <- read.table('sim-m1-mar-result-0626.txt')
+
 trueq <- c(q11, q13, q15, q17, q19, q21, q23, q25, q27, q29)
-trueq <- rep(trueq, 3)
-
-result1a <- read.table('sim-mle-m1-mar-result-0516.txt')
-result1b <- read.table('sim-m1-mar-result-0516.txt')
-
-mse <- rep(0, 60)
-for (i in 1:60){
-  mse[i] <- mean((result1a[,i] - trueq[i])^2, trim = 0.05)
+trueq <- rep(trueq, 4)
+mse <- rep(0, 80)
+for (i in 1:80){
+  mse[i] <- mean((result1[,i] - trueq[i])^2)
 }
+
 msem1 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
-
-mse <- rep(0, 60)
-for (i in 1:60){
-  mse[i] <- mean((result1b[,i] - trueq[i])^2, trim = 0.05)
-}
-msem2 <- rbind(matrix(mse[1:10], 2, 5), matrix(mse[11:20], 2, 5))
-mserq <- rbind(matrix(mse[21:30], 2, 5), matrix(mse[31:40], 2, 5))
-msebb <- rbind(matrix(mse[41:50], 2, 5), matrix(mse[51:60], 2, 5))
+msem2 <- rbind(matrix(mse[21:30], 2, 5), matrix(mse[31:40], 2, 5))
+mserq <- rbind(matrix(mse[41:50], 2, 5), matrix(mse[51:60], 2, 5))
+msebb <- rbind(matrix(mse[61:70], 2, 5), matrix(mse[71:80], 2, 5))
 
 s1mix <- cbind(c(msem1), c(msem2), c(mserq), c(msebb))
 colnames(s1mix) <- c('M1', 'M2', 'RQ', 'BB')
