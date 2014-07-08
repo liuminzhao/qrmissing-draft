@@ -1,5 +1,5 @@
 % modify sensitivity parameter in unobserved likelihood
-% Time-stamp: <liuminzhao 06/18/2014 16:33:53>
+% Time-stamp: <liuminzhao 07/07/2014 22:51:26>
 
 \documentclass[useAMS,usenatbib,referee]{biom}
 
@@ -107,7 +107,7 @@ observed covariates and outcomes, which come from the estimated
 conditional quantile regression and specification of conditional
 density of missing covariates given observed ones.
 However, they focus more on the missing covariates than missing outcomes.
-\citet{bottai2013} illustrated an imputation method using estimated
+\citet{bottai2013} introduced an imputation method using estimated
 conditional quantiles of missing outcomes given observed data. Their
 approach does not make distributional assumptions.  They assumed the
 missing data mechanism (MDM) is MAR. However, because their
@@ -162,7 +162,7 @@ section \ref{ch3:sec:discussion}.
 In this section, we first introduce some notation, then describe our proposed quantile regression model in section \ref{ch3:sec:settings}.
 We provide details on MAR and MNAR and computation in sections \ref{ch3:sec:sa} and \ref{ch3:sec:computation} respectively.
 
-Under monotone dropout, denote $S_i \in \{1, 2, \ldots, J\}$ to be the number of observed $Y_{ij}^{T} s$ for subject $i$,
+Under monotone dropout, denote $S_i \in \{1, 2, \ldots, J\}$ to be the number of observed $Y_{ij}^{\prime} s$ for subject $i$,
 and $\bm Y_i = (Y_{i1}, Y_{i2}, \ldots, Y_{iJ})^{T}$ to be the full data response vector for subject $i$, where $J$ is the maximum follow up time.
 We assume $Y_{i1}$ is always observed.
 We are interested in the $\tau$-th marginal quantile regression coefficients $\bm \gamma_j = (\gamma_{j1}, \gamma_{j2}, \ldots, \gamma_{jp})^T$,
@@ -200,7 +200,7 @@ Furthermore, the conditional distribution of response within patterns can be dec
 \end{equation}
 where $\bm \theta_E$ indexes the parameters in the extrapolation distribution,
 the first term on the right hand side and $\bm \theta_{y, O}$ indexes parameters in the distribution of observed responses, the second term on the right hand side.
-As in \cite{dh2008}, we denote $\bm \xi(\bm \omega) = (\bm \xi_m, \bm \xi_s)$ as a reparametrization of the parameters in the full data model above where $\bm \xi_s$ are sensitivity parameters (not identified by the observed data) and $\bm \xi_m$ are identified by the observed data (just the parameters of the observed data distribution).
+As in \cite{dh2008}, we denote $\bm \xi(\bm \omega) = (\bm \xi_m, \bm \xi_s)$ as a possible reparametrization of the parameters in the full data model above where $\bm \xi_s$ are sensitivity parameters (not identified by the observed data) and $\bm \xi_m$ are identified by the observed data (just the parameters of the observed data distribution).
 
 We assume a sequential finite ($K$) mixture of normals within each pattern.
 A random variable $x$ follows a finite ($K$) mixture of normal distribution (MN), when
@@ -210,8 +210,6 @@ p(x|\bm \theta) = \sum_{i = 1}^K \omega_i \phi_N(x; \mu_i, \sigma_i^2),
 where $\bm \theta = (\bm{\mu, \sigma^2, \omega})$, $\bm \mu = (\mu_1, \ldots, \mu_K), \bm \sigma = (\sigma_1, \ldots, \sigma_K), \bm \omega = (\omega_1, \ldots, \omega_K)$,
 and $\phi_N(x; \mu, \sigma^2)$ stands for the PDF evaluated at $x$ of a normal distribution with mean $\mu$ and variance $\sigma^2$.
 
-We specify the model in this way such that MAR exists \citep{wang2011}; more details are presented in section \ref{ch3:sec:sa}.
-These distributions include a constraint such that the marginal quantile regression models in (\ref{eq:marg}) hold.
 In particular, we specify the distributions conditional on $S=k$ as:
 \begin{equation}
   \begin{array}{l}
@@ -284,10 +282,10 @@ Details on computing the $\Delta_{ij}$ will be given in section
 \ref{ch3:sec:computation}.
 
 The idea in the above specification is to model the marginal quantile regressions directly and then to embed them in the likelihood through restrictions in the mixture model.
-The finite mixture of normals distribution makes model flexible, which allows heavy tails and skewness for each pattern.
+The finite mixture of normals distribution makes model flexible and accommodates heavy tails, skewness and multi-modality.
 The mixture model in (\ref{eq:model}) allows the marginal quantile regression coefficients to differ by quantiles; otherwise, the quantile lines would be parallel to each other.
 Moreover, the mixture model also allows sensitivity analysis for the missing data.
-This is an essential component of the analysis of missing data (as discussed in the introduction) and is not permitted in previous approaches.
+This is an essential component of the analysis of missing data (as discussed in the introduction) and is not possible in previous approaches.
 
 \subsection{Missing Data Mechanism and Sensitivity Analysis}
 \label{ch3:sec:sa}
@@ -344,7 +342,8 @@ parameters $\bm \xi = (\bm \xi_m, \bm \xi_s)$.
     \tau = \sum_{k = 1}^J \phi_k \left( \sum_{l = 1}^{K} \omega_{l} \Phi \left( \frac{\bm x_{i}^T
         \bm \gamma_1 - \Delta_{i1} -\bm{x_i^T \beta_1^{(k)}} - \mu_{l}}{ \sigma_{l} } \right) \right).
   \end{align*}
-  where $\Phi$ is the standard normal CDF. Because the above equation
+  where $\Phi$ is the standard normal CDF.
+  Because the RHS of the above equation
   is continuous and monotone in $\Delta_{i1}$, it can be solved by a
   standard numerical root-finding method (e.g. bisection method) with
   minimal difficulty.
@@ -388,12 +387,12 @@ For the first
     & = \int\dots\int \Phi \left( \frac{\bm x_{i}^T \bm \gamma_j - \chi(\bm x_{i}, \bm y_{ij^{-}}) - \mu_l}{\sigma_{l}} \right) \\
     & \quad   dF(Y_{i(j-1)}|S=1, \bm x_{i}, \bm Y_{i(j-1)^{-}}) \cdots d F (Y_{i1} | S = 1, \bm x_{i}),
 \end{align*}
-while
+where
 \begin{multline*}
 \int \Phi \left( \frac{\bm x_{i}^T \bm \gamma_j - \chi(\bm x_{i}, \bm y_{ij^{-}}) - \mu_l}{\sigma_{l}}\right) dF(Y_{i(j-1)}|S=1, \bm x_{i}, \bm Y_{i(j-1)^{-}})  \\
  =  \sum_{m = 1}^K \omega_m\int \Phi \left( \frac{Y_{i(j-2)} - b_m^{*}}{a_m^{*}} \right) dF(Y_{i(j-2)}|S=1, \bm x_{i}, \bm Y_{i(j-2)^{-}}, \bm \theta_m)
 \end{multline*}
-where
+and
 \begin{align*}
 a_m^{*} & = \sqrt{\sigma_l^2/\beta_{y_{j-1}, j-1}^2 + \sigma_{m}^2} \big / \left( - \frac{\beta_{y_{j-2}, j-1}}{\beta_{y_{j-1}, j-1}} - \beta_{y_{j-2}, j-2} \right), \\
 b_m^{*} & = \frac{ (\bm x_i^T \bm \gamma_j - \Delta_{ij} - \bm{x_i^T h^{(k)}} - \mu_l)/\beta_{y_{j-1}, j-1} - (\Delta_{i(j-1)} + \sum_{k=1}^{j-3} Y_{i(k)} \beta_{y_k, j-2} + \bm{x_{i}^{T}h^{(k)}} + \mu_m)}{\frac{\beta_{y_{j-2}, j-1}}{\beta_{y_{j-1}, j-1}} + \beta_{y_{j-2}, j-2}},
@@ -433,14 +432,10 @@ During each step of the algorithm, $\Delta_{ij}$ has to be calculated
 for each subject and at each time, as well as partial derivatives for
 each parameter.
 
-As an example of the speed of the algorithm, for 100 bivariate
-outcomes and 5 covariates, it takes about 1.9 seconds to get
-convergence using R version 2.15.3 (2013-03-01) \citep{R} and
-platform: x86\_64-apple-darwin9.8.0/x86\_64 (64-bit). Main parts of
-the algorithm are coded in Fortran such as calculation of numerical
-derivatives and log-likelihood to quicken computations. We have
-incorporated those functions implementing the algorithm into the new R
-\citep{R} package ``qrmissing''.
+As an example of the speed of the algorithm, for 100 bivariate outcomes and 5 covariates,
+it takes about 1.9 seconds to obtain convergence using R version 2.15.3 (2013-03-01) \citep{R} and platform: x86\_64-apple-darwin9.8.0/x86\_64 (64-bit).
+Main parts of the algorithm are coded in Fortran such as calculation of numerical derivatives and log-likelihood to quicken computations.
+We have incorporated those functions implementing the algorithm into the new R \citep{R} package ``qrmissing''.
 
 We use the bootstrap \citep{efron1993} to
 construct confidence interval and make inferences.  We resample
@@ -466,12 +461,14 @@ intervals.
 %   \end{cases}.
 % \end{displaymath}
 
+The BIC criterion is an effective way to select the number of components in proposed model with mixture of normals.
+
 \section{Simulation Study}
 \label{ch3:sec:simulation}
 In this section,
 we compare the performance of our proposed model with the rq function (denoted as RQ) in quantreg R package \citep{quantreg} and Bottai's algorithm \citep{bottai2013} (denoted as BZ).
 The rq function minimizes the loss (check) function $\sum_{i=1}^n \rho_{\tau} (y_i - \bm x_i^T \bm \beta)$ in terms of $\bm \beta$,
-where the loss function $\rho_{\tau} (u) = u(\tau - I(u < 0))$ and does not make any distributional assumptions.
+where the loss function $\rho_{\tau} (u) = u(\tau - I(u < 0))$ and does not make any distributional assumptions and does not accommodate MAR or MNAR missingness.
 \citet{bottai2013} impute missing outcomes using the estimated conditional quantiles of missing outcomes given observed data.
 Their approach does not make distributional assumptions similar to RQ and assumes MAR missingness, but does not allow MNAR.
 
@@ -479,12 +476,12 @@ We considered three scenarios corresponding to both MAR and MNAR assumptions for
 In the first scenario, $Y_2$ were missing at random and we used the MAR assumption in our algorithm.
 In the next two scenarios, $Y_2$ were missing not at random.
 However, in the second scenario, we misspecified the MDM for our algorithm and still assumed MAR, while in the third scenario, we used the correct MNAR MDM.
-For each scenario, we considered three error distributions: normal, student t distribution with 3 degrees of freedom and Laplace distribution.
+For each scenario, we considered four error distributions: normal, student t distribution with 3 degrees of freedom, Laplace distribution and a skewed alternative.
 For each error model, we simulated 100 data sets.
 For each set there are 200 bivariate observations $\bm Y_i = (Y_{i1}, Y_{i2})$ for $i = 1, \ldots, 200$.
 $Y_{i1}$ were always observed, while some of $Y_{i2}$ were missing.
 A single covariate $x$ was sampled from Uniform(0,2).
-The three models for the full data response $\bm Y_i$ were:
+The four models for the full data response $\bm Y_i$ were:
 \begin{align*}
   Y_{i1} | R = 1 & \sim 2 + x_i +  \epsilon_{i1} , \\
   Y_{i1}| R = 0 & \sim  -2 - x_i +  \epsilon_{i1} , \\
@@ -534,10 +531,10 @@ The true values for quantile regression coefficients are obtained through the fo
 
 Table \ref{tab:simh2}, \ref{tab:sim2} and \ref{tab:sim3} present the MSE for coefficients estimates of quantile 0.1, 0.3, 0.5, 0.7, 0.9 under each scenario.
 Simulation results show estimates from our algorithm and BZ are closer to the true value for all quantiles from 0.1 to 0.9.
-The smallest MSE is in red.
+M1 stands for the proposed model with $K = 1$, and M2 stands for the model with the smallest BIC when $K = 1, \ldots, 5$.
 
-Under normal errors and scenario 1, the proposed method (M1 and M2) has the lowest MSE for all regression coefficients.
-However, there is bias for the estimates of the coefficients for the first component of the responses when MDM or error distribution is mis-specified comparing to BZ.
+Under normal errors and scenario 1, M2 has the lowest MSE for almost all regression coefficients.
+However, there is bias for the estimates of the coefficients for the first component of the missing responses when MDM or error distribution is mis-specified compared to BZ.
 Even with mis-specification of MDM or error distribution, our method still shows better performance in most middle quantiles.
 Meanwhile, our algorithm provides larger gains over rq function for each
 marginal quantile for the second component $Y_2$, which is missing for some units,
@@ -553,7 +550,7 @@ For errors with skewness (mixture of two normals), our approach (M2) succeeded t
 Therefore, M2 provides better performance in most cases.
 
 It can also be shown that models adopting mixture of normals (M2) perform better than models using errors of single normal (M1).
-The mixture of normals allows heavy tail and skewness.
+The mixture of normals allows heavy tails and skewness.
 
 % To assess the quality of our goodness of fit check, we examined the QQ plot of fitted residuals in model (\ref{eq:model}) to check the normality assumption on the error term for a random sample of the simulated datasets.
 % When our error assumption is correct (normal), the QQ plot reflects the fitted residuals follow  a normal distribution.
@@ -576,30 +573,30 @@ Laplace distribution(LP) and mixture of two normals(Mix).
       \hline
            & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ \\
 10\%  \\
-$\gamma_{01}$ & 0.05 & 0.06 & 0.06 & 0.06 & 0.16 & 0.08 & 0.16 & 0.16 & 2.12 & 1.18 & 1.22 & 1.22 & 0.28 & 0.08 & 0.16 & 0.16 \\
-$\gamma_{11}$ & 0.03 & 0.04 & 0.05 & 0.05 & 0.11 & 0.05 & 0.12 & 0.12 & 0.25 & 0.16 & 0.41 & 0.41 & 0.16 & 0.05 & 0.12 & 0.12 \\
-$\gamma_{02}$ & 0.10 & 0.08 & 0.37 & 0.10 & 0.19 & 0.08 & 0.53 & 0.17 & 3.26 & 3.32 & 6.58 & 2.57 & 0.25 & 0.09 & 0.86 & 0.39 \\
-$\gamma_{12}$ & 0.05 & 0.04 & 0.09 & 0.07 & 0.10 & 0.06 & 0.24 & 0.10 & 0.33 & 0.19 & 0.99 & 0.51 & 0.18 & 0.10 & 0.28 & 0.36 \\
+$\gamma_{01}$ & 0.08 & 0.08 & 0.09 & 0.09 & 0.26 & 0.09 & 0.12 & 0.12 & 2.39 & 1.33 & 1.76 & 1.76 & 0.41 & 0.41 & 0.75 & 0.75 \\
+$\gamma_{11}$ & 0.06 & 0.06 & 0.07 & 0.07 & 0.11 & 0.05 & 0.12 & 0.12 & 0.27 & 0.17 & 0.45 & 0.45 & 0.27 & 0.17 & 0.46 & 0.46 \\
+$\gamma_{02}$ & 0.09 & 0.09 & 0.34 & 0.09 & 0.31 & 0.11 & 0.56 & 0.19 & 3.53 & 3.41 & 6.33 & 2.91 & 0.67 & 0.43 & 1.89 & 0.80 \\
+$\gamma_{12}$ & 0.08 & 0.07 & 0.10 & 0.06 & 0.10 & 0.07 & 0.21 & 0.11 & 0.39 & 0.24 & 1.01 & 0.59 & 0.38 & 0.23 & 1.01 & 0.59 \\
 30\% \\
-$\gamma_{01}$ & 0.06 & 0.05 & 0.09 & 0.09 & 0.12 & 0.07 & 0.10 & 0.10 & 0.21 & 0.17 & 0.30 & 0.30 & 0.41 & 0.14 & 0.44 & 0.44 \\
-$\gamma_{11}$ & 0.03 & 0.03 & 0.07 & 0.07 & 0.07 & 0.04 & 0.07 & 0.07 & 0.18 & 0.16 & 0.28 & 0.28 & 0.16 & 0.04 & 0.53 & 0.53 \\
-$\gamma_{02}$ & 0.06 & 0.06 & 0.60 & 0.08 & 0.15 & 0.08 & 0.44 & 0.13 & 0.62 & 0.36 & 1.24 & 0.30 & 0.32 & 0.08 & 1.59 & 0.32 \\
-$\gamma_{12}$ & 0.05 & 0.05 & 0.05 & 0.04 & 0.10 & 0.04 & 0.08 & 0.08 & 0.25 & 0.16 & 0.22 & 0.15 & 0.14 & 0.05 & 0.48 & 0.26 \\
+$\gamma_{01}$ & 0.08 & 0.08 & 0.15 & 0.15 & 0.15 & 0.09 & 0.13 & 0.13 & 0.27 & 0.21 & 0.31 & 0.31 & 0.79 & 0.72 & 0.81 & 0.81 \\
+$\gamma_{11}$ & 0.04 & 0.04 & 0.10 & 0.10 & 0.08 & 0.05 & 0.08 & 0.08 & 0.27 & 0.14 & 0.23 & 0.23 & 0.20 & 0.13 & 0.22 & 0.22 \\
+$\gamma_{02}$ & 0.06 & 0.06 & 0.68 & 0.11 & 0.25 & 0.11 & 0.52 & 0.12 & 0.74 & 0.50 & 1.79 & 0.44 & 0.34 & 0.29 & 0.64 & 0.30 \\
+$\gamma_{12}$ & 0.06 & 0.06 & 0.07 & 0.06 & 0.11 & 0.07 & 0.09 & 0.09 & 0.36 & 0.25 & 0.30 & 0.27 & 0.22 & 0.15 & 0.44 & 0.25 \\
 50\% \\
-$\gamma_{01}$ & 0.22 & 0.17 & 1.17 & 1.17 & 0.09 & 0.12 & 1.01 & 1.01 & 0.16 & 0.17 & 0.80 & 0.80 & 0.10 & 0.03 & 0.18 & 0.18 \\
-$\gamma_{11}$  & 0.99 & 0.90 & 2.58 & 2.58 & 0.46 & 0.48 & 1.70 & 1.70 & 0.12 & 0.19 & 0.88 & 0.88 & 0.19 & 0.11 & 0.36 & 0.36 \\
-$\gamma_{02}$  & 0.11 & 0.12 & 1.15 & 0.13 & 0.16 & 0.12 & 1.03 & 0.21 & 0.34 & 0.17 & 1.05 & 0.27 & 0.22 & 0.08 & 1.88 & 0.44 \\
-$\gamma_{12}$  & 0.07 & 0.06 & 0.24 & 0.19 & 0.08 & 0.06 & 0.31 & 0.21 & 0.18 & 0.14 & 0.38 & 0.20 & 0.13 & 0.05 & 0.51 & 0.28 \\
+$\gamma_{01}$ & 0.22 & 0.23 & 1.42 & 1.42 & 0.09 & 0.17 & 0.91 & 0.91 & 0.21 & 0.22 & 0.61 & 0.61 & 0.21 & 0.22 & 0.61 & 0.61 \\
+$\gamma_{11}$  & 0.93 & 1.01 & 2.67 & 2.67 & 0.49 & 0.61 & 1.94 & 1.94 & 0.15 & 0.23 & 0.96 & 0.96 & 0.15 & 0.23 & 0.96 & 0.96 \\
+$\gamma_{02}$  & 0.19 & 0.10 & 1.11 & 0.20 & 0.28 & 0.14 & 1.04 & 0.24 & 0.33 & 0.26 & 1.27 & 0.31 & 0.33 & 0.26 & 1.27 & 0.31 \\
+$\gamma_{12}$  & 0.06 & 0.05 & 0.31 & 0.16 & 0.10 & 0.07 & 0.34 & 0.23 & 0.21 & 0.21 & 0.31 & 0.28 & 0.21 & 0.21 & 0.31 & 0.28 \\
 70\% \\
-$\gamma_{01}$  & 0.05 & 0.06 & 0.10 & 0.10 & 0.17 & 0.07 & 0.10 & 0.10 & 0.25 & 0.18 & 0.32 & 0.32 & 0.39 & 0.16 & 0.84 & 0.84 \\
-$\gamma_{11}$  & 0.03 & 0.03 & 0.06 & 0.06 & 0.09 & 0.04 & 0.08 & 0.08 & 0.24 & 0.13 & 0.24 & 0.24 & 0.14 & 0.04 & 0.68 & 0.68 \\
-$\gamma_{02}$  & 0.12 & 0.16 & 1.64 & 0.17 & 0.26 & 0.20 & 1.82 & 0.28 & 0.59 & 0.39 & 0.84 & 0.55 & 0.26 & 0.08 & 1.96 & 0.56 \\
-$\gamma_{12}$  & 0.11 & 0.09 & 0.90 & 0.13 & 0.15 & 0.10 & 0.88 & 0.17 & 0.24 & 0.22 & 1.21 & 0.28 & 0.15 & 0.06 & 0.47 & 0.31 \\
+$\gamma_{01}$  & 0.08 & 0.07 & 0.10 & 0.10 & 0.19 & 0.08 & 0.16 & 0.16 & 0.26 & 0.21 & 0.25 & 0.25 & 0.86 & 0.80 & 0.84 & 0.84 \\
+$\gamma_{11}$  & 0.04 & 0.04 & 0.07 & 0.07 & 0.12 & 0.06 & 0.15 & 0.15 & 0.28 & 0.17 & 0.25 & 0.25 & 0.20 & 0.14 & 0.22 & 0.22 \\
+$\gamma_{02}$  & 0.24 & 0.24 & 1.55 & 0.22 & 0.42 & 0.23 & 1.72 & 0.29 & 0.70 & 0.42 & 1.20 & 0.62 & 0.44 & 0.42 & 2.98 & 0.60 \\
+$\gamma_{12}$  & 0.11 & 0.11 & 0.96 & 0.12 & 0.22 & 0.09 & 0.95 & 0.16 & 0.27 & 0.23 & 0.88 & 0.28 & 0.25 & 0.27 & 0.40 & 0.34 \\
 90\% \\
-$\gamma_{01}$  & 0.05 & 0.05 & 0.08 & 0.08 & 0.21 & 0.07 & 0.13 & 0.13 & 2.36 & 1.21 & 1.80 & 1.80 & 0.38 & 0.13 & 0.20 & 0.20 \\
-$\gamma_{11}$  & 0.04 & 0.03 & 0.06 & 0.06 & 0.11 & 0.06 & 0.11 & 0.11 & 0.19 & 0.11 & 0.44 & 0.44 & 0.14 & 0.08 & 0.15 & 0.15 \\
-$\gamma_{02}$  & 0.37 & 0.48 & 2.49 & 0.23 & 0.36 & 0.28 & 2.63 & 0.64 & 2.79 & 2.95 & 1.44 & 3.38 & 0.41 & 0.27 & 2.13 & 0.51 \\
-$\gamma_{12}$  & 0.12 & 0.10 & 1.02 & 0.10 & 0.14 & 0.09 & 1.05 & 0.20 & 0.27 & 0.28 & 1.91 & 0.63 & 0.18 & 0.08 & 1.00 & 0.23 \\
+$\gamma_{01}$  & 0.07 & 0.07 & 0.10 & 0.10 & 0.33 & 0.08 & 0.17 & 0.17 & 2.44 & 1.29 & 1.91 & 1.91 & 0.40 & 0.45 & 0.82 & 0.82 \\
+$\gamma_{11}$  & 0.05 & 0.05 & 0.08 & 0.08 & 0.16 & 0.06 & 0.12 & 0.12 & 0.25 & 0.18 & 0.54 & 0.54 & 0.25 & 0.18 & 0.54 & 0.54 \\
+$\gamma_{02}$  & 0.56 & 0.50 & 2.70 & 0.38 & 0.46 & 0.32 & 2.22 & 0.65 & 2.87 & 2.77 & 1.12 & 3.58 & 0.76 & 0.61 & 3.45 & 1.28 \\
+$\gamma_{12}$  & 0.11 & 0.11 & 0.96 & 0.13 & 0.22 & 0.09 & 1.42 & 0.28 & 0.36 & 0.31 & 1.40 & 0.58 & 0.36 & 0.31 & 1.36 & 0.58 \\
 \hline
   \end{tabular}
 
@@ -623,30 +620,30 @@ Laplace distribution(LP) and mixture of two normals(Mix).
       \hline
            & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ \\
 10\%  \\
-$\gamma_{01}$ & 0.10 & 0.07 & 0.09 & 0.09 & 0.31 & 0.12 & 0.20 & 0.20 & 2.38 & 1.19 & 1.78 & 1.78 & 0.34 & 0.21 & 0.20 & 0.20 \\
-$\gamma_{11}$ & 0.06 & 0.05 & 0.07 & 0.07 & 0.10 & 0.08 & 0.13 & 0.13 & 0.29 & 0.23 & 0.57 & 0.57 & 0.15 & 0.13 & 0.17 & 0.17 \\
-$\gamma_{02}$ & 0.11 & 0.10 & 0.47 & 0.14 & 0.49 & 0.13 & 1.02 & 0.36 & 4.64 & 3.79 & 7.07 & 3.51 & 0.36 & 0.21 & 1.28 & 0.50 \\
-$\gamma_{12}$ & 0.06 & 0.06 & 0.10 & 0.10 & 0.20 & 0.09 & 0.31 & 0.18 & 0.57 & 0.36 & 0.95 & 0.62 & 0.27 & 0.23 & 0.37 & 0.42 \\
+$\gamma_{01}$ & 0.07 & 0.06 & 0.10 & 0.10 & 0.26 & 0.09 & 0.16 & 0.16 & 2.38 & 1.24 & 1.91 & 1.91 & 0.44 & 0.10 & 0.23 & 0.23 \\
+$\gamma_{11}$ & 0.05 & 0.04 & 0.08 & 0.08 & 0.10 & 0.06 & 0.14 & 0.14 & 0.24 & 0.18 & 0.48 & 0.48 & 0.19 & 0.06 & 0.15 & 0.15 \\
+$\gamma_{02}$ & 0.13 & 0.09 & 0.33 & 0.10 & 0.28 & 0.10 & 0.68 & 0.26 & 3.89 & 3.89 & 6.53 & 3.00 & 0.38 & 0.12 & 0.93 & 0.49 \\
+$\gamma_{12}$ & 0.08 & 0.06 & 0.08 & 0.07 & 0.14 & 0.06 & 0.34 & 0.14 & 0.50 & 0.27 & 1.22 & 0.67 & 0.28 & 0.10 & 0.34 & 0.37 \\
 30\% \\
-$\gamma_{01}$ & 0.14 & 0.11 & 0.16 & 0.16 & 0.18 & 0.08 & 0.16 & 0.16 & 0.26 & 0.20 & 0.36 & 0.36 & 0.62 & 0.22 & 0.81 & 0.81 \\
-$\gamma_{11}$ & 0.08 & 0.07 & 0.13 & 0.13 & 0.08 & 0.06 & 0.12 & 0.12 & 0.26 & 0.18 & 0.34 & 0.34 & 0.16 & 0.06 & 0.76 & 0.76 \\
-$\gamma_{02}$ & 0.09 & 0.07 & 0.83 & 0.13 & 0.33 & 0.10 & 0.88 & 0.20 & 1.01 & 0.54 & 1.95 & 0.60 & 0.31 & 0.34 & 3.06 & 0.68 \\
-$\gamma_{12}$ & 0.08 & 0.09 & 0.07 & 0.10 & 0.15 & 0.11 & 0.07 & 0.11 & 0.48 & 0.27 & 0.21 & 0.23 & 0.21 & 0.10 & 0.51 & 0.38 \\
+$\gamma_{01}$ & 0.11 & 0.07 & 0.13 & 0.13 & 0.17 & 0.08 & 0.16 & 0.16 & 0.25 & 0.22 & 0.29 & 0.29 & 0.50 & 0.24 & 1.01 & 1.01 \\
+$\gamma_{11}$ & 0.03 & 0.03 & 0.08 & 0.08 & 0.09 & 0.05 & 0.12 & 0.12 & 0.24 & 0.16 & 0.21 & 0.21 & 0.15 & 0.04 & 0.81 & 0.81 \\
+$\gamma_{02}$ & 0.08 & 0.07 & 0.79 & 0.15 & 0.21 & 0.10 & 0.78 & 0.15 & 0.95 & 0.66 & 2.12 & 0.55 & 0.41 & 0.31 & 2.54 & 0.65 \\
+$\gamma_{12}$ & 0.07 & 0.06 & 0.05 & 0.08 & 0.09 & 0.07 & 0.09 & 0.07 & 0.42 & 0.25 & 0.35 & 0.22 & 0.26 & 0.08 & 0.59 & 0.39 \\
 50\% \\
-$\gamma_{01}$ & 0.23 & 0.23 & 1.68 & 1.68 & 0.12 & 0.17 & 1.30 & 1.30 & 0.18 & 0.16 & 0.95 & 0.95 & 0.14 & 0.04 & 0.21 & 0.21 \\
-$\gamma_{11}$  & 0.93 & 0.90 & 3.15 & 3.15 & 0.47 & 0.56 & 2.19 & 2.19 & 0.15 & 0.26 & 1.15 & 1.15 & 0.16 & 0.13 & 0.45 & 0.45 \\
-$\gamma_{02}$  & 1.44 & 1.47 & 4.14 & 1.29 & 1.37 & 1.14 & 4.25 & 1.45 & 1.58 & 1.26 & 4.36 & 1.76 & 1.02 & 0.98 & 4.57 & 1.34 \\
-$\gamma_{12}$  & 0.09 & 0.07 & 0.30 & 0.24 & 0.15 & 0.09 & 0.26 & 0.32 & 0.28 & 0.19 & 0.38 & 0.41 & 0.21 & 0.07 & 0.54 & 0.41 \\
+$\gamma_{01}$ & 0.25 & 0.25 & 1.47 & 1.47 & 0.10 & 0.18 & 1.47 & 1.47 & 0.16 & 0.18 & 0.62 & 0.62 & 0.14 & 0.04 & 0.22 & 0.22 \\
+$\gamma_{11}$  & 0.99 & 1.02 & 2.49 & 2.49 & 0.53 & 0.54 & 2.51 & 2.51 & 0.18 & 0.25 & 0.76 & 0.76 & 0.24 & 0.13 & 0.41 & 0.41 \\
+$\gamma_{02}$  & 1.25 & 1.16 & 4.05 & 1.23 & 1.41 & 1.18 & 4.07 & 1.37 & 1.42 & 1.45 & 4.24 & 1.66 & 1.20 & 0.92 & 4.32 & 1.61 \\
+$\gamma_{12}$  & 0.06 & 0.06 & 0.30 & 0.20 & 0.10 & 0.06 & 0.31 & 0.28 & 0.28 & 0.16 & 0.46 & 0.32 & 0.25 & 0.07 & 0.75 & 0.39 \\
 70\% \\
-$\gamma_{01}$  & 0.07 & 0.07 & 0.14 & 0.14 & 0.23 & 0.07 & 0.13 & 0.13 & 0.23 & 0.23 & 0.39 & 0.39 & 0.52 & 0.27 & 1.09 & 1.09 \\
-$\gamma_{11}$  & 0.04 & 0.03 & 0.11 & 0.11 & 0.10 & 0.05 & 0.11 & 0.11 & 0.28 & 0.21 & 0.38 & 0.38 & 0.18 & 0.04 & 0.81 & 0.81 \\
-$\gamma_{02}$  & 4.77 & 4.87 & 10.24 & 3.94 & 3.97 & 4.08 & 10.28 & 3.57 & 2.48 & 2.63 & 8.20 & 2.77 & 1.98 & 1.35 & 4.93 & 1.85 \\
-$\gamma_{12}$  & 0.14 & 0.15 & 1.01 & 0.17 & 0.25 & 0.12 & 0.98 & 0.21 & 0.31 & 0.31 & 1.28 & 0.51 & 0.25 & 0.08 & 0.72 & 0.43 \\
+$\gamma_{01}$  & 0.08 & 0.08 & 0.16 & 0.16 & 0.21 & 0.08 & 0.16 & 0.16 & 0.21 & 0.15 & 0.22 & 0.22 & 0.42 & 0.13 & 0.76 & 0.76 \\
+$\gamma_{11}$  & 0.04 & 0.04 & 0.09 & 0.09 & 0.11 & 0.05 & 0.13 & 0.13 & 0.25 & 0.15 & 0.23 & 0.23 & 0.22 & 0.06 & 0.75 & 0.75 \\
+$\gamma_{02}$  & 4.73 & 4.73 & 9.95 & 3.77 & 4.36 & 4.45 & 9.89 & 3.99 & 2.23 & 2.86 & 8.32 & 2.77 & 2.16 & 1.20 & 5.10 & 1.77 \\
+$\gamma_{12}$  & 0.14 & 0.14 & 1.02 & 0.17 & 0.26 & 0.16 & 1.11 & 0.22 & 0.45 & 0.25 & 1.20 & 0.37 & 0.25 & 0.07 & 0.74 & 0.36 \\
 90\% \\
-$\gamma_{01}$  & 0.06 & 0.06 & 0.08 & 0.08 & 0.26 & 0.08 & 0.12 & 0.12 & 2.30 & 1.18 & 2.09 & 2.09 & 0.51 & 0.15 & 0.27 & 0.27 \\
-$\gamma_{11}$  & 0.04 & 0.04 & 0.07 & 0.07 & 0.16 & 0.07 & 0.10 & 0.10 & 0.25 & 0.22 & 0.65 & 0.65 & 0.18 & 0.09 & 0.20 & 0.20 \\
-$\gamma_{02}$  & 6.57 & 6.72 & 12.96 & 4.79 & 4.41 & 4.35 & 11.82 & 3.33 & 1.04 & 0.78 & 4.10 & 1.50 & 2.65 & 2.39 & 6.46 & 2.04 \\
-$\gamma_{12}$  & 0.12 & 0.12 & 1.03 & 0.17 & 0.26 & 0.11 & 1.12 & 0.26 & 0.43 & 0.32 & 2.06 & 0.79 & 0.26 & 0.14 & 1.01 & 0.45 \\
+$\gamma_{01}$  & 0.08 & 0.08 & 0.09 & 0.09 & 0.30 & 0.09 & 0.16 & 0.16 & 2.27 & 1.17 & 1.84 & 1.84 & 0.53 & 0.12 & 0.30 & 0.30 \\
+$\gamma_{11}$  & 0.05 & 0.05 & 0.06 & 0.06 & 0.14 & 0.06 & 0.13 & 0.13 & 0.32 & 0.19 & 0.58 & 0.58 & 0.21 & 0.07 & 0.19 & 0.19 \\
+$\gamma_{02}$  & 6.43 & 6.32 & 12.20 & 4.14 & 4.76 & 4.90 & 11.26 & 4.32 & 0.92 & 0.80 & 4.40 & 1.33 & 2.99 & 2.14 & 6.51 & 2.04 \\
+$\gamma_{12}$  & 0.12 & 0.11 & 1.15 & 0.15 & 0.25 & 0.15 & 1.32 & 0.23 & 0.42 & 0.26 & 1.98 & 0.78 & 0.24 & 0.09 & 0.99 & 0.33 \\
 \hline
   \end{tabular}
 
@@ -669,30 +666,30 @@ Laplace distribution(LP) and mixture of two normals(Mix).
       \hline
            & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ \\
 10\%  \\
-$\gamma_{01}$ & 0.10 & 0.07 & 0.10 & 0.10 & 0.30 & 0.11 & 0.16 & 0.16 & 2.43 & 1.29 & 2.06 & 2.06 & 0.46 & 0.21 & 0.34 & 0.34 \\
-$\gamma_{11}$ & 0.06 & 0.04 & 0.06 & 0.06 & 0.14 & 0.06 & 0.14 & 0.14 & 0.35 & 0.25 & 0.44 & 0.44 & 0.17 & 0.10 & 0.25 & 0.25 \\
-$\gamma_{02}$ & 0.17 & 0.12 & 0.50 & 0.14 & 0.30 & 0.13 & 0.68 & 0.17 & 2.73 & 2.74 & 7.59 & 3.24 & 0.52 & 0.26 & 1.07 & 0.42 \\
-$\gamma_{12}$ & 0.10 & 0.06 & 0.14 & 0.10 & 0.15 & 0.09 & 0.23 & 0.14 & 0.43 & 0.35 & 1.12 & 0.63 & 0.27 & 0.11 & 0.28 & 0.29 \\
+$\gamma_{01}$ & 0.08 & 0.07 & 0.08 & 0.08 & 0.31 & 0.10 & 0.18 & 0.18 & 2.48 & 1.39 & 2.06 & 2.06 & 0.37 & 0.11 & 0.23 & 0.23 \\
+$\gamma_{11}$ & 0.05 & 0.05 & 0.06 & 0.06 & 0.16 & 0.06 & 0.11 & 0.11 & 0.26 & 0.19 & 0.50 & 0.50 & 0.18 & 0.06 & 0.17 & 0.17 \\
+$\gamma_{02}$ & 0.14 & 0.12 & 0.33 & 0.09 & 0.42 & 0.10 & 0.64 & 0.19 & 4.06 & 3.71 & 7.39 & 3.33 & 0.31 & 0.12 & 1.05 & 0.34 \\
+$\gamma_{12}$ & 0.07 & 0.06 & 0.10 & 0.06 & 0.09 & 0.07 & 0.21 & 0.20 & 0.42 & 0.34 & 1.04 & 0.71 & 0.29 & 0.10 & 0.31 & 0.29 \\
 30\% \\
-$\gamma_{01}$ & 0.27 & 0.13 & 0.14 & 0.14 & 0.22 & 0.10 & 0.16 & 0.16 & 0.32 & 0.25 & 0.37 & 0.37 & 0.48 & 0.24 & 1.32 & 1.32 \\
-$\gamma_{11}$ & 0.06 & 0.06 & 0.08 & 0.08 & 0.12 & 0.06 & 0.16 & 0.16 & 0.24 & 0.17 & 0.32 & 0.32 & 0.15 & 0.10 & 0.83 & 0.83 \\
-$\gamma_{02}$ & 0.19 & 0.09 & 0.84 & 0.11 & 0.27 & 0.14 & 0.82 & 0.14 & 0.46 & 0.26 & 1.97 & 0.54 & 0.42 & 0.34 & 2.68 & 0.65 \\
-$\gamma_{12}$ & 0.10 & 0.06 & 0.07 & 0.08 & 0.12 & 0.07 & 0.08 & 0.09 & 0.35 & 0.24 & 0.32 & 0.25 & 0.24 & 0.12 & 0.49 & 0.35 \\
+$\gamma_{01}$ & 0.08 & 0.08 & 0.09 & 0.09 & 0.32 & 0.08 & 0.14 & 0.14 & 0.24 & 0.18 & 0.25 & 0.25 & 0.52 & 0.18 & 1.01 & 1.01 \\
+$\gamma_{11}$ & 0.04 & 0.04 & 0.08 & 0.08 & 0.19 & 0.05 & 0.10 & 0.10 & 0.30 & 0.19 & 0.32 & 0.32 & 0.16 & 0.04 & 0.78 & 0.78 \\
+$\gamma_{02}$ & 0.09 & 0.09 & 0.74 & 0.13 & 0.31 & 0.07 & 0.64 & 0.09 & 0.91 & 0.63 & 2.05 & 0.58 & 0.43 & 0.32 & 3.10 & 0.69 \\
+$\gamma_{12}$ & 0.06 & 0.06 & 0.06 & 0.08 & 0.13 & 0.07 & 0.06 & 0.06 & 0.38 & 0.32 & 0.33 & 0.26 & 0.22 & 0.10 & 0.43 & 0.34 \\
 50\% \\
-$\gamma_{01}$ & 0.23 & 0.30 & 1.33 & 1.33 & 0.13 & 0.22 & 1.22 & 1.22 & 0.23 & 0.23 & 0.81 & 0.81 & 0.15 & 0.05 & 0.21 & 0.21 \\
-$\gamma_{11}$  & 0.87 & 0.93 & 2.44 & 2.44 & 0.56 & 0.57 & 2.33 & 2.33 & 0.17 & 0.22 & 0.85 & 0.85 & 0.18 & 0.15 & 0.43 & 0.43 \\
-$\gamma_{02}$  & 0.44 & 0.35 & 4.16 & 1.28 & 0.21 & 0.25 & 4.05 & 1.22 & 0.45 & 0.30 & 4.27 & 1.42 & 0.34 & 0.11 & 4.18 & 1.34 \\
-$\gamma_{12}$  & 0.16 & 0.13 & 0.30 & 0.21 & 0.25 & 0.14 & 0.29 & 0.27 & 0.26 & 0.26 & 0.45 & 0.38 & 0.20 & 0.09 & 0.60 & 0.38 \\
+$\gamma_{01}$ & 0.24 & 0.24 & 1.50 & 1.50 & 0.13 & 0.14 & 1.53 & 1.53 & 0.13 & 0.15 & 0.58 & 0.58 & 0.11 & 0.03 & 0.22 & 0.22 \\
+$\gamma_{11}$  & 0.85 & 0.93 & 3.02 & 3.02 & 0.47 & 0.44 & 2.17 & 2.17 & 0.16 & 0.23 & 0.94 & 0.94 & 0.16 & 0.11 & 0.45 & 0.45 \\
+$\gamma_{02}$  & 1.45 & 1.21 & 3.94 & 1.12 & 1.62 & 1.22 & 3.88 & 1.34 & 1.43 & 1.39 & 4.40 & 1.53 & 1.27 & 0.91 & 4.54 & 1.56 \\
+$\gamma_{12}$  & 0.07 & 0.04 & 0.33 & 0.23 & 0.12 & 0.04 & 0.30 & 0.21 & 0.26 & 0.23 & 0.42 & 0.31 & 0.22 & 0.07 & 0.55 & 0.34 \\
 70\% \\
-$\gamma_{01}$  & 0.09 & 0.09 & 0.12 & 0.12 & 0.16 & 0.08 & 0.16 & 0.16 & 0.28 & 0.29 & 0.33 & 0.33 & 0.61 & 0.30 & 0.72 & 0.72 \\
-$\gamma_{11}$  & 0.08 & 0.04 & 0.08 & 0.08 & 0.10 & 0.05 & 0.12 & 0.12 & 0.25 & 0.18 & 0.29 & 0.29 & 0.18 & 0.05 & 0.55 & 0.55 \\
-$\gamma_{02}$  & 0.79 & 0.77 & 10.33 & 3.99 & 0.66 & 0.49 & 10.31 & 3.69 & 0.59 & 0.45 & 7.74 & 2.73 & 0.44 & 0.18 & 4.88 & 1.66 \\
-$\gamma_{12}$  & 0.14 & 0.12 & 0.98 & 0.16 & 0.20 & 0.10 & 0.96 & 0.23 & 0.36 & 0.35 & 1.35 & 0.47 & 0.35 & 0.14 & 0.76 & 0.35 \\
+$\gamma_{01}$  & 0.06 & 0.06 & 0.10 & 0.10 & 0.15 & 0.07 & 0.15 & 0.15 & 0.18 & 0.18 & 0.23 & 0.23 & 0.56 & 0.22 & 1.03 & 1.03 \\
+$\gamma_{11}$  & 0.03 & 0.03 & 0.09 & 0.09 & 0.10 & 0.05 & 0.15 & 0.15 & 0.19 & 0.18 & 0.24 & 0.24 & 0.13 & 0.04 & 0.74 & 0.74 \\
+$\gamma_{02}$  & 4.68 & 4.68 & 9.77 & 3.77 & 4.47 & 4.42 & 10.20 & 4.25 & 2.35 & 2.69 & 8.16 & 2.87 & 2.21 & 1.21 & 5.64 & 1.91 \\
+$\gamma_{12}$  & 0.15 & 0.15 & 1.10 & 0.21 & 0.27 & 0.11 & 0.96 & 0.16 & 0.40 & 0.27 & 1.25 & 0.32 & 0.22 & 0.06 & 0.59 & 0.34 \\
 90\% \\
-$\gamma_{01}$  & 0.07 & 0.06 & 0.10 & 0.10 & 0.17 & 0.10 & 0.19 & 0.19 & 2.62 & 1.39 & 2.37 & 2.37 & 0.30 & 0.15 & 0.23 & 0.23 \\
-$\gamma_{11}$  & 0.05 & 0.04 & 0.07 & 0.07 & 0.13 & 0.05 & 0.13 & 0.13 & 0.32 & 0.21 & 0.61 & 0.61 & 0.19 & 0.11 & 0.19 & 0.19 \\
-$\gamma_{02}$  & 0.93 & 0.99 & 13.00 & 4.87 & 0.68 & 0.49 & 11.49 & 4.23 & 1.52 & 1.55 & 4.27 & 1.34 & 0.70 & 0.29 & 6.85 & 2.02 \\
-$\gamma_{12}$  & 0.14 & 0.13 & 0.99 & 0.13 & 0.23 & 0.10 & 1.20 & 0.23 & 0.56 & 0.32 & 2.58 & 0.99 & 0.40 & 0.20 & 0.93 & 0.36 \\
+$\gamma_{01}$  & 0.07 & 0.07 & 0.08 & 0.08 & 0.29 & 0.08 & 0.19 & 0.19 & 2.15 & 1.02 & 1.66 & 1.66 & 0.30 & 0.09 & 0.19 & 0.19 \\
+$\gamma_{11}$  & 0.05 & 0.05 & 0.08 & 0.08 & 0.10 & 0.06 & 0.16 & 0.16 & 0.29 & 0.15 & 0.47 & 0.47 & 0.15 & 0.05 & 0.15 & 0.15 \\
+$\gamma_{02}$  & 6.38 & 6.37 & 12.32 & 4.48 & 4.91 & 4.86 & 12.33 & 4.98 & 1.04 & 0.98 & 4.66 & 1.50 & 3.16 & 2.26 & 6.84 & 2.13 \\
+$\gamma_{12}$  & 0.14 & 0.14 & 1.17 & 0.13 & 0.30 & 0.10 & 1.09 & 0.19 & 0.40 & 0.29 & 2.14 & 0.77 & 0.26 & 0.08 & 0.87 & 0.40 \\
 \hline
   \end{tabular}
 
@@ -760,7 +757,7 @@ Coefficients of baseline weight show a strong relationship with weights after 6 
   \end{center}
 \end{table}
 
-We calculated the BIC for median regression models with $K = 1, 2, 3, 4, 5$. From table~\ref{tab:bic}, we have strong evidence that $K = 1$ is the best model when using mixture of normals.
+We calculated the BIC for median regression models with $K = 1, 2, 3, 4, 5$. From table~\ref{tab:bic} and based on the model selection introduced in section~\ref{ch3:sec:mle}, we have strong evidence that $K = 1$ is the best model when using mixture of normals.
 
 \begin{table}[htbp]
 \caption[]{\label{tab:bic} BIC: The BIC for median regression models with $K = 1, 2, 3, 4, 5$.}
@@ -816,7 +813,7 @@ partly due to the low proportion of missing data in this study.
 \section{Discussion}
 \label{ch3:sec:discussion}
 
-In this chapter, we have developed a marginal quantile regression model
+In this article, we have developed a marginal quantile regression model
 for data with monotone missingness. We use a pattern mixture model to
 jointly model the full data response and missingness. Here we estimate
 marginal quantile regression coefficients instead of coefficients
@@ -832,7 +829,7 @@ Simulation studies demonstrate that our approach has smaller MSE than the tradit
 And it has advantages over BZ for most quantile regression inference even when the tails of the distribution are mis-specified.
 
 Our model assumes a multivariate mixture of normals distribution for each component in the pattern mixture model, which can deal with heavy tail and skewness.
-It is possible to replace it with a non-parametric model, for example, a Dirichlet process mixture or \polya{} trees.
+It is possible to replace it with a Bayesian non-parametric model, for example, a Dirichlet process mixture which would not require choosing the number of components.
 However, computational algorithms would need to be developed for those settings;  we are currently working on this.
 Our approach is implemented with the R package ``qrmissing'' which can be downloaded from the author's website: \url{https://github.com/liuminzhao/qrmissing}.
 
@@ -850,7 +847,7 @@ with this paper at the Biometrics website on Wiley Online Library.
 
 \section*{Acknowledgments}
 
-This study is supported by NIH grant CA85295.
+This study is partially supported by NIH grants CA85295 and CA183854.
 
 %  If your paper refers to supplementary web material, then you MUST
 %  include this section!!  See Instructions for Authors at the journal
