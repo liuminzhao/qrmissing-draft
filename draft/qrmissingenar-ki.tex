@@ -1,9 +1,27 @@
 % modify sensitivity parameter in unobserved likelihood
-% Time-stamp: <liuminzhao 07/07/2014 22:51:26>
+% Time-stamp: <liuminzhao 07/14/2014 21:34:40>
 
-\documentclass[useAMS,usenatbib,referee]{biom}
+\documentclass[12pt]{article}
 
-% OWN MACROS
+\usepackage[figuresright]{rotating}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{color}
+
+\usepackage{amsmath}
+\usepackage[round]{natbib}
+%\usepackage{times}
+\usepackage{graphicx}
+%\usepackage{courier}
+\usepackage{mathpazo}
+\usepackage{mathrsfs}
+\usepackage{bm}
+\usepackage[colorlinks,linkcolor=red,anchorcolor=blue,citecolor=blue]{hyperref}
+\usepackage[verbose,letterpaper,tmargin=1in,bmargin=.75in,lmargin=.75in,rmargin=1in]{geometry}
+\usepackage{amsthm}
+\usepackage{pdflscape}
+\usepackage{authblk}
+
 \newtheorem{thm}{Theorem}[section] \newtheorem{deff}[thm]{Definition}
 \newtheorem{rmk}[thm]{Remark} \newtheorem{prf}[thm]{Proof}
 \newtheorem{cor}[thm]{Corollary} \newtheorem{emp}[thm]{Example}
@@ -11,45 +29,30 @@
 \newcommand{\iid}{\stackrel{\mbox{i.i.d}}{\sim}}
 \newcommand{\pr}{\mbox{p}}
 \newcommand{\prob}{\mbox{Pr}}
-\newcommand{\polya}{P\'{o}lya} \newcommand{\yobs}{\bmath y_{\itl{obs}}}
-\newcommand{\ymis}{\bmath y_{\itl{mis}}}
+\newcommand{\polya}{P\'{o}lya} \newcommand{\yobs}{\bm y_{\it{obs}}}
+\newcommand{\ymis}{\bm y_{\it{mis}}}
 
-\usepackage[figuresright]{rotating}
-\usepackage{amsmath}
-\usepackage{hyperref}
-\usepackage{bm}
-\usepackage{color}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\setcounter{footnote}{2}
+\title{Quantile Regression in the Presence of Monotone Missingness with Sensitivity Analysis}
 
-\title[Quantile Regression with Missingness]{Quantile Regression in the Presence of Monotone Missingness with Sensitivity Analysis}
+\author[1]{Minzhao Liu\thanks{liuminzhao@ufl.edu}}
+\author[2]{Michael J. Daniels\thanks{mjdaniels@austin.utexas.edu}}
+\author[3]{Michael G. Perri\thanks{mperri@phhp.ufl.edu}}
+\affil[1]{Department of Statistics, University of Florida, FL 32601, USA}
+\affil[2]{Department of Integrative Biology, Division of Statistics and Scientific Computation\\
+The University of Texas at Austin, 141MC Patterson Hall, Austin, TX 78712, USA}
+\affil[3]{Department of Clinical and Health Psychology, University of Florida, Gainesville, FL 32611, USA}
 
-\author{Minzhao Liu$^{1,*}$\email{liuminzhao@ufl.edu},
-  Michael J. Daniels$^{2,**}$\email{mjdaniels@austin.utexas.edu}, and
-Michael G. Perri$^{3,***}$\email{mperri@phhp.ufl.edu} \\
-  $^1$Department of Statistics, University of Florida, FL 32601, USA.\\
-  $^2$Department of Integrative Biology, Division of Statistics and Scientific
-  Computation\\
-The University of Texas at Austin, 141MC Patterson Hall,
-  Austin, TX 78712, USA.\\
-$^3$Department of Clinical and Health Psychology,
- University of Florida, Gainesville, FL 32611, USA.
-}
+\usepackage{setspace}
+\linespread{2}
+
+\providecommand{\keywords}[1]{\textbf{\textit{Index terms---}} #1}
 
 \begin{document}
 
-\date{}
-
-\pagerange{\pageref{firstpage}--\pageref{lastpage}}
-\volume{59}
-\pubyear{2006}
-\artmonth{December}
-
-\doi{10.1111/j.1541-0420.2005.00454.x}
-
-\label{firstpage}
+\maketitle{}
 
 \begin{abstract}
   In this paper, we develop methods for longitudinal quantile regression when there is monotone missingness.
@@ -57,14 +60,11 @@ $^3$Department of Clinical and Health Psychology,
   Our approach allows sensitivity analysis which is an essential component in inference for incomplete data.
   To facilitate computation of the likelihood, we propose a novel way to obtain analytic forms for the required integrals.  We conduct simulations to examine the robustness of our approach to modeling assumptions and compare its performance to competing approaches.
   The model is applied to data from a recent clinical trial on weight management.
+
+{\bf keywords:} Marginalized models, Non-ignorable missingness, Pattern mixture models.
 \end{abstract}
 
-\begin{keywords}
-  Monotone missingness; Non-ignorable missingness; Quantile regression;
-  Sensitivity analysis.
-\end{keywords}
 
-\maketitle
 
 \section{Introduction}
 
@@ -208,7 +208,7 @@ A random variable $x$ follows a finite ($K$) mixture of normal distribution (MN)
 p(x|\bm \theta) = \sum_{i = 1}^K \omega_i \phi_N(x; \mu_i, \sigma_i^2),
 \end{displaymath}
 where $\bm \theta = (\bm{\mu, \sigma^2, \omega})$, $\bm \mu = (\mu_1, \ldots, \mu_K), \bm \sigma = (\sigma_1, \ldots, \sigma_K), \bm \omega = (\omega_1, \ldots, \omega_K)$,
-and $\phi_N(x; \mu, \sigma^2)$ stands for the PDF evaluated at $x$ of a normal distribution with mean $\mu$ and variance $\sigma^2$.
+and $\phi_N(x; \mu, \sigma^2)$ denotes the PDF evaluated at $x$ of a normal distribution with mean $\mu$ and variance $\sigma^2$.
 
 In particular, we specify the distributions conditional on $S=k$ as:
 \begin{equation}
@@ -231,7 +231,7 @@ where
 \end{aligned}\label{eq:mixprob}
 \end{equation}
 with the marginal quantile regression constraints \eqref{eq:marg}.
-And $\bm \beta_1^{(k)}$ is the shift of the coefficients for distribution of $Y_{i1} | S = k$,
+The parameter $\bm \beta_1^{(k)}$ is the shift of the coefficients for distribution of $Y_{i1} | S = k$,
 $\bm y_{ij^{-}} = (y_{i1}, \ldots, y_{i(j-1)})^T$ is the response history for subject $i$ up to time point  $(j-1)$,
 $\bm \beta_{y, j-1} = \big(\beta_{y_1, j-1}, \ldots, \beta_{y_{j-1}, j-1} \big)^T$ are autoregressive coefficients,
 $\sigma_j$ is the conditional standard deviation of response component $j$, and
@@ -259,8 +259,8 @@ we put the following constraint on the parameters $\bm \theta$ in the mixture of
 \sum_{l= 1}^K \omega_{l}\mu_{l} = 0.
 \end{displaymath}
 
-In (\ref{eq:model}) and (\ref{eq:model2}), $\Delta_{ij}$ are functions of $\tau, \bm x_{i},
-\bm \beta, \bm h, \bm \theta, \bm \gamma_j, \bm \phi$ and are determined by the marginal
+In (\ref{eq:model}) and (\ref{eq:model2}), $\Delta_{ij}$ are functions of $(\tau, \bm x_{i},
+\bm \beta, \bm h, \bm \theta, \bm \gamma_j, \bm \phi)$ and are determined by the marginal
 quantile regressions,
 \begin{equation}
   \label{eq:deltaeqn1}
@@ -282,7 +282,7 @@ Details on computing the $\Delta_{ij}$ will be given in section
 \ref{ch3:sec:computation}.
 
 The idea in the above specification is to model the marginal quantile regressions directly and then to embed them in the likelihood through restrictions in the mixture model.
-The finite mixture of normals distribution makes model flexible and accommodates heavy tails, skewness and multi-modality.
+The finite mixture of normals distribution makes model flexible and accommodates heavy tails, skewness, and multi-modality.
 The mixture model in (\ref{eq:model}) allows the marginal quantile regression coefficients to differ by quantiles; otherwise, the quantile lines would be parallel to each other.
 Moreover, the mixture model also allows sensitivity analysis for the missing data.
 This is an essential component of the analysis of missing data (as discussed in the introduction) and is not possible in previous approaches.
@@ -306,7 +306,7 @@ In the mixture model in (\ref{eq:model}), MAR holds \citep{molen1998,
 When $2 \leq j \leq J$ and $k < j$, $Y_j$ is not observed, thus
 $(\bm{h^{(1)},\ldots,h^{(J-1)}})$ can not be identified from the
 observed data.
-Then $\bm \xi_s = (\bm h^{(k)})$ is a set
+Then $\bm \xi_s = (\bm h^{(k)}: k=1,\ldots,J-1)$ is a set
 of sensitivity parameters \citep{dh2008} as mentioned earlier.
 
 When $\bm \xi_s = \bm \xi_{s0} = \bm 0$, MAR holds. If
@@ -315,9 +315,9 @@ missingness mechanism is MNAR. We can vary $\bm \xi_s$ around
 $\bm 0$ to examine the impact of different MNAR mechanisms.
 
 In general, each pattern $S = k$ has its own set of sensitivity
-parameters $\bm \xi_s^{(k)}$. However, to keep the number of
+parameters $\bm h^{(k)}$. However, to keep the number of
 sensitivity parameters at a manageable level \citep{dh2008} and
-without loss of generality in what follows, we assume $\bm \xi_s$ does not depend
+without loss of generality in what follows, we assume $\bm h^{(k)}$ does not depend
 on pattern.
 
 \subsection{Computation}
@@ -440,7 +440,8 @@ We have incorporated those functions implementing the algorithm into the new R \
 We use the bootstrap \citep{efron1993} to
 construct confidence interval and make inferences.  We resample
 subjects and use bootstrap percentile intervals to form confidence
-intervals.
+intervals.  We use the
+ BIC criterion to select the number of components in the mixture of normals in (\ref{eq:model}).
 
 % \subsubsection{Goodness of fit check}
 % \label{ch3:sec:goodness}
@@ -461,25 +462,24 @@ intervals.
 %   \end{cases}.
 % \end{displaymath}
 
-The BIC criterion is an effective way to select the number of components in proposed model with mixture of normals.
 
 \section{Simulation Study}
 \label{ch3:sec:simulation}
 In this section,
 we compare the performance of our proposed model with the rq function (denoted as RQ) in quantreg R package \citep{quantreg} and Bottai's algorithm \citep{bottai2013} (denoted as BZ).
 The rq function minimizes the loss (check) function $\sum_{i=1}^n \rho_{\tau} (y_i - \bm x_i^T \bm \beta)$ in terms of $\bm \beta$,
-where the loss function $\rho_{\tau} (u) = u(\tau - I(u < 0))$ and does not make any distributional assumptions and does not accommodate MAR or MNAR missingness.
+where the loss function $\rho_{\tau} (u) = u(\tau - I(u < 0))$ and does not make any distributional assumptions, but does not accommodate MAR or MNAR missingness.
 \citet{bottai2013} impute missing outcomes using the estimated conditional quantiles of missing outcomes given observed data.
-Their approach does not make distributional assumptions similar to RQ and assumes MAR missingness, but does not allow MNAR.
+Their approach does not make distributional assumptions similar to RQ and assumes MAR missingness, but does not allow MNAR missingness.
 
 We considered three scenarios corresponding to both MAR and MNAR assumptions for a bivariate response.
+$Y_{i1}$ were always observed, while some of $Y_{i2}$ were missing.
 In the first scenario, $Y_2$ were missing at random and we used the MAR assumption in our algorithm.
 In the next two scenarios, $Y_2$ were missing not at random.
 However, in the second scenario, we misspecified the MDM for our algorithm and still assumed MAR, while in the third scenario, we used the correct MNAR MDM.
 For each scenario, we considered four error distributions: normal, student t distribution with 3 degrees of freedom, Laplace distribution and a skewed alternative.
 For each error model, we simulated 100 data sets.
-For each set there are 200 bivariate observations $\bm Y_i = (Y_{i1}, Y_{i2})$ for $i = 1, \ldots, 200$.
-$Y_{i1}$ were always observed, while some of $Y_{i2}$ were missing.
+For each dataset there are 200 bivariate observations $\bm Y_i = (Y_{i1}, Y_{i2})$ for $i = 1, \ldots, 200$.
 A single covariate $x$ was sampled from Uniform(0,2).
 The four models for the full data response $\bm Y_i$ were:
 \begin{align*}
@@ -488,11 +488,9 @@ The four models for the full data response $\bm Y_i$ were:
   Y_{i2}| R = 1, Y_{i1}&\sim 1 - x_i - 0.5Y_{i1} + \epsilon_{i2},
 \end{align*}
 where $\epsilon_{i1}, \epsilon_{i2} \iid \textrm{N}(0, 1)$, $t_3$,
-$\mbox{LP}(\mbox{rate} = 1)$, and $0.5 N(-2, 1) + 0.5 N(2, 1)$ distribution within each scenario.
-
+$\mbox{LP}(\mbox{rate} = 1)$, and $0.5 N(-2, 1) + 0.5 N(2, 1)$ distributions within each scenario.
 For all cases, $\prob (R = 1) = 0.5$.
 When $R = 0$, $Y_{i2}$ is not observed, so $\pr(Y_{i2}| R = 0, Y_{i1})$ is not identifiable from observed data.
-
 In the first scenario, $Y_2$ is missing at random, thus $\pr(Y_{i2} | R = 0, Y_{i1}) = \pr(Y_{i2}|R = 1, Y_{i1}) $.
 In the last two scenarios, $Y_2$ are missing not at random.
 We assume $Y_{i2}| R = 0, Y_{i1} \sim 3 - x_i - 0.5Y_{i1} + \epsilon_{i2}$.
@@ -501,14 +499,14 @@ Therefore, there is a shift of 2 in the intercept between $\pr(Y_2|R = 1, Y_1)$ 
 Under an MAR assumption, the sensitivity parameter $\bm \xi_s$ is fixed at $\bm 0$ as discussed in section \ref{ch3:sec:sa}.
 For rq function from quantreg R package, because only $Y_{i2}|R = 1$ is observed, the quantile regression for $Y_{i2}$ can only be fit from the information of $Y_{i2}|R = 1$ vs $x$.
 
-In scenario 2 under MNAR, we mis-specified the MDM using the wrong sensitivity parameter $\bm \xi_s$ at $\bm 0$.
-In scenario 3, we assumed there was an intercept shift between distribution of $Y_{i2}|Y_{i1}, R = 1$ and $Y_{i2}|Y_{i1}$, $R = 0$, thus fixed $\bm \xi_s$ at its true value.
+In scenario 2 under MNAR, we mis-specified the MDM using the wrong sensitivity parameter, setting $\bm \xi_s$ t0 $\bm 0$.
+In scenario 3, we correctly assumed there was a non-zero intercept shift between distribution of $Y_{i2}|Y_{i1}, R = 1$ and $Y_{i2}|Y_{i1}$, $R = 0$, fixing $\bm \xi_s$ at its true value.
 
 For each dataset, we fit quantile regression for quantiles $\tau =$ 0.1, 0.3, 0.5, 0.7, 0.9.
 Parameter estimates were evaluated by mean squared error (MSE),
 \begin{displaymath}
   \mbox{MSE} (\gamma_{ij}) = \frac{1}{100} \sum_{k = 1}^{100}
-  \left( \hat{\gamma}_{ij}^{(k)}  - \gamma_{ij}\right)^2, i = 0, 1
+  \left( \hat{\gamma}_{ij}^{(k)}  - \gamma_{ij}\right)^2, i = 0, 1,
 \end{displaymath}
 where $\gamma_{j}$ is the true value for quantile regression
 coefficient, $\hat{\gamma}_{j}^{(k)}$ is the maximum likelihood
@@ -530,27 +528,19 @@ The true values for quantile regression coefficients are obtained through the fo
 %  where $\widehat{\mbox{sd}}$ is the sample standard deviation and $\mbox{Bias} = \hat{\gamma}_{ij} - \gamma_{ij}$ and $N$ is the number of simulations.
 
 Table \ref{tab:simh2}, \ref{tab:sim2} and \ref{tab:sim3} present the MSE for coefficients estimates of quantile 0.1, 0.3, 0.5, 0.7, 0.9 under each scenario.
-Simulation results show estimates from our algorithm and BZ are closer to the true value for all quantiles from 0.1 to 0.9.
-M1 stands for the proposed model with $K = 1$, and M2 stands for the model with the smallest BIC when $K = 1, \ldots, 5$.
+M1 stands for the proposed model with $K = 1$, and M2 stands for the model with $K = 1, \ldots, 5$ chosen by the BIC.
 
-Under normal errors and scenario 1, M2 has the lowest MSE for almost all regression coefficients.
-However, there is bias for the estimates of the coefficients for the first component of the missing responses when MDM or error distribution is mis-specified compared to BZ.
-Even with mis-specification of MDM or error distribution, our method still shows better performance in most middle quantiles.
-Meanwhile, our algorithm provides larger gains over rq function for each
+Under all errors and all scenarios (including the wrong MDM in scenario 2), M2 has the lowest MSE for almost all regression coefficients, except for BZ occasionally have smaller MSE (typically for the intercept parameter of $Y_2$ and larger quantiles).
+We see very large gains over RQ, especially for each
 marginal quantile for the second component $Y_2$, which is missing for some units,
-since rq implicitly assumes MCAR missingness.
+since RQ implicitly assumes MCAR missingness.
 The difference in MSE becomes larger for the upper quantiles because $Y_2 |R = 0$ tends to be larger than $Y_2 | R = 1$;
-therefore, the rq method using only the observed $Y_2$ yields larger bias for upper quantiles.
-
-For the heavier tail distributions, $t_3$ and Laplace distribution,
-our approach (M2) still shows best performance in most quantiles.
+therefore, the RQ method using only the observed $Y_2$ yields larger bias for these quantiles.
 BZ does much better than rq function for missing data because it imputes missing responses under MAR.
+Finally, M2 performs much better than M1 as expected.
 
-For errors with skewness (mixture of two normals), our approach (M2) succeeded to capture the shape of the error.
-Therefore, M2 provides better performance in most cases.
+Overall, the proposed approach M2 performs well for all cases considered.
 
-It can also be shown that models adopting mixture of normals (M2) perform better than models using errors of single normal (M1).
-The mixture of normals allows heavy tails and skewness.
 
 % To assess the quality of our goodness of fit check, we examined the QQ plot of fitted residuals in model (\ref{eq:model}) to check the normality assumption on the error term for a random sample of the simulated datasets.
 % When our error assumption is correct (normal), the QQ plot reflects the fitted residuals follow  a normal distribution.
@@ -562,37 +552,37 @@ The mixture of normals allows heavy tails and skewness.
  % \scriptsize
 \centering
     \caption{Scenario 1: MSE for coefficients estimates of quantiles 0.1, 0.3, 0.5, 0.7, 0.9 under MAR assumptions.
-$(\gamma_{01}, \gamma_{11})$ are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$ are coefficients for $Y_{i2}$. M1 stands for our proposed method with $K = 1$, M2 stands for proposed model with $K = 2$, RQ stands for the 'rq' function in R package 'quantreg', and BZ stands for Bottai's approach.
+$(\gamma_{01}, \gamma_{11})$ are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$ are coefficients for $Y_{i2}$. M1 stands for our proposed method with $K = 1$, M2 stands for proposed model with $K$ chosen by BIC, RQ stands for the 'rq' function in R package 'quantreg', and BZ stands for Bottai's approach.
 The titles for sub-columns indicate models with four errors distributed from: Normal(N), t distribution with degrees of freedom 3($t_3$),
 Laplace distribution(LP) and mixture of two normals(Mix).
 }\label{tab:simh2}
     \vspace{10pt} \tabcolsep = 0.11cm
-    \begin{tabular}{rrrrrrrrrrrrrrrrr}
+    \begin{tabular}{r|rrrr|rrrr|rrrr|rrrr}
       \hline
-              & \multicolumn{4}{c}{N} & \multicolumn{4}{c}{$t_3$}   & \multicolumn{4}{c}{LP}   & \multicolumn{4}{c}{Mix}   \\
+              & \multicolumn{4}{c|}{N} & \multicolumn{4}{c|}{$t_3$}   & \multicolumn{4}{c|}{LP}   & \multicolumn{4}{c}{Mix}   \\
       \hline
            & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ \\
-10\%  \\
+10\%  &&&&&&&&&&&&&&&\\
 $\gamma_{01}$ & 0.08 & 0.08 & 0.09 & 0.09 & 0.26 & 0.09 & 0.12 & 0.12 & 2.39 & 1.33 & 1.76 & 1.76 & 0.41 & 0.41 & 0.75 & 0.75 \\
 $\gamma_{11}$ & 0.06 & 0.06 & 0.07 & 0.07 & 0.11 & 0.05 & 0.12 & 0.12 & 0.27 & 0.17 & 0.45 & 0.45 & 0.27 & 0.17 & 0.46 & 0.46 \\
 $\gamma_{02}$ & 0.09 & 0.09 & 0.34 & 0.09 & 0.31 & 0.11 & 0.56 & 0.19 & 3.53 & 3.41 & 6.33 & 2.91 & 0.67 & 0.43 & 1.89 & 0.80 \\
 $\gamma_{12}$ & 0.08 & 0.07 & 0.10 & 0.06 & 0.10 & 0.07 & 0.21 & 0.11 & 0.39 & 0.24 & 1.01 & 0.59 & 0.38 & 0.23 & 1.01 & 0.59 \\
-30\% \\
+30\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$ & 0.08 & 0.08 & 0.15 & 0.15 & 0.15 & 0.09 & 0.13 & 0.13 & 0.27 & 0.21 & 0.31 & 0.31 & 0.79 & 0.72 & 0.81 & 0.81 \\
 $\gamma_{11}$ & 0.04 & 0.04 & 0.10 & 0.10 & 0.08 & 0.05 & 0.08 & 0.08 & 0.27 & 0.14 & 0.23 & 0.23 & 0.20 & 0.13 & 0.22 & 0.22 \\
 $\gamma_{02}$ & 0.06 & 0.06 & 0.68 & 0.11 & 0.25 & 0.11 & 0.52 & 0.12 & 0.74 & 0.50 & 1.79 & 0.44 & 0.34 & 0.29 & 0.64 & 0.30 \\
 $\gamma_{12}$ & 0.06 & 0.06 & 0.07 & 0.06 & 0.11 & 0.07 & 0.09 & 0.09 & 0.36 & 0.25 & 0.30 & 0.27 & 0.22 & 0.15 & 0.44 & 0.25 \\
-50\% \\
+50\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$ & 0.22 & 0.23 & 1.42 & 1.42 & 0.09 & 0.17 & 0.91 & 0.91 & 0.21 & 0.22 & 0.61 & 0.61 & 0.21 & 0.22 & 0.61 & 0.61 \\
 $\gamma_{11}$  & 0.93 & 1.01 & 2.67 & 2.67 & 0.49 & 0.61 & 1.94 & 1.94 & 0.15 & 0.23 & 0.96 & 0.96 & 0.15 & 0.23 & 0.96 & 0.96 \\
 $\gamma_{02}$  & 0.19 & 0.10 & 1.11 & 0.20 & 0.28 & 0.14 & 1.04 & 0.24 & 0.33 & 0.26 & 1.27 & 0.31 & 0.33 & 0.26 & 1.27 & 0.31 \\
 $\gamma_{12}$  & 0.06 & 0.05 & 0.31 & 0.16 & 0.10 & 0.07 & 0.34 & 0.23 & 0.21 & 0.21 & 0.31 & 0.28 & 0.21 & 0.21 & 0.31 & 0.28 \\
-70\% \\
+70\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$  & 0.08 & 0.07 & 0.10 & 0.10 & 0.19 & 0.08 & 0.16 & 0.16 & 0.26 & 0.21 & 0.25 & 0.25 & 0.86 & 0.80 & 0.84 & 0.84 \\
 $\gamma_{11}$  & 0.04 & 0.04 & 0.07 & 0.07 & 0.12 & 0.06 & 0.15 & 0.15 & 0.28 & 0.17 & 0.25 & 0.25 & 0.20 & 0.14 & 0.22 & 0.22 \\
 $\gamma_{02}$  & 0.24 & 0.24 & 1.55 & 0.22 & 0.42 & 0.23 & 1.72 & 0.29 & 0.70 & 0.42 & 1.20 & 0.62 & 0.44 & 0.42 & 2.98 & 0.60 \\
 $\gamma_{12}$  & 0.11 & 0.11 & 0.96 & 0.12 & 0.22 & 0.09 & 0.95 & 0.16 & 0.27 & 0.23 & 0.88 & 0.28 & 0.25 & 0.27 & 0.40 & 0.34 \\
-90\% \\
+90\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$  & 0.07 & 0.07 & 0.10 & 0.10 & 0.33 & 0.08 & 0.17 & 0.17 & 2.44 & 1.29 & 1.91 & 1.91 & 0.40 & 0.45 & 0.82 & 0.82 \\
 $\gamma_{11}$  & 0.05 & 0.05 & 0.08 & 0.08 & 0.16 & 0.06 & 0.12 & 0.12 & 0.25 & 0.18 & 0.54 & 0.54 & 0.25 & 0.18 & 0.54 & 0.54 \\
 $\gamma_{02}$  & 0.56 & 0.50 & 2.70 & 0.38 & 0.46 & 0.32 & 2.22 & 0.65 & 2.87 & 2.77 & 1.12 & 3.58 & 0.76 & 0.61 & 3.45 & 1.28 \\
@@ -609,37 +599,37 @@ $\gamma_{12}$  & 0.11 & 0.11 & 0.96 & 0.13 & 0.22 & 0.09 & 1.42 & 0.28 & 0.36 & 
 \centering
     \caption{Scenario 2: MSE for coefficients estimates of quantiles 0.1, 0.3, 0.5, 0.7, 0.9 under MNAR scenario.
 In this scenario, we adopted MAR assumption for our approach and thus misspecified the MDM.
-$(\gamma_{01}, \gamma_{11})$ are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$ are coefficients for $Y_{i2}$. M1 stands for our proposed method with $K = 1$, M2 stands for proposed model with $K = 2$, RQ stands for the 'rq' function in R package 'quantreg', and BZ stands for Bottai's approach.
+$(\gamma_{01}, \gamma_{11})$ are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$ are coefficients for $Y_{i2}$. M1 stands for our proposed method with $K = 1$, M2 stands for proposed model with $K$ chosen by BIC, RQ stands for the 'rq' function in R package 'quantreg', and BZ stands for Bottai's approach.
 The titles for sub-columns indicate models with four errors distributed from: Normal(N), t distribution with degrees of freedom 3($t_3$),
 Laplace distribution(LP) and mixture of two normals(Mix).
 }\label{tab:sim2}
     \vspace{10pt} \tabcolsep = 0.11cm
-    \begin{tabular}{rrrrrrrrrrrrrrrrr}
+    \begin{tabular}{r|rrrr|rrrr|rrrr|rrrr}
       \hline
-              & \multicolumn{4}{c}{N} & \multicolumn{4}{c}{$t_3$}   & \multicolumn{4}{c}{LP}   & \multicolumn{4}{c}{Mix}   \\
+              & \multicolumn{4}{c|}{N} & \multicolumn{4}{c|}{$t_3$}   & \multicolumn{4}{c|}{LP}   & \multicolumn{4}{c}{Mix}   \\
       \hline
            & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ \\
-10\%  \\
+10\%  &&&&&&&&&&&&&&&\\
 $\gamma_{01}$ & 0.07 & 0.06 & 0.10 & 0.10 & 0.26 & 0.09 & 0.16 & 0.16 & 2.38 & 1.24 & 1.91 & 1.91 & 0.44 & 0.10 & 0.23 & 0.23 \\
 $\gamma_{11}$ & 0.05 & 0.04 & 0.08 & 0.08 & 0.10 & 0.06 & 0.14 & 0.14 & 0.24 & 0.18 & 0.48 & 0.48 & 0.19 & 0.06 & 0.15 & 0.15 \\
 $\gamma_{02}$ & 0.13 & 0.09 & 0.33 & 0.10 & 0.28 & 0.10 & 0.68 & 0.26 & 3.89 & 3.89 & 6.53 & 3.00 & 0.38 & 0.12 & 0.93 & 0.49 \\
 $\gamma_{12}$ & 0.08 & 0.06 & 0.08 & 0.07 & 0.14 & 0.06 & 0.34 & 0.14 & 0.50 & 0.27 & 1.22 & 0.67 & 0.28 & 0.10 & 0.34 & 0.37 \\
-30\% \\
+30\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$ & 0.11 & 0.07 & 0.13 & 0.13 & 0.17 & 0.08 & 0.16 & 0.16 & 0.25 & 0.22 & 0.29 & 0.29 & 0.50 & 0.24 & 1.01 & 1.01 \\
 $\gamma_{11}$ & 0.03 & 0.03 & 0.08 & 0.08 & 0.09 & 0.05 & 0.12 & 0.12 & 0.24 & 0.16 & 0.21 & 0.21 & 0.15 & 0.04 & 0.81 & 0.81 \\
 $\gamma_{02}$ & 0.08 & 0.07 & 0.79 & 0.15 & 0.21 & 0.10 & 0.78 & 0.15 & 0.95 & 0.66 & 2.12 & 0.55 & 0.41 & 0.31 & 2.54 & 0.65 \\
 $\gamma_{12}$ & 0.07 & 0.06 & 0.05 & 0.08 & 0.09 & 0.07 & 0.09 & 0.07 & 0.42 & 0.25 & 0.35 & 0.22 & 0.26 & 0.08 & 0.59 & 0.39 \\
-50\% \\
+50\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$ & 0.25 & 0.25 & 1.47 & 1.47 & 0.10 & 0.18 & 1.47 & 1.47 & 0.16 & 0.18 & 0.62 & 0.62 & 0.14 & 0.04 & 0.22 & 0.22 \\
 $\gamma_{11}$  & 0.99 & 1.02 & 2.49 & 2.49 & 0.53 & 0.54 & 2.51 & 2.51 & 0.18 & 0.25 & 0.76 & 0.76 & 0.24 & 0.13 & 0.41 & 0.41 \\
 $\gamma_{02}$  & 1.25 & 1.16 & 4.05 & 1.23 & 1.41 & 1.18 & 4.07 & 1.37 & 1.42 & 1.45 & 4.24 & 1.66 & 1.20 & 0.92 & 4.32 & 1.61 \\
 $\gamma_{12}$  & 0.06 & 0.06 & 0.30 & 0.20 & 0.10 & 0.06 & 0.31 & 0.28 & 0.28 & 0.16 & 0.46 & 0.32 & 0.25 & 0.07 & 0.75 & 0.39 \\
-70\% \\
+70\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$  & 0.08 & 0.08 & 0.16 & 0.16 & 0.21 & 0.08 & 0.16 & 0.16 & 0.21 & 0.15 & 0.22 & 0.22 & 0.42 & 0.13 & 0.76 & 0.76 \\
 $\gamma_{11}$  & 0.04 & 0.04 & 0.09 & 0.09 & 0.11 & 0.05 & 0.13 & 0.13 & 0.25 & 0.15 & 0.23 & 0.23 & 0.22 & 0.06 & 0.75 & 0.75 \\
 $\gamma_{02}$  & 4.73 & 4.73 & 9.95 & 3.77 & 4.36 & 4.45 & 9.89 & 3.99 & 2.23 & 2.86 & 8.32 & 2.77 & 2.16 & 1.20 & 5.10 & 1.77 \\
 $\gamma_{12}$  & 0.14 & 0.14 & 1.02 & 0.17 & 0.26 & 0.16 & 1.11 & 0.22 & 0.45 & 0.25 & 1.20 & 0.37 & 0.25 & 0.07 & 0.74 & 0.36 \\
-90\% \\
+90\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$  & 0.08 & 0.08 & 0.09 & 0.09 & 0.30 & 0.09 & 0.16 & 0.16 & 2.27 & 1.17 & 1.84 & 1.84 & 0.53 & 0.12 & 0.30 & 0.30 \\
 $\gamma_{11}$  & 0.05 & 0.05 & 0.06 & 0.06 & 0.14 & 0.06 & 0.13 & 0.13 & 0.32 & 0.19 & 0.58 & 0.58 & 0.21 & 0.07 & 0.19 & 0.19 \\
 $\gamma_{02}$  & 6.43 & 6.32 & 12.20 & 4.14 & 4.76 & 4.90 & 11.26 & 4.32 & 0.92 & 0.80 & 4.40 & 1.33 & 2.99 & 2.14 & 6.51 & 2.04 \\
@@ -655,37 +645,37 @@ $\gamma_{12}$  & 0.12 & 0.11 & 1.15 & 0.15 & 0.25 & 0.15 & 1.32 & 0.23 & 0.42 & 
 \centering
     \caption{Scenario 3: MSE for coefficients estimates of quantiles 0.1, 0.3, 0.5, 0.7, 0.9 under MNAR scenario.
 In this scenario, we used the correct sensitivity parameters for our approach.
-$(\gamma_{01}, \gamma_{11})$ are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$ are coefficients for $Y_{i2}$. M1 stands for our proposed method with $K = 1$, M2 stands for proposed model with $K = 2$, RQ stands for the 'rq' function in R package 'quantreg', and BZ stands for Bottai's approach.
+$(\gamma_{01}, \gamma_{11})$ are quantile regression coefficients for $Y_{i1}$, and $(\gamma_{02}, \gamma_{12})$ are coefficients for $Y_{i2}$. M1 stands for our proposed method with $K = 1$, M2 stands for proposed model with $K$ chosen by BIC, RQ stands for the 'rq' function in R package 'quantreg', and BZ stands for Bottai's approach.
 The titles for sub-columns indicate models with four errors distributed from: Normal(N), t distribution with degrees of freedom 3($t_3$),
 Laplace distribution(LP) and mixture of two normals(Mix).
 }\label{tab:sim3}
     \vspace{10pt} \tabcolsep = 0.11cm
-    \begin{tabular}{rrrrrrrrrrrrrrrrr}
+    \begin{tabular}{r|rrrr|rrrr|rrrr|rrrr}
       \hline
-              & \multicolumn{4}{c}{N} & \multicolumn{4}{c}{$t_3$}   & \multicolumn{4}{c}{LP}   & \multicolumn{4}{c}{Mix}   \\
+              & \multicolumn{4}{c|}{N} & \multicolumn{4}{c|}{$t_3$}   & \multicolumn{4}{c|}{LP}   & \multicolumn{4}{c}{Mix}   \\
       \hline
            & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ   & M1                      & M2 & RQ & BZ \\
-10\%  \\
+10\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$ & 0.08 & 0.07 & 0.08 & 0.08 & 0.31 & 0.10 & 0.18 & 0.18 & 2.48 & 1.39 & 2.06 & 2.06 & 0.37 & 0.11 & 0.23 & 0.23 \\
 $\gamma_{11}$ & 0.05 & 0.05 & 0.06 & 0.06 & 0.16 & 0.06 & 0.11 & 0.11 & 0.26 & 0.19 & 0.50 & 0.50 & 0.18 & 0.06 & 0.17 & 0.17 \\
 $\gamma_{02}$ & 0.14 & 0.12 & 0.33 & 0.09 & 0.42 & 0.10 & 0.64 & 0.19 & 4.06 & 3.71 & 7.39 & 3.33 & 0.31 & 0.12 & 1.05 & 0.34 \\
 $\gamma_{12}$ & 0.07 & 0.06 & 0.10 & 0.06 & 0.09 & 0.07 & 0.21 & 0.20 & 0.42 & 0.34 & 1.04 & 0.71 & 0.29 & 0.10 & 0.31 & 0.29 \\
-30\% \\
+30\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$ & 0.08 & 0.08 & 0.09 & 0.09 & 0.32 & 0.08 & 0.14 & 0.14 & 0.24 & 0.18 & 0.25 & 0.25 & 0.52 & 0.18 & 1.01 & 1.01 \\
 $\gamma_{11}$ & 0.04 & 0.04 & 0.08 & 0.08 & 0.19 & 0.05 & 0.10 & 0.10 & 0.30 & 0.19 & 0.32 & 0.32 & 0.16 & 0.04 & 0.78 & 0.78 \\
 $\gamma_{02}$ & 0.09 & 0.09 & 0.74 & 0.13 & 0.31 & 0.07 & 0.64 & 0.09 & 0.91 & 0.63 & 2.05 & 0.58 & 0.43 & 0.32 & 3.10 & 0.69 \\
 $\gamma_{12}$ & 0.06 & 0.06 & 0.06 & 0.08 & 0.13 & 0.07 & 0.06 & 0.06 & 0.38 & 0.32 & 0.33 & 0.26 & 0.22 & 0.10 & 0.43 & 0.34 \\
-50\% \\
+50\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$ & 0.24 & 0.24 & 1.50 & 1.50 & 0.13 & 0.14 & 1.53 & 1.53 & 0.13 & 0.15 & 0.58 & 0.58 & 0.11 & 0.03 & 0.22 & 0.22 \\
 $\gamma_{11}$  & 0.85 & 0.93 & 3.02 & 3.02 & 0.47 & 0.44 & 2.17 & 2.17 & 0.16 & 0.23 & 0.94 & 0.94 & 0.16 & 0.11 & 0.45 & 0.45 \\
 $\gamma_{02}$  & 1.45 & 1.21 & 3.94 & 1.12 & 1.62 & 1.22 & 3.88 & 1.34 & 1.43 & 1.39 & 4.40 & 1.53 & 1.27 & 0.91 & 4.54 & 1.56 \\
 $\gamma_{12}$  & 0.07 & 0.04 & 0.33 & 0.23 & 0.12 & 0.04 & 0.30 & 0.21 & 0.26 & 0.23 & 0.42 & 0.31 & 0.22 & 0.07 & 0.55 & 0.34 \\
-70\% \\
+70\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$  & 0.06 & 0.06 & 0.10 & 0.10 & 0.15 & 0.07 & 0.15 & 0.15 & 0.18 & 0.18 & 0.23 & 0.23 & 0.56 & 0.22 & 1.03 & 1.03 \\
 $\gamma_{11}$  & 0.03 & 0.03 & 0.09 & 0.09 & 0.10 & 0.05 & 0.15 & 0.15 & 0.19 & 0.18 & 0.24 & 0.24 & 0.13 & 0.04 & 0.74 & 0.74 \\
 $\gamma_{02}$  & 4.68 & 4.68 & 9.77 & 3.77 & 4.47 & 4.42 & 10.20 & 4.25 & 2.35 & 2.69 & 8.16 & 2.87 & 2.21 & 1.21 & 5.64 & 1.91 \\
 $\gamma_{12}$  & 0.15 & 0.15 & 1.10 & 0.21 & 0.27 & 0.11 & 0.96 & 0.16 & 0.40 & 0.27 & 1.25 & 0.32 & 0.22 & 0.06 & 0.59 & 0.34 \\
-90\% \\
+90\% &&&&&&&&&&&&&&&\\
 $\gamma_{01}$  & 0.07 & 0.07 & 0.08 & 0.08 & 0.29 & 0.08 & 0.19 & 0.19 & 2.15 & 1.02 & 1.66 & 1.66 & 0.30 & 0.09 & 0.19 & 0.19 \\
 $\gamma_{11}$  & 0.05 & 0.05 & 0.08 & 0.08 & 0.10 & 0.06 & 0.16 & 0.16 & 0.29 & 0.15 & 0.47 & 0.47 & 0.15 & 0.05 & 0.15 & 0.15 \\
 $\gamma_{02}$  & 6.38 & 6.37 & 12.32 & 4.48 & 4.91 & 4.86 & 12.33 & 4.98 & 1.04 & 0.98 & 4.66 & 1.50 & 3.16 & 2.26 & 6.84 & 2.13 \\
@@ -716,6 +706,7 @@ increment representing 5 years.
 We fitted regression models for bivariate responses $\bm Y_i =
 (Y_{i1}, Y_{i2})$ for quantiles (10\%, 30\%, 50\%, 70\%, 90\%).  We
 ran 1000 bootstrap samples to obtain 95\% confidence intervals.
+We calculated the BIC for quantile regression models with $K = 1, 2, 3, 4, 5$. From table~\ref{tab:bic} and based on the model selection introduced in section~\ref{ch3:sec:mle}, we have strong evidence that $K = 1$ is the best model when using mixture of normals.
 
 Estimates under MAR and MNAR are presented in Table \ref{tab:tours}.
 For weights of participants at six months, weights of whites are generally 4.2 kg lower than those of blacks for all quantiles, and the coefficients of race are negative and significant.
@@ -757,17 +748,20 @@ Coefficients of baseline weight show a strong relationship with weights after 6 
   \end{center}
 \end{table}
 
-We calculated the BIC for median regression models with $K = 1, 2, 3, 4, 5$. From table~\ref{tab:bic} and based on the model selection introduced in section~\ref{ch3:sec:mle}, we have strong evidence that $K = 1$ is the best model when using mixture of normals.
 
 \begin{table}[htbp]
-\caption[]{\label{tab:bic} BIC: The BIC for median regression models with $K = 1, 2, 3, 4, 5$.}
+\caption[]{\label{tab:bic} BIC: The BIC for TOURS quantile regression models with $K = 1, 2, 3, 4, 5$.}
 \vspace{4mm}
 \begin{center}
 \begin{tabular}[h]{cccccc}
 \hline
-& $K = 1$ & $K = 2$ & $K = 3$ & $K = 4$ & $K = 5$ \\
+BIC& $K = 1$ & $K = 2$ & $K = 3$ & $K = 4$ & $K = 5$ \\
 \hline
-BIC & 878 & 889     & 894     & 912     & 928     \\
+10\% & 879.84 & 891.56 & 904.31 & 920.36 & 925.67 \\
+  30\% & 878.79 & 890.16 & 895.72 & 913.36 & 928.86 \\
+  50\% & 878.29 & 889.31 & 894.86 & 912.47 & 928.67 \\
+  70\% & 876.06 & 888.93 & 898.92 & 912.12 & 927.28 \\
+  90\% & 872.79 & 885.22 & 903.73 & 921.28 & 934.46 \\
 \hline
 \end{tabular}
 \end{center}
@@ -825,41 +819,19 @@ is essential for the analysis of missing data \citep{nas2010}.
 Our method allows the missingness to be non-ignorable.
 We illustrated how to find sensitivity parameters to allow different missing data mechanisms.
 The recursive integration algorithm simplifies computation and can be easily implemented even in high dimensions.
-Simulation studies demonstrate that our approach has smaller MSE than the traditional frequentist method rq function for missing component, especially for inferences in the median regression.
-And it has advantages over BZ for most quantile regression inference even when the tails of the distribution are mis-specified.
-
-Our model assumes a multivariate mixture of normals distribution for each component in the pattern mixture model, which can deal with heavy tail and skewness.
-It is possible to replace it with a Bayesian non-parametric model, for example, a Dirichlet process mixture which would not require choosing the number of components.
-However, computational algorithms would need to be developed for those settings;  we are currently working on this.
-Our approach is implemented with the R package ``qrmissing'' which can be downloaded from the author's website: \url{https://github.com/liuminzhao/qrmissing}.
-
-\backmatter
-
-\section*{Supplementary Materials}
-
-Web Figure 1 referenced in Section~\ref{ch3:sec:simulation} is available
-with this paper at the Biometrics website on Wiley Online Library.
-\vspace*{-8pt}
-
-
-%%%%%% include this section if you wish to acknowledge people,
-%%%%%% grant support, etc.
+Simulation studies demonstrate that our approach has smaller MSE than the traditional frequentist method rq function for the missing component.
+And it has advantages over BZ for inference on most quantile regressions even when the tails of the distribution are non-standard (e.g., heavy tails and skewness) since we assume a
+multivariate mixture of normals distribution for each component in the pattern mixture model.
+We can also conduct inference using a Bayesian non-parametric model, for example, a Dirichlet process mixture which would not require choosing the number of components in the mixture model.
+However, efficient computational algorithms would need to be developed for those settings;  we are currently working on this.
+Our current approach is implemented with the R package ``qrmissing'' which can be downloaded from the first author's website: \url{https://github.com/liuminzhao/qrmissing}.
 
 \section*{Acknowledgments}
 
 This study is partially supported by NIH grants CA85295 and CA183854.
 
-%  If your paper refers to supplementary web material, then you MUST
-%  include this section!!  See Instructions for Authors at the journal
-%  website http://www.biometrics.tibs.org
-
-
 \bibliographystyle{biom}
 \bibliography{qr-missing-reference}
-
-
-
-\label{lastpage}
 
 \end{document}
 
