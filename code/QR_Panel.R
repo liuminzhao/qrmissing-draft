@@ -1,4 +1,4 @@
-QR.Panel <- function(X, y, s, w = c(.25,.5,.25), taus=(1:3)/4, lambda = 1){
+QR.Panel <- function(X, y, R, w = c(.25,.5,.25), taus=(1:3)/4, lambda = 1){
 # prototype function for panel data fitting of QR models
 # the matrix X is assumed to contain an intercept
 # the vector s is a strata indicator assumed (so far) to be a one-way layout
@@ -12,6 +12,24 @@ QR.Panel <- function(X, y, s, w = c(.25,.5,.25), taus=(1:3)/4, lambda = 1){
 #	slope estimates, and the last n are the "fixed effects"
 # 3.  Like all shrinkage (regularization) estimators, asymptotic inference is somewhat
 #	problematic... so the bootstrap is the natural first resort.
+
+    n <- dim(y)[1]
+    yc <- c(t(y))
+
+    Xstar <- rbind(X, X)
+    ind <- c(seq(1, n * 2 - 1, by = 2), seq(2, n * 2, by = 2))
+    Xstarc[ind, ] <- Xstarc
+
+    Ry1 <- rep(1, n)
+    Rc <- c(rbind(Ry1, R))
+
+    yy <- yc[Rc == 1]
+    XXstar <- Xstarc[Rc == 1, ]
+
+    s <- rep(1:n, R + 1)
+
+    y <- yy
+    X <- XXstar
 
     require(SparseM)
     require(quantreg)
@@ -32,8 +50,8 @@ QR.Panel <- function(X, y, s, w = c(.25,.5,.25), taus=(1:3)/4, lambda = 1){
 
     mod <- rq.fit.sfn(D,y,rhs=a)
 
-    coef <- matrix(mod$coef[1:(m*p)], m, p, byrow = T)
-    intercept <- mod$coef[-(1:(m*p))]
+    coef <- matrix(mod$coef[1:(K*p)], K, p, byrow = T)
+    intercept <- mod$coef[-(1:(K*p))]
 
-    return(list(coef = coef, intercept = intercept, mod = mod, tau = tau, X = X, y = y, s = s, w = w, lambda = lambda))
+    return(list(coef = coef, intercept = intercept, mod = mod, taus = taus, X = X, y = y, s = s, w = w, lambda = lambda))
 }
