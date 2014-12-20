@@ -50,8 +50,9 @@ QR.Panel <- function(X, y, R, w = c(.25,.5,.25), taus=(1:3)/4, lambda = 1){
 
     mod <- rq.fit.sfn(D,y,rhs=a)
 
-    coef <- matrix(mod$coef[1:(K*p)], K, p, byrow = T)
+    coef <- matrix(mod$coef[1:(K*p)], p, K)
     intercept <- mod$coef[-(1:(K*p))]
+    colnames(coef) <- taus
 
     return(list(coef = coef, intercept = intercept, mod = mod, taus = taus, X = X, y = y, s = s, w = w, lambda = lambda))
 }
