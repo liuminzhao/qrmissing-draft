@@ -25,6 +25,7 @@ Lipsitz <- function(X, y, R, tau) {
     ind <- c(seq(1, n * 2 - 1, by = 2), seq(2, n * 2, by = 2))
 
     Xstarc <- rbind(Xstar, Xstar)
+    Xstarc2 <- Xstarc
     Xstarc2[ind, ] <- Xstarc
 
     ystarc <- c(t(ystar))
