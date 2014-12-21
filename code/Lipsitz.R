@@ -12,6 +12,7 @@
 Lipsitz <- function(X, y, R, tau) {
     n <- dim(y)[1]
     y1 <- y[, 1]
+    xdim <- dim(X)[2]
 
     mod <- glm(R ~ y1 + X[, -1], family = "binomial")
 
@@ -22,16 +23,28 @@ Lipsitz <- function(X, y, R, tau) {
     ystar <- y/pidi
     Xstar <- X
     Xstar[, -1] <- X[, -1]/pidi
-    ind <- c(seq(1, n * 2 - 1, by = 2), seq(2, n * 2, by = 2))
+    oddind <- c(seq(1, n * 2 - 1, by = 2))
+    evenind <- seq(2, n * 2, by = 2)
 
-    Xstarc <- rbind(Xstar, Xstar)
-    Xstarc2 <- Xstarc
-    Xstarc2[ind, ] <- Xstarc
+    ## new X2 design matrix to allow different coef for each components, X2[n*2, p*2]
+    Xstarc <- Xstar
+    Xstarc2 <- matrix(0, n * 2, xdim * 2)
+    Xstarc2[oddind, 1:xdim] <- Xstarc
+    Xstarc2[evenind, (xdim + 1):(xdim * 2)] <- Xstarc
 
+    ## new y
     ystarc <- c(t(ystar))
+
+    ## new R, for subset condition
     Ry1 <- rep(1, n)
     Rc <- c(rbind(Ry1, R))
 
     mod <- rq(ystarc ~ Xstarc2[, -1], tau = tau, subset = Rc == 1)
-    return(mod)
+
+    ## coef
+    coef <- coef(mod)
+    gamma1 <- coef[1:xdim]
+    gamma2 <- coef[(xdim + 1): (xdim * 2)]
+    gamma2[1] <- gamma2[1] + gamma1[1]
+    return(list(mod = mod, gamma1 = gamma1, gamma2 = gamma2))
 }
