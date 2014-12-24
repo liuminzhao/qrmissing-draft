@@ -31,6 +31,7 @@ Lipsitz <- function(X, y, R, tau) {
     Xstarc2 <- matrix(0, n * 2, xdim * 2)
     Xstarc2[oddind, 1:xdim] <- Xstarc
     Xstarc2[evenind, (xdim + 1):(xdim * 2)] <- Xstarc
+    Xstarc2[, 1] <- 1
 
     ## new y
     ystarc <- c(t(ystar))
@@ -43,8 +44,10 @@ Lipsitz <- function(X, y, R, tau) {
 
     ## coef
     coef <- coef(mod)
+    coef[xdim + 1, ] <- coef[xdim + 1, ] + coef[1, ]
+
     gamma1 <- coef[1:xdim]
     gamma2 <- coef[(xdim + 1): (xdim * 2)]
     gamma2[1] <- gamma2[1] + gamma1[1]
-    return(list(mod = mod, gamma1 = gamma1, gamma2 = gamma2))
+    return(list(mod = mod, gamma1 = gamma1, gamma2 = gamma2, coef = coef))
 }

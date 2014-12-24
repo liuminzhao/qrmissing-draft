@@ -46,6 +46,7 @@ QR.Panel <- function(X, y, R, w = c(.25,.5,.25), taus=(1:3)/4, lambda = 1){
 
     y <- yy
     X <- XXstar
+    X[, 1] <- 1
 
     require(SparseM)
     require(quantreg)
