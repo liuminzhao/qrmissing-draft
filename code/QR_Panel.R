@@ -1,3 +1,15 @@
+##' .. content for \description{} (no empty lines) ..
+##'
+##' .. content for \details{} ..
+##' @title
+##' @param X [n, xdim]
+##' @param y [n, 2]
+##' @param R [n] indicator if it 2nd component is missing, 1 is not missing, 0 is missing
+##' @param w weights
+##' @param taus quantiles of interest
+##' @param lambda
+##' @return
+##' @author Minzhao Liu
 QR.Panel <- function(X, y, R, w = c(.25,.5,.25), taus=(1:3)/4, lambda = 1){
 # prototype function for panel data fitting of QR models
 # the matrix X is assumed to contain an intercept
@@ -15,16 +27,20 @@ QR.Panel <- function(X, y, R, w = c(.25,.5,.25), taus=(1:3)/4, lambda = 1){
 
     n <- dim(y)[1]
     yc <- c(t(y))
+    xdim <- dim(X)[2]
 
-    Xstar <- rbind(X, X)
-    ind <- c(seq(1, n * 2 - 1, by = 2), seq(2, n * 2, by = 2))
-    Xstarc[ind, ] <- Xstarc
+    oddind <- c(seq(1, n * 2 - 1, by = 2))
+    evenind <- seq(2, n * 2, by = 2)
+
+    Xstar <- matrix(0, n * 2, xdim * 2)
+    Xstar[oddind, 1:xdim] <- X
+    Xstar[evenind, (xdim + 1):(xdim * 2)] <- X
 
     Ry1 <- rep(1, n)
     Rc <- c(rbind(Ry1, R))
 
     yy <- yc[Rc == 1]
-    XXstar <- Xstarc[Rc == 1, ]
+    XXstar <- Xstar[Rc == 1, ]
 
     s <- rep(1:n, R + 1)
 
@@ -51,6 +67,7 @@ QR.Panel <- function(X, y, R, w = c(.25,.5,.25), taus=(1:3)/4, lambda = 1){
     mod <- rq.fit.sfn(D,y,rhs=a)
 
     coef <- matrix(mod$coef[1:(K*p)], p, K)
+    coef[xdim + 1, ] <- coef[xdim + 1, ] + coef[1, ]
     intercept <- mod$coef[-(1:(K*p))]
     colnames(coef) <- taus
 
