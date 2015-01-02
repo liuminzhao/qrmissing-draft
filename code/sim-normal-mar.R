@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 06/26/2014 12:44:49>
+##' Time-stamp: <liuminzhao 01/01/2015 22:32:41>
 ##' Simulation Bivariate case with MAR using heter2
 ##' Real MAR , not MCAR
 ##' correct heterogeneity parameters
@@ -10,13 +10,15 @@
 ##' 2013/08/25 using qrmissing package
 ##' using QRMissingMLEMix
 
-sink('sim-normal-mar-0626.txt')
+sink('sim-normal-mar-0101.txt')
 rm(list = ls())
 library(qrmissing)
 library(xtable)
 library(doMC)
 source('sendEmail.R')
 source('Bottai.R')
+source('QR_Panel.R') # QR with longitudinal
+source('Lipsitz.R') # Lipsitz
 registerDoMC()
 options(cores = 10)
 set.seed(1)
@@ -114,26 +116,35 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   mod7m2coef <- rbind(coef(mod7)$gamma1, coef(mod7)$gamma2)
   mod9m2coef <- rbind(coef(mod9)$gamma1, coef(mod9)$gamma2)
 
-  ## RQ and BZ
+  ## QR_Panel.R
 
-  mod1rq <- as.vector(rq(y[,1]~x, tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
-  mod2rq <- as.vector(rq(y[,2][R==1]~x[R==1], tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
+  modQR <- QR.Panel(X, y, R, w = rep(1/5, 5), taus = c(0.1, 0.3, 0.5, 0.7, 0.9))
+
+  ## Bottai
   mod1b <- Bottai(y, R, X, tau = 0.1)
   mod3b <- Bottai(y, R, X, tau = 0.3)
   mod5b <- Bottai(y, R, X, tau = 0.5)
   mod7b <- Bottai(y, R, X, tau = 0.7)
   mod9b <- Bottai(y, R, X, tau = 0.9)
+
+  ## Lipsitz
+  modLip <- Lipsitz(X, y, R, tau = c(0.1, 0.3, 0.5, 0.7, 0.9))
+
+
+  ## All results together
+
   ans <- c(mod1mm[1,], mod3mm[1,], mod5mm[1,], mod7mm[1,], mod9mm[1,],
            mod1mm[2,], mod3mm[2,], mod5mm[2,], mod7mm[2,], mod9mm[2,],
            mod1m2coef[1,], mod3m2coef[1,], mod5m2coef[1,], mod7m2coef[1,], mod9m2coef[1,],
            mod1m2coef[2,], mod3m2coef[2,], mod5m2coef[2,], mod7m2coef[2,], mod9m2coef[2,],
-           mod1rq, mod2rq,
+           c(modQR$coef[1:2, ]), c(modQR$coef[3:4, ]),
+           c(modLip$coef[1:2, ]), c(modLip$coef[3:4, ]),
            mod1b[,1], mod3b[,1], mod5b[,1], mod7b[,1], mod9b[,1],
            mod1b[,2], mod3b[,2], mod5b[,2], mod7b[,2], mod9b[,2])
 
 }
 
-write.table(result, file = "sim-normal-mar-result-0626.txt", row.names = F, col.names = F)
+write.table(result, file = "sim-normal-mar-result-0101.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-normal-MAR", text="done", address="liuminzhao@gmail.com")
 
 ## ###############
