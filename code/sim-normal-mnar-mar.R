@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 06/28/2014 22:53:18>
+##' Time-stamp: <liuminzhao 01/04/2015 22:46:54>
 ##' Simulation Bivariate case with MNAR using heter2
 ##' Normal
 ##' correct heterogeneity parameters
@@ -8,15 +8,17 @@
 ##' 2013/08/05 test on new QRMissingBi.R
 ##' 2013/08/07 using new uobyqa default method and simulate homo model
 
-sink('sim-normal-mnar-mar-0626.txt')
+sink('sim-normal-mnar-mar-0101.txt')
 rm(list = ls())
 library(xtable)
 library(qrmissing)
 library(doMC)
 source('sendEmail.R')
 source('Bottai.R')
+source('QR_Panel.R') # QR with longitudinal
+source('Lipsitz.R') # Lipsitz
 registerDoMC()
-options(cores = 10)
+options(cores = 1)
 set.seed(1)
 
 ###############
@@ -73,7 +75,7 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
   ## M2 BIC choose
 
-  for (k in 2:5) {
+  for (k in 2:2) {
       mod1tmp <- QRMissingBiMixMLE(y~ x,R,tau = 0.1, K = k, model = 'slope')
       mod3tmp <- QRMissingBiMixMLE(y~ x,R,tau = 0.3, K = k, model = 'slope')
       mod5tmp <- QRMissingBiMixMLE(y~ x,R,tau = 0.5, K = k, model = 'slope')
@@ -114,8 +116,9 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
 
   ## RQ and BZ
 
-  mod1rq <- as.vector(rq(y[,1]~x, tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
-  mod2rq <- as.vector(rq(y[,2][R==1]~x[R==1], tau = c(0.1, 0.3, 0.5, 0.7, 0.9))$coef)
+  modQR <- QR.Panel(X, y, R, w = rep(1/5, 5), taus = c(0.1, 0.3, 0.5, 0.7, 0.9))
+
+  ## Bottai
 
   mod1b <- Bottai(y, R, X, tau = 0.1)
   mod3b <- Bottai(y, R, X, tau = 0.3)
@@ -123,18 +126,25 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
   mod7b <- Bottai(y, R, X, tau = 0.7)
   mod9b <- Bottai(y, R, X, tau = 0.9)
 
+  ## Lipsitz
+  modLip <- Lipsitz(X, y, R, tau = c(0.1, 0.3, 0.5, 0.7, 0.9))
+
+
+  ## All results together
 
   ans <- c(mod1mm[1,], mod3mm[1,], mod5mm[1,], mod7mm[1,], mod9mm[1,],
            mod1mm[2,], mod3mm[2,], mod5mm[2,], mod7mm[2,], mod9mm[2,],
            mod1m2coef[1,], mod3m2coef[1,], mod5m2coef[1,], mod7m2coef[1,], mod9m2coef[1,],
            mod1m2coef[2,], mod3m2coef[2,], mod5m2coef[2,], mod7m2coef[2,], mod9m2coef[2,],
-           mod1rq, mod2rq,
+           c(modQR$coef[1:2, ]), c(modQR$coef[3:4, ]),
+           c(modLip$coef[1:2, ]), c(modLip$coef[3:4, ]),
            mod1b[,1], mod3b[,1], mod5b[,1], mod7b[,1], mod9b[,1],
            mod1b[,2], mod3b[,2], mod5b[,2], mod7b[,2], mod9b[,2])
+
 }
 
-write.table(result, file = "sim-normal-mnar-mar-0626-result.txt", row.names = F, col.names = F)
-sendEmail(subject="simulation-normal-MNAR", text="done", address="liuminzhao@gmail.com")
+write.table(result, file = "sim-normal-mnar-mar-0101-result.txt", row.names = F, col.names = F)
+sendEmail(subject="simulation-normal-MNAR-mar", text="done", address="liuminzhao@gmail.com")
 
 ###############
 ## TRUE VALUE
