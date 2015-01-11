@@ -1,5 +1,5 @@
 #!/bin/Rscript
-##' Time-stamp: <liuminzhao 01/05/2015 21:33:51>
+##' Time-stamp: <liuminzhao 01/10/2015 22:46:46>
 ##' Simulation for paper,
 ##' T error
 ##' 2013/06/24
@@ -13,12 +13,12 @@ sink('sim-t-mar-0101.txt')
 rm(list = ls())
 library(xtable)
 library(qrmissing)
-library(doMC)
+## library(doMC)
 source('sendEmail.R')
 source('Bottai.R')
 source('QR_Panel.R') # QR with longitudinal
 source('Lipsitz.R') # Lipsitz
-registerDoMC()
+## registerDoMC()
 options(cores = 1)
 set.seed(1)
 
@@ -32,11 +32,12 @@ alpha <- 0
 ###############
 ## SIMULATION
 ###############
-boot <- 100
+boot <- 20
 
 start <- proc.time()[3]
 
-result <- foreach(icount(boot), .combine = rbind) %dopar% {
+## result <- foreach(icount(boot), .combine = rbind) %dopar% {
+for (icount in 1:boot){
   R <- rbinom(n, 1, p)
   x <- runif(n, 0, 2)
   y <- matrix(0, n, 2)
@@ -144,9 +145,11 @@ result <- foreach(icount(boot), .combine = rbind) %dopar% {
            mod1b[,1], mod3b[,1], mod5b[,1], mod7b[,1], mod9b[,1],
            mod1b[,2], mod3b[,2], mod5b[,2], mod7b[,2], mod9b[,2])
 
+  ans <- matrix(ans, 1, length(ans))
+  write.table(ans, file = "sim-t-mar-0101-result.txt", row.names = F, col.names = F, append = TRUE)
 }
 
-write.table(result, file = "sim-t-mar-0101-result.txt", row.names = F, col.names = F)
+## write.table(result, file = "sim-t-mar-0101-result.txt", row.names = F, col.names = F)
 sendEmail(subject="simulation-t-MAR", text="done", address="liuminzhao@gmail.com")
 
 ###############
